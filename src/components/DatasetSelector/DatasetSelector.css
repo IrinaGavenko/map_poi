@@ -1,18 +1,19 @@
 .dataset-selector {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 2;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  min-height: 44px;
   padding: 0 10px 0 12px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  max-width: min(220px, calc(100vw - 88px));
 }
 
 .dataset-selector-label {
@@ -23,13 +24,14 @@
 }
 
 .dataset-selector-select {
-  height: 28px;
-  min-width: 112px;
+  height: 32px;
+  min-width: 0;
+  flex: 1;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   background: #f9fafb;
   color: #374151;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
   padding: 0 8px;
   cursor: pointer;
@@ -39,4 +41,28 @@
   outline: none;
   border-color: #3b82f6;
   background: #eff6ff;
+}
+
+@media (max-width: 768px) {
+  .dataset-selector {
+    gap: 0;
+    padding: 0 8px;
+  }
+
+  .dataset-selector-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  .dataset-selector-select {
+    min-width: 96px;
+    border: none;
+    background: transparent;
+  }
 }

@@ -1,3 +1,29 @@
-body {
+html,
+body,
+#root {
   margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.app-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #e5e7eb;
+}
+
+.app-shell-map {
+  position: absolute;
+  inset: 0;
+}
+
+@media (max-width: 768px) {
+  .app-shell.is-drawer-open .app-shell-map {
+    /* Keep map tappable above the sheet for add-point / select */
+    pointer-events: auto;
+  }
 }

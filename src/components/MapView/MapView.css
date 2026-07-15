@@ -176,3 +176,31 @@
   font-size: 14px;
   line-height: 1;
 }
+
+@media (max-width: 768px) {
+  .place-popup {
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  .place-popup .maplibregl-popup-content {
+    max-width: calc(100vw - 24px);
+  }
+
+  .map-popup-media {
+    height: 120px;
+  }
+
+  .map-popup-body {
+    padding: 12px 12px 14px;
+  }
+
+  .map-popup-title {
+    font-size: 15px;
+    padding-right: 28px;
+  }
+
+  .map-popup-link,
+  .map-popup-link--secondary {
+    min-height: 40px;
+  }
+}

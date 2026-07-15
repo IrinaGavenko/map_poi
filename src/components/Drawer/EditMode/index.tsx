@@ -2,13 +2,14 @@ import PointFilter from '../PointFilter'
 import PointIcon from '@components/PointIcon'
 import type { Point } from '@type'
 import SearchInput from '../SearchInput'
-import { drawerStyle } from '../constants'
+import DrawerShell from '../DrawerShell'
 import '../drawer.css'
 import './EditMode.css'
 import EditPointForm from './EditPointForm'
 
 type EditModeProps = {
   open: boolean
+  onClose: () => void
   query: string
   onQueryChange: (value: string) => void
   points: Point[]
@@ -26,6 +27,7 @@ type EditModeProps = {
 
 export default function EditMode({
   open,
+  onClose,
   query,
   onQueryChange,
   points,
@@ -41,11 +43,8 @@ export default function EditMode({
   onDeletePoint,
 }: EditModeProps) {
   return (
-    <aside
-      aria-hidden={!open}
-      className="places-drawer"
-      style={drawerStyle(open)}
-    >
+    <DrawerShell open={open} onClose={onClose}>
+      <div className="places-drawer-handle" aria-hidden />
       <SearchInput query={query} onQueryChange={onQueryChange} />
       <PointFilter
         points={points}
@@ -59,7 +58,7 @@ export default function EditMode({
           <div className="places-edit-title">Edit mode</div>
           <div className="places-edit-hint">
             {addingPoint
-              ? 'Click on the map to place a new point.'
+              ? 'Tap the map to place a new point.'
               : 'Select a place to edit, or add a new one on the map.'}
           </div>
           <button
@@ -100,6 +99,6 @@ export default function EditMode({
           ))}
         </div>
       </div>
-    </aside>
+    </DrawerShell>
   )
 }

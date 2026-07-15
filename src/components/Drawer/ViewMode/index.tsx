@@ -2,11 +2,12 @@ import PointFilter from '../PointFilter'
 import PointIcon from '@components/PointIcon'
 import type { Point } from '@type'
 import SearchInput from '../SearchInput'
-import { drawerStyle } from '../constants'
+import DrawerShell from '../DrawerShell'
 import '../drawer.css'
 
 type ViewModeProps = {
   open: boolean
+  onClose: () => void
   query: string
   onQueryChange: (value: string) => void
   points: Point[]
@@ -19,6 +20,7 @@ type ViewModeProps = {
 
 export default function ViewMode({
   open,
+  onClose,
   query,
   onQueryChange,
   points,
@@ -29,11 +31,8 @@ export default function ViewMode({
   onSelect,
 }: ViewModeProps) {
   return (
-    <aside
-      aria-hidden={!open}
-      className="places-drawer"
-      style={drawerStyle(open)}
-    >
+    <DrawerShell open={open} onClose={onClose}>
+      <div className="places-drawer-handle" aria-hidden />
       <SearchInput query={query} onQueryChange={onQueryChange} />
       <PointFilter
         points={points}
@@ -56,6 +55,6 @@ export default function ViewMode({
           </div>
         ))}
       </div>
-    </aside>
+    </DrawerShell>
   )
 }

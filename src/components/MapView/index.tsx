@@ -107,7 +107,7 @@ export default function MapView({
     mapRef.current = map
     const popup = new maplibregl.Popup({
       closeButton: true,
-      maxWidth: '300px',
+      maxWidth: 'min(300px, calc(100vw - 24px))',
       className: 'place-popup',
       anchor: 'center',
       offset: 0,

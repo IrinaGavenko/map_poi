@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react'
 
 const root = path.dirname(fileURLToPath(import.meta.url))
 
-// https://vite.dev/config/
 export default defineConfig({
   base: '/map_poi/',
   plugins: [react()],

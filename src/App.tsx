@@ -71,8 +71,10 @@ export default function App() {
   }
 
   return (
-    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0 }}>
+    <div
+      className={`app-shell${drawerMode ? ' is-drawer-open' : ''}`}
+    >
+      <div className="app-shell-map">
         <MapView
           points={filtered}
           selected={selected}
@@ -94,6 +96,7 @@ export default function App() {
 
       <ViewMode
         open={drawerMode === 'places'}
+        onClose={() => setDrawerMode(null)}
         query={query}
         onQueryChange={setQuery}
         points={editablePoints}
@@ -106,6 +109,10 @@ export default function App() {
 
       <EditMode
         open={drawerMode === 'edit'}
+        onClose={() => {
+          setDrawerMode(null)
+          setAddingPoint(false)
+        }}
         query={query}
         onQueryChange={setQuery}
         points={editablePoints}

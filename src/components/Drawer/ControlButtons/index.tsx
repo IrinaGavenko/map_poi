@@ -1,4 +1,3 @@
-import { DRAWER_WIDTH } from '../constants'
 import './ControlButtons.css'
 
 export type DrawerMode = 'places' | 'edit' | null
@@ -12,10 +11,7 @@ export default function ControlButtons({ drawerMode, onToggle }: ControlButtonsP
   const drawerOpen = drawerMode !== null
 
   return (
-    <div
-      className="drawer-control-buttons"
-      style={{ left: drawerOpen ? DRAWER_WIDTH + 6 : 12 }}
-    >
+    <div className={`drawer-control-buttons${drawerOpen ? ' is-drawer-open' : ''}`}>
       <button
         type="button"
         className={`drawer-control-button${drawerMode === 'places' ? ' is-active' : ''}`}
