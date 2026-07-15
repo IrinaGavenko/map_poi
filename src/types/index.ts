@@ -1,6 +1,7 @@
 export type Point = {
   id: string
   name: string
+  isCollapsible?: string
   type: string[]
   description: string
   icon: string
@@ -10,6 +11,4 @@ export type Point = {
     lat: number
     lng: number
   }
-  /** Filename of nested points JSON, e.g. "FF.json" or "_FF.json" */
-  isCollapsible?: string
 }
