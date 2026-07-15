@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://irinagavenko.github.io/MAP_POI",
+  "homepage": "https://irinagavenko.github.io/map_poi",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

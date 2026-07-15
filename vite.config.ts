@@ -7,7 +7,7 @@ const root = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/MAP_POI/',
+  base: '/map_poi/',
   plugins: [react()],
   resolve: {
     alias: {
