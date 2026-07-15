@@ -1,20 +1,19 @@
 import type { Point } from '@type'
 
 const modules = import.meta.glob('../data/*.json', {
-  eager: true,
   import: 'default',
-}) as Record<string, Point[]>
+}) as Record<string, () => Promise<Point[]>>
 
 function datasetIdFromPath(path: string): string {
   const file = path.split('/').pop() ?? path
   return file.replace(/\.json$/i, '')
 }
 
-const byId = Object.fromEntries(
-  Object.entries(modules).map(([path, data]) => [datasetIdFromPath(path), data]),
-) as Record<string, Point[]>
+const loadersById = Object.fromEntries(
+  Object.entries(modules).map(([path, loader]) => [datasetIdFromPath(path), loader]),
+) as Record<string, () => Promise<Point[]>>
 
-export const DATASET_IDS = Object.keys(byId).sort()
+export const DATASET_IDS = Object.keys(loadersById).sort()
 
 export const DEFAULT_DATASET_ID = DATASET_IDS.includes('points')
   ? 'points'
@@ -39,11 +38,13 @@ export function setStoredDatasetId(id: string): void {
   try {
     localStorage.setItem(STORAGE_KEY, resolveDatasetId(id))
   } catch {
-    // ignore quota / private mode errors
+    // ToDo: handle error
   }
 }
 
-export function loadDataset(id: string): Point[] {
-  const data = byId[resolveDatasetId(id)]
-  return data ? [...data] : []
+export async function loadDataset(id: string): Promise<Point[]> {
+  const loader = loadersById[resolveDatasetId(id)]
+  if (!loader) return []
+  const data = await loader()
+  return [...data]
 }

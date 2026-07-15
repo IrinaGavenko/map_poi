@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { filterPoints, getPointTypes } from '@utils/filterPoints'
 import { createPoint } from '@utils/createPoint'
 import { getStoredDatasetId, loadDataset, setStoredDatasetId } from '@utils/datasets'
@@ -16,8 +16,20 @@ export default function App() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([])
   const [selected, setSelected] = useState<Point | null>(null)
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('places')
-  const [editablePoints, setEditablePoints] = useState<Point[]>(() => loadDataset(getStoredDatasetId()))
+  const [editablePoints, setEditablePoints] = useState<Point[]>([])
   const [addingPoint, setAddingPoint] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    void loadDataset(datasetId).then((points) => {
+      if (!cancelled) setEditablePoints(points)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [datasetId])
 
   const filtered = filterPoints(editablePoints, query, selectedTypes)
   const availableTypes = getPointTypes(editablePoints)
@@ -25,7 +37,6 @@ export default function App() {
   const handleDatasetChange = (nextId: string) => {
     setDatasetId(nextId)
     setStoredDatasetId(nextId)
-    setEditablePoints(loadDataset(nextId))
     setSelected(null)
     setQuery('')
     setSelectedTypes([])

@@ -1,4 +1,4 @@
-import { FALLBACK_POINT_TYPE } from '@type/categories'
+import { FALLBACK_POINT_CATEGORY } from '@type/categories'
 import type { Point } from '@type'
 
 export function createPoint(coordinates: { lat: number; lng: number }): Point {
@@ -7,7 +7,7 @@ export function createPoint(coordinates: { lat: number; lng: number }): Point {
     name: 'New place',
     type: ['park'],
     description: '',
-    icon: FALLBACK_POINT_TYPE.id,
+    icon: FALLBACK_POINT_CATEGORY.id,
     picture: [],
     link: '',
     coordinates,

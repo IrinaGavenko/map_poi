@@ -1,4 +1,4 @@
-import { getPointTypeConfig } from '@type/categories'
+import { getPointCategoryConfig } from '@type/categories'
 import './MapLegend.css'
 
 type MapLegendProps = {
@@ -23,7 +23,7 @@ export default function MapLegend({
   return (
     <div className="map-legend" role="group" aria-label="Filter by type">
       {types.map((type) => {
-        const config = getPointTypeConfig(type)
+        const config = getPointCategoryConfig(type)
         const active = selectedTypes.length === 0 || selectedTypes.includes(type)
         return (
           <button

@@ -1,25 +1,25 @@
 import type { ExpressionSpecification, Map } from 'maplibre-gl'
 import type { Point } from '@type'
 import {
-  FALLBACK_POINT_TYPE,
-  POINT_TYPE_CONFIG,
-  type PointTypeConfig,
+  FALLBACK_POINT_CATEGORY,
+  POINT_CATEGORY_CONFIG,
+  type PointCategoryConfig,
 } from '@type/categories'
 
-export type { PointTypeConfig as PointIconConfig }
+export type { PointCategoryConfig as PointIconConfig }
 
-export const POINT_ICON_CONFIG = POINT_TYPE_CONFIG
+export const POINT_ICON_CONFIG = POINT_CATEGORY_CONFIG
 export const CLUSTER_ICON_ID = 'cluster-button'
 
 export function getPointIconKey(point: Point): string {
   const type = point.type[0]
-  if (type && type in POINT_TYPE_CONFIG) return type
-  if (point.icon in POINT_TYPE_CONFIG) return point.icon
-  return FALLBACK_POINT_TYPE.id
+  if (type && type in POINT_CATEGORY_CONFIG) return type
+  if (point.icon in POINT_CATEGORY_CONFIG) return point.icon
+  return FALLBACK_POINT_CATEGORY.id
 }
 
-export function getPointIconConfig(point: Point): PointTypeConfig {
-  return POINT_TYPE_CONFIG[getPointIconKey(point)]
+export function getPointIconConfig(point: Point): PointCategoryConfig {
+  return POINT_CATEGORY_CONFIG[getPointIconKey(point)]
 }
 
 function roundRect(
@@ -97,12 +97,12 @@ function createClusterButtonImageData(): ImageData {
 }
 
 export function buildIconImageExpression(): ExpressionSpecification {
-  const pairs = Object.keys(POINT_TYPE_CONFIG).flatMap((key) => [key, key])
-  return ['match', ['get', 'iconKey'], ...pairs, FALLBACK_POINT_TYPE.id] as unknown as ExpressionSpecification
+  const pairs = Object.keys(POINT_CATEGORY_CONFIG).flatMap((key) => [key, key])
+  return ['match', ['get', 'iconKey'], ...pairs, FALLBACK_POINT_CATEGORY.id] as unknown as ExpressionSpecification
 }
 
 export function loadMapIcons(map: Map): Promise<void> {
-  for (const [key, { color, icon }] of Object.entries(POINT_TYPE_CONFIG)) {
+  for (const [key, { color, icon }] of Object.entries(POINT_CATEGORY_CONFIG)) {
     const imageData = createPinImageData(color, icon)
     if (map.hasImage(key)) {
       map.removeImage(key)
