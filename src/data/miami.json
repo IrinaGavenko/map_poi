@@ -1,0 +1,32 @@
+[
+  {
+    "id": "miami-1",
+    "name": "South Beach",
+    "type": ["beach"],
+    "description": "Iconic Miami Beach shoreline and Art Deco Historic District.",
+    "icon": "pin",
+    "picture": ["https://picsum.photos/400?random=miami1"],
+    "link": "https://www.miamiandbeaches.com/",
+    "coordinates": { "lat": 25.7826, "lng": -80.1341 }
+  },
+  {
+    "id": "miami-2",
+    "name": "Wynwood Walls",
+    "type": ["museum"],
+    "description": "Open-air street art museum in Wynwood.",
+    "icon": "pin",
+    "picture": ["https://picsum.photos/400?random=miami2"],
+    "link": "https://thewynwoodwalls.com/",
+    "coordinates": { "lat": 25.801, "lng": -80.1996 }
+  },
+  {
+    "id": "miami-3",
+    "name": "Vizcaya Museum & Gardens",
+    "type": ["museum", "park"],
+    "description": "Historic estate and gardens on Biscayne Bay.",
+    "icon": "pin",
+    "picture": ["https://picsum.photos/400?random=miami3"],
+    "link": "https://vizcaya.org/",
+    "coordinates": { "lat": 25.7444, "lng": -80.2105 }
+  }
+]

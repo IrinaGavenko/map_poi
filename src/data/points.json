@@ -1,0 +1,1702 @@
+[
+  {
+    "id": "1",
+    "name": "Miami Point 1",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=1"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.82958,
+      "lng": -80.123419
+    }
+  },
+  {
+    "id": "2",
+    "name": "Miami Point 2",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=2"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.730384,
+      "lng": -80.280916
+    }
+  },
+  {
+    "id": "3",
+    "name": "Miami Point 3",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=3"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.703453,
+      "lng": -80.242455
+    }
+  },
+  {
+    "id": "4",
+    "name": "Miami Point 4",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=4"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.828143,
+      "lng": -80.260016
+    }
+  },
+  {
+    "id": "5",
+    "name": "Miami Point 5",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=5"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.753027,
+      "lng": -80.284529
+    }
+  },
+  {
+    "id": "6",
+    "name": "Miami Point 6",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=6"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.731893,
+      "lng": -80.213896
+    }
+  },
+  {
+    "id": "7",
+    "name": "Miami Point 7",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=7"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.757904,
+      "lng": -80.22613
+    }
+  },
+  {
+    "id": "8",
+    "name": "Miami Point 8",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=8"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.71102,
+      "lng": -80.159316
+    }
+  },
+  {
+    "id": "9",
+    "name": "Miami Point 9",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=9"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.73397,
+      "lng": -80.173703
+    }
+  },
+  {
+    "id": "10",
+    "name": "Miami Point 10",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=10"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.825697,
+      "lng": -80.123252
+    }
+  },
+  {
+    "id": "11",
+    "name": "Miami Point 11",
+    "type": [
+      "beach"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=11"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.732889,
+      "lng": -80.195116
+    }
+  },
+  {
+    "id": "12",
+    "name": "Miami Point 12",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=12"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.795552,
+      "lng": -80.197609
+    }
+  },
+  {
+    "id": "13",
+    "name": "Miami Point 13",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=13"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.710568,
+      "lng": -80.187491
+    }
+  },
+  {
+    "id": "14",
+    "name": "Miami Point 14",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=14"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.795689,
+      "lng": -80.17144
+    }
+  },
+  {
+    "id": "15",
+    "name": "Miami Point 15",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=15"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.839941,
+      "lng": -80.297337
+    }
+  },
+  {
+    "id": "16",
+    "name": "Miami Point 16",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=16"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.835363,
+      "lng": -80.163786
+    }
+  },
+  {
+    "id": "17",
+    "name": "Miami Point 17",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=17"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.749454,
+      "lng": -80.24002
+    }
+  },
+  {
+    "id": "18",
+    "name": "Miami Point 18",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=18"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.788429,
+      "lng": -80.256928
+    }
+  },
+  {
+    "id": "19",
+    "name": "Miami Point 19",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=19"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.795698,
+      "lng": -80.225482
+    }
+  },
+  {
+    "id": "20",
+    "name": "Miami Point 20",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=20"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.726394,
+      "lng": -80.15044
+    }
+  },
+  {
+    "id": "21",
+    "name": "Miami Point 21",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=21"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.727,
+      "lng": -80.230826
+    }
+  },
+  {
+    "id": "22",
+    "name": "Miami Point 22",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=22"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.793975,
+      "lng": -80.188259
+    }
+  },
+  {
+    "id": "23",
+    "name": "Miami Point 23",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=23"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.801249,
+      "lng": -80.294262
+    }
+  },
+  {
+    "id": "24",
+    "name": "Miami Point 24",
+    "type": [
+      "beach"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=24"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.811596,
+      "lng": -80.14506
+    }
+  },
+  {
+    "id": "25",
+    "name": "Miami Point 25",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=25"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.804445,
+      "lng": -80.165628
+    }
+  },
+  {
+    "id": "26",
+    "name": "Miami Point 26",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=26"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.794111,
+      "lng": -80.284371
+    }
+  },
+  {
+    "id": "27",
+    "name": "Miami Point 27",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=27"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.820459,
+      "lng": -80.244512
+    }
+  },
+  {
+    "id": "28",
+    "name": "Miami Point 28",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=28"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.81153,
+      "lng": -80.26277
+    }
+  },
+  {
+    "id": "29",
+    "name": "Miami Point 29",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=29"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.839297,
+      "lng": -80.202477
+    }
+  },
+  {
+    "id": "30",
+    "name": "Miami Point 30",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=30"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.785759,
+      "lng": -80.283844
+    }
+  },
+  {
+    "id": "31",
+    "name": "Miami Point 31",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=31"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.83998,
+      "lng": -80.255634
+    }
+  },
+  {
+    "id": "32",
+    "name": "Miami Point 32",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=32"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.715188,
+      "lng": -80.255233
+    }
+  },
+  {
+    "id": "33",
+    "name": "Miami Point 33",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=33"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.774765,
+      "lng": -80.220761
+    }
+  },
+  {
+    "id": "34",
+    "name": "Miami Point 34",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=34"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.772128,
+      "lng": -80.140414
+    }
+  },
+  {
+    "id": "35",
+    "name": "Miami Point 35",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=35"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.725056,
+      "lng": -80.238763
+    }
+  },
+  {
+    "id": "36",
+    "name": "Miami Point 36",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=36"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.799623,
+      "lng": -80.282078
+    }
+  },
+  {
+    "id": "37",
+    "name": "Miami Point 37",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=37"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.761217,
+      "lng": -80.154844
+    }
+  },
+  {
+    "id": "38",
+    "name": "Miami Point 38",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=38"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.776359,
+      "lng": -80.261502
+    }
+  },
+  {
+    "id": "39",
+    "name": "Miami Point 39",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=39"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.717979,
+      "lng": -80.128939
+    }
+  },
+  {
+    "id": "40",
+    "name": "Miami Point 40",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=40"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.751681,
+      "lng": -80.199706
+    }
+  },
+  {
+    "id": "41",
+    "name": "Miami Point 41",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=41"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.749897,
+      "lng": -80.249734
+    }
+  },
+  {
+    "id": "42",
+    "name": "Miami Point 42",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=42"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.762107,
+      "lng": -80.265507
+    }
+  },
+  {
+    "id": "43",
+    "name": "Miami Point 43",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=43"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.72109,
+      "lng": -80.242654
+    }
+  },
+  {
+    "id": "44",
+    "name": "Miami Point 44",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=44"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.795497,
+      "lng": -80.203994
+    }
+  },
+  {
+    "id": "45",
+    "name": "Miami Point 45",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=45"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.721043,
+      "lng": -80.218214
+    }
+  },
+  {
+    "id": "46",
+    "name": "Miami Point 46",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=46"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.764962,
+      "lng": -80.169865
+    }
+  },
+  {
+    "id": "47",
+    "name": "Miami Point 47",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=47"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.734485,
+      "lng": -80.132552
+    }
+  },
+  {
+    "id": "48",
+    "name": "Miami Point 48",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=48"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.81811,
+      "lng": -80.188799
+    }
+  },
+  {
+    "id": "49",
+    "name": "Miami Point 49",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=49"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.762442,
+      "lng": -80.253317
+    }
+  },
+  {
+    "id": "50",
+    "name": "Miami Point 50",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=50"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.732551,
+      "lng": -80.182604
+    }
+  },
+  {
+    "id": "51",
+    "name": "Miami Point 51",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=51"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.7538,
+      "lng": -80.200583
+    }
+  },
+  {
+    "id": "52",
+    "name": "Miami Point 52",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=52"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.76682,
+      "lng": -80.268069
+    }
+  },
+  {
+    "id": "53",
+    "name": "Miami Point 53",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=53"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.723188,
+      "lng": -80.212589
+    }
+  },
+  {
+    "id": "54",
+    "name": "Miami Point 54",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=54"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.755669,
+      "lng": -80.134374
+    }
+  },
+  {
+    "id": "55",
+    "name": "Miami Point 55",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=55"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.705624,
+      "lng": -80.233426
+    }
+  },
+  {
+    "id": "56",
+    "name": "Miami Point 56",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=56"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.791074,
+      "lng": -80.228091
+    }
+  },
+  {
+    "id": "57",
+    "name": "Miami Point 57",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=57"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.755965,
+      "lng": -80.133637
+    }
+  },
+  {
+    "id": "58",
+    "name": "Miami Point 58",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=58"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.763744,
+      "lng": -80.125032
+    }
+  },
+  {
+    "id": "59",
+    "name": "Miami Point 59",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=59"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.780997,
+      "lng": -80.153974
+    }
+  },
+  {
+    "id": "60",
+    "name": "Miami Point 60",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=60"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.763414,
+      "lng": -80.143267
+    }
+  },
+  {
+    "id": "61",
+    "name": "Miami Point 61",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=61"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.784089,
+      "lng": -80.205717
+    }
+  },
+  {
+    "id": "62",
+    "name": "Miami Point 62",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=62"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.720045,
+      "lng": -80.287983
+    }
+  },
+  {
+    "id": "63",
+    "name": "Miami Point 63",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=63"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.773935,
+      "lng": -80.297522
+    }
+  },
+  {
+    "id": "64",
+    "name": "Miami Point 64",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=64"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.74311,
+      "lng": -80.234089
+    }
+  },
+  {
+    "id": "65",
+    "name": "Miami Point 65",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=65"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.743425,
+      "lng": -80.231283
+    }
+  },
+  {
+    "id": "66",
+    "name": "Miami Point 66",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=66"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.820638,
+      "lng": -80.288217
+    }
+  },
+  {
+    "id": "67",
+    "name": "Miami Point 67",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=67"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.788217,
+      "lng": -80.150046
+    }
+  },
+  {
+    "id": "68",
+    "name": "Miami Point 68",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=68"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.708144,
+      "lng": -80.256599
+    }
+  },
+  {
+    "id": "69",
+    "name": "Miami Point 69",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=69"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.821671,
+      "lng": -80.209144
+    }
+  },
+  {
+    "id": "70",
+    "name": "Miami Point 70",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=70"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.703832,
+      "lng": -80.229061
+    }
+  },
+  {
+    "id": "71",
+    "name": "Miami Point 71",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=71"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.763647,
+      "lng": -80.242728
+    }
+  },
+  {
+    "id": "72",
+    "name": "Miami Point 72",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=72"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.776251,
+      "lng": -80.277798
+    }
+  },
+  {
+    "id": "73",
+    "name": "Miami Point 73",
+    "type": [
+      "beach"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=73"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.738859,
+      "lng": -80.201703
+    }
+  },
+  {
+    "id": "74",
+    "name": "Miami Point 74",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=74"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.803093,
+      "lng": -80.258808
+    }
+  },
+  {
+    "id": "75",
+    "name": "Miami Point 75",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=75"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.822883,
+      "lng": -80.198526
+    }
+  },
+  {
+    "id": "76",
+    "name": "Miami Point 76",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=76"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.779042,
+      "lng": -80.146442
+    }
+  },
+  {
+    "id": "77",
+    "name": "Miami Point 77",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=77"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.716714,
+      "lng": -80.272071
+    }
+  },
+  {
+    "id": "78",
+    "name": "Miami Point 78",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=78"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.790158,
+      "lng": -80.24208
+    }
+  },
+  {
+    "id": "79",
+    "name": "Miami Point 79",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=79"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.796908,
+      "lng": -80.259925
+    }
+  },
+  {
+    "id": "80",
+    "name": "Miami Point 80",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=80"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.771268,
+      "lng": -80.1751
+    }
+  },
+  {
+    "id": "81",
+    "name": "Miami Point 81",
+    "type": [
+      "beach"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=81"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.713863,
+      "lng": -80.274579
+    }
+  },
+  {
+    "id": "82",
+    "name": "Miami Point 82",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=82"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.829225,
+      "lng": -80.280933
+    }
+  },
+  {
+    "id": "83",
+    "name": "Miami Point 83",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=83"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.729838,
+      "lng": -80.121218
+    }
+  },
+  {
+    "id": "84",
+    "name": "Miami Point 84",
+    "type": [
+      "hotel"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=84"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.722833,
+      "lng": -80.164572
+    }
+  },
+  {
+    "id": "85",
+    "name": "Miami Point 85",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=85"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.702256,
+      "lng": -80.143772
+    }
+  },
+  {
+    "id": "86",
+    "name": "Miami Point 86",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=86"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.775582,
+      "lng": -80.252222
+    }
+  },
+  {
+    "id": "87",
+    "name": "Miami Point 87",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=87"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.779051,
+      "lng": -80.246771
+    }
+  },
+  {
+    "id": "88",
+    "name": "Miami Point 88",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=88"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.817116,
+      "lng": -80.138324
+    }
+  },
+  {
+    "id": "89",
+    "name": "Miami Point 89",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=89"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.822173,
+      "lng": -80.231885
+    }
+  },
+  {
+    "id": "90",
+    "name": "Miami Point 90",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=90"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.805746,
+      "lng": -80.149864
+    }
+  },
+  {
+    "id": "91",
+    "name": "Miami Point 91",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=91"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.813817,
+      "lng": -80.163082
+    }
+  },
+  {
+    "id": "92",
+    "name": "Miami Point 92",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=92"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.79724,
+      "lng": -80.204266
+    }
+  },
+  {
+    "id": "93",
+    "name": "Miami Point 93",
+    "type": [
+      "restaurant"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=93"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.803734,
+      "lng": -80.249166
+    }
+  },
+  {
+    "id": "94",
+    "name": "Miami Point 94",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=94"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.774967,
+      "lng": -80.185647
+    }
+  },
+  {
+    "id": "95",
+    "name": "Miami Point 95",
+    "type": [
+      "nightlife"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=95"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.730668,
+      "lng": -80.216412
+    }
+  },
+  {
+    "id": "96",
+    "name": "Miami Point 96",
+    "type": [
+      "park"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=96"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.766651,
+      "lng": -80.167568
+    }
+  },
+  {
+    "id": "97",
+    "name": "Miami Point 97",
+    "type": [
+      "beach"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=97"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.71994,
+      "lng": -80.164948
+    }
+  },
+  {
+    "id": "98",
+    "name": "Miami Point 98",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=98"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.728977,
+      "lng": -80.17165
+    }
+  },
+  {
+    "id": "99",
+    "name": "Miami Point 99",
+    "type": [
+      "shopping"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=99"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.789152,
+      "lng": -80.261069
+    }
+  },
+  {
+    "id": "100",
+    "name": "Miami Point 100",
+    "type": [
+      "museum"
+    ],
+    "description": "Generated Miami tourist location",
+    "icon": "pin",
+    "picture": [
+      "https://picsum.photos/400?random=100"
+    ],
+    "link": "https://example.com",
+    "coordinates": {
+      "lat": 25.727751,
+      "lng": -80.298428
+    }
+  }
+]

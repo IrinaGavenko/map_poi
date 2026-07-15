@@ -1,0 +1,21 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+const root = path.dirname(fileURLToPath(import.meta.url))
+
+// https://vite.dev/config/
+export default defineConfig({
+  base: '/MAP_POI/',
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@components': path.resolve(root, 'src/components'),
+      '@data': path.resolve(root, 'src/data'),
+      '@utils': path.resolve(root, 'src/utils'),
+      '@type': path.resolve(root, 'src/types'),
+      '@App': path.resolve(root, 'src/App.tsx'),
+    },
+  },
+})
