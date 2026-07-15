@@ -4,7 +4,6 @@ import type { Point } from '@type'
 import SearchInput from '../SearchInput'
 import { drawerStyle } from '../constants'
 import '../drawer.css'
-import './ViewMode.css'
 
 type ViewModeProps = {
   open: boolean
