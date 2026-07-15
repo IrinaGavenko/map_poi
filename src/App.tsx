@@ -1,14 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { filterPoints, getPointTypes } from '@utils/filterPoints'
 import { createPoint } from '@utils/createPoint'
-import { getStoredDatasetId, loadDataset, setStoredDatasetId } from '@utils/datasets'
+import { getStoredDatasetId, loadCollapsePoints, loadDataset, setStoredDatasetId } from '@utils/datasets'
 import MapView from '@components/MapView'
 import MapLegend from '@components/MapLegend'
 import DatasetSelector from '@components/DatasetSelector'
 import ViewMode from '@components/Drawer/ViewMode'
+import CollapseView from '@components/Drawer/CollapseView'
 import EditMode from '@components/Drawer/EditMode'
 import ControlButtons, { type DrawerMode } from '@components/Drawer/ControlButtons'
 import type { Point } from '@type'
+
+type CollapseSession = {
+  parent: Point
+  nested: Point[]
+  previousPoints: Point[]
+}
 
 export default function App() {
   const [datasetId, setDatasetId] = useState(getStoredDatasetId)
@@ -18,12 +25,23 @@ export default function App() {
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('places')
   const [editablePoints, setEditablePoints] = useState<Point[]>([])
   const [addingPoint, setAddingPoint] = useState(false)
+  const [collapseSession, setCollapseSession] = useState<CollapseSession | null>(null)
+  const [mapFocus, setMapFocus] = useState<{
+    key: number
+    points: { lat: number; lng: number }[]
+  } | null>(null)
+  const mapFocusKey = useRef(0)
+  const editablePointsRef = useRef(editablePoints)
+  editablePointsRef.current = editablePoints
 
   useEffect(() => {
     let cancelled = false
 
     void loadDataset(datasetId).then((points) => {
-      if (!cancelled) setEditablePoints(points)
+      if (!cancelled) {
+        setEditablePoints(points)
+        setCollapseSession(null)
+      }
     })
 
     return () => {
@@ -32,7 +50,51 @@ export default function App() {
   }, [datasetId])
 
   const filtered = filterPoints(editablePoints, query, selectedTypes)
+  const mapPoints = collapseSession ? editablePoints : filtered
   const availableTypes = getPointTypes(editablePoints)
+  const drawerOpen = drawerMode !== null || collapseSession !== null
+
+  const handleCollapseBack = () => {
+    if (!collapseSession) return
+    setEditablePoints(collapseSession.previousPoints)
+    setCollapseSession(null)
+    setSelected(null)
+    setAddingPoint(false)
+    setDrawerMode('places')
+  }
+
+  const handleSelectPoint = (point: Point) => {
+    const collapseFile =
+      typeof point.isCollapsible === 'string' ? point.isCollapsible.trim() : ''
+
+    if (collapseFile) {
+      setSelected(null)
+      setAddingPoint(false)
+      setQuery('')
+      setSelectedTypes([])
+      void loadCollapsePoints(collapseFile).then((nested) => {
+        const previousPoints = editablePointsRef.current
+        setCollapseSession({
+          parent: point,
+          nested,
+          previousPoints,
+        })
+        setEditablePoints([
+          ...previousPoints.filter((p) => p.id !== point.id),
+          ...nested,
+        ])
+        setDrawerMode(null)
+        mapFocusKey.current += 1
+        setMapFocus({
+          key: mapFocusKey.current,
+          points: nested.map((p) => p.coordinates),
+        })
+      })
+      return
+    }
+
+    setSelected(point)
+  }
 
   const handleDatasetChange = (nextId: string) => {
     setDatasetId(nextId)
@@ -41,9 +103,19 @@ export default function App() {
     setQuery('')
     setSelectedTypes([])
     setAddingPoint(false)
+    setCollapseSession(null)
   }
 
   const toggleDrawer = (mode: Exclude<DrawerMode, null>) => {
+    if (collapseSession) {
+      setEditablePoints(collapseSession.previousPoints)
+      setCollapseSession(null)
+      setSelected(null)
+      setAddingPoint(false)
+      setDrawerMode(mode === 'places' ? 'places' : mode)
+      return
+    }
+
     setDrawerMode((current) => {
       const next = current === mode ? null : mode
       if (next !== 'edit') setAddingPoint(false)
@@ -71,16 +143,15 @@ export default function App() {
   }
 
   return (
-    <div
-      className={`app-shell${drawerMode ? ' is-drawer-open' : ''}`}
-    >
+    <div className={`app-shell${drawerOpen ? ' is-drawer-open' : ''}`}>
       <div className="app-shell-map">
         <MapView
-          points={filtered}
+          points={mapPoints}
           selected={selected}
-          setSelected={setSelected}
+          setSelected={handleSelectPoint}
           addingPoint={addingPoint}
           onAddPoint={handleAddPoint}
+          focusRequest={mapFocus}
         />
       </div>
 
@@ -92,10 +163,13 @@ export default function App() {
         onTypesChange={setSelectedTypes}
       />
 
-      <ControlButtons drawerMode={drawerMode} onToggle={toggleDrawer} />
+      <ControlButtons
+        drawerMode={collapseSession ? 'places' : drawerMode}
+        onToggle={toggleDrawer}
+      />
 
       <ViewMode
-        open={drawerMode === 'places'}
+        open={drawerMode === 'places' && !collapseSession}
         onClose={() => setDrawerMode(null)}
         query={query}
         onQueryChange={setQuery}
@@ -104,11 +178,20 @@ export default function App() {
         selectedTypes={selectedTypes}
         onTypesChange={setSelectedTypes}
         selected={selected}
-        onSelect={setSelected}
+        onSelect={handleSelectPoint}
+      />
+
+      <CollapseView
+        open={collapseSession !== null}
+        parent={collapseSession?.parent ?? null}
+        points={collapseSession?.nested ?? []}
+        selected={selected}
+        onSelect={handleSelectPoint}
+        onBack={handleCollapseBack}
       />
 
       <EditMode
-        open={drawerMode === 'edit'}
+        open={drawerMode === 'edit' && !collapseSession}
         onClose={() => {
           setDrawerMode(null)
           setAddingPoint(false)
@@ -123,7 +206,7 @@ export default function App() {
         selected={selected}
         onSelect={(point) => {
           setAddingPoint(false)
-          setSelected(point)
+          handleSelectPoint(point)
         }}
         addingPoint={addingPoint}
         onToggleAdding={() => setAddingPoint((active) => !active)}

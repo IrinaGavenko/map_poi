@@ -10,4 +10,6 @@ export type Point = {
     lat: number
     lng: number
   }
+  /** Filename of nested points JSON, e.g. "FF.json" or "_FF.json" */
+  isCollapsible?: string
 }

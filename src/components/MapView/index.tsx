@@ -1,9 +1,15 @@
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import { buildIconImageExpression, CLUSTER_ICON_ID, getPointIconConfig, loadMapIcons } from '@utils/pointIcons'
+import { CLUSTER_RADIUS_PX, flyToUnclusteredPoints } from '@utils/mapFocus'
 import { toGeoJSON } from '@utils/toGeoJSON'
 import type { Point } from '@type'
 import './MapView.css'
+
+type MapFocusRequest = {
+  key: number
+  points: { lat: number; lng: number }[]
+}
 
 type MapViewProps = {
   points: Point[]
@@ -11,6 +17,7 @@ type MapViewProps = {
   setSelected: (point: Point) => void
   addingPoint?: boolean
   onAddPoint?: (coordinates: { lat: number; lng: number }) => void
+  focusRequest?: MapFocusRequest | null
 }
 
 function buildPopupContent(point: Point): string {
@@ -63,12 +70,14 @@ export default function MapView({
   setSelected,
   addingPoint = false,
   onAddPoint,
+  focusRequest = null,
 }: MapViewProps) {
   const mapRef = useRef<maplibregl.Map | null>(null)
   const popupRef = useRef<maplibregl.Popup | null>(null)
   const pointsRef = useRef(points)
   const addingPointRef = useRef(addingPoint)
   const onAddPointRef = useRef(onAddPoint)
+  const setSelectedRef = useRef(setSelected)
 
   useEffect(() => {
     pointsRef.current = points
@@ -84,6 +93,15 @@ export default function MapView({
   useEffect(() => {
     onAddPointRef.current = onAddPoint
   }, [onAddPoint])
+
+  useEffect(() => {
+    setSelectedRef.current = setSelected
+  }, [setSelected])
+
+  useEffect(() => {
+    if (!focusRequest || !mapRef.current) return
+    flyToUnclusteredPoints(mapRef.current, focusRequest.points)
+  }, [focusRequest])
 
   useEffect(() => {
     const map = new maplibregl.Map({
@@ -126,11 +144,19 @@ export default function MapView({
       const feature = e.features?.[0]
       if (!feature) return
 
-      const id = feature.properties?.id as string
-      const point = pointsRef.current.find((p) => p.id === id)
+      const id = feature.properties?.id
+      const point = pointsRef.current.find((p) => String(p.id) === String(id))
       if (!point) return
 
-      setSelected(point)
+      const collapseFromFeature = feature.properties?.isCollapsible
+      const isCollapsible =
+        (typeof point.isCollapsible === 'string' && point.isCollapsible) ||
+        (typeof collapseFromFeature === 'string' && collapseFromFeature) ||
+        undefined
+
+      setSelectedRef.current(
+        isCollapsible ? { ...point, isCollapsible } : point,
+      )
     }
 
     const onClusterClick = (e: maplibregl.MapLayerMouseEvent) => {
@@ -163,7 +189,7 @@ export default function MapView({
         type: 'geojson',
         data: toGeoJSON(pointsRef.current),
         cluster: true,
-        clusterRadius: 40,
+        clusterRadius: CLUSTER_RADIUS_PX,
       })
 
       await loadMapIcons(map)
@@ -217,7 +243,7 @@ export default function MapView({
       mapRef.current = null
       popupRef.current = null
     }
-  }, [setSelected])
+  }, [])
 
   useEffect(() => {
     const map = mapRef.current
@@ -248,15 +274,15 @@ export default function MapView({
       return
     }
 
-    const point = pointsRef.current.find((p) => p.id === selectedId)
-    if (!point) {
+    const point = pointsRef.current.find((p) => String(p.id) === String(selectedId))
+    if (!point || point.isCollapsible) {
       popupRef.current?.remove()
       return
     }
 
     mapRef.current.flyTo({
       center: [point.coordinates.lng, point.coordinates.lat],
-      zoom: 14,
+      zoom: Math.max(mapRef.current.getZoom(), 14),
     })
 
     const popup = popupRef.current
@@ -271,8 +297,11 @@ export default function MapView({
   useEffect(() => {
     if (!selectedId || !popupRef.current?.isOpen()) return
 
-    const point = pointsRef.current.find((p) => p.id === selectedId)
-    if (!point) return
+    const point = pointsRef.current.find((p) => String(p.id) === String(selectedId))
+    if (!point || point.isCollapsible) {
+      popupRef.current.remove()
+      return
+    }
 
     const active = document.activeElement
     const shouldRestore =

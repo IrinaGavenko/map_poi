@@ -11,7 +11,9 @@ type DrawerShellProps = {
 
 function isScrollableTouchTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false
-  const scrollable = target.closest('.places-list, .places-drawer-body')
+  const scrollable = target.closest(
+    '.places-list, .places-drawer-body, .places-collapse-parent',
+  )
   return Boolean(scrollable && scrollable.scrollTop > 0)
 }
 

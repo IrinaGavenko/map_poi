@@ -9,8 +9,12 @@ function datasetIdFromPath(path: string): string {
   return file.replace(/\.json$/i, '')
 }
 
-const loadersById = Object.fromEntries(
+const allLoadersById = Object.fromEntries(
   Object.entries(modules).map(([path, loader]) => [datasetIdFromPath(path), loader]),
+) as Record<string, () => Promise<Point[]>>
+
+const loadersById = Object.fromEntries(
+  Object.entries(allLoadersById).filter(([id]) => !id.startsWith('_')),
 ) as Record<string, () => Promise<Point[]>>
 
 export const DATASET_IDS = Object.keys(loadersById).sort()
@@ -42,9 +46,28 @@ export function setStoredDatasetId(id: string): void {
   }
 }
 
-export async function loadDataset(id: string): Promise<Point[]> {
-  const loader = loadersById[resolveDatasetId(id)]
+async function loadFromLoader(id: string): Promise<Point[]> {
+  const loader = allLoadersById[id]
   if (!loader) return []
   const data = await loader()
-  return [...data]
+  return data.map((point) => ({ ...point }))
+}
+
+export async function loadDataset(id: string): Promise<Point[]> {
+  return loadFromLoader(resolveDatasetId(id))
+}
+
+/** Loads a nested JSON file referenced by `point.isCollapsible` (e.g. "FF.json" → `_FF`). */
+export async function loadCollapsePoints(fileName: string): Promise<Point[]> {
+  const raw = fileName.trim()
+  if (!raw) return []
+
+  const base = raw.replace(/\.json$/i, '')
+  const candidates = [...new Set(base.startsWith('_') ? [base] : [`_${base}`, base])]
+
+  for (const id of candidates) {
+    if (!allLoadersById[id]) continue
+    return loadFromLoader(id)
+  }
+  return []
 }
