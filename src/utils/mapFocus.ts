@@ -1,4 +1,5 @@
 import maplibregl from 'maplibre-gl'
+import { MOBILE_BREAKPOINT } from '@components/Drawer/constants'
 
 export const CLUSTER_RADIUS_PX = 40
 
@@ -40,6 +41,27 @@ function zoomToUncluster(points: LatLng[], clusterRadiusPx: number): number {
   )
 }
 
+function isMobileMap(map: maplibregl.Map): boolean {
+  return map.getContainer().getBoundingClientRect().width <= MOBILE_BREAKPOINT
+}
+
+function focusPadding(map: maplibregl.Map): maplibregl.PaddingOptions | number {
+  if (!isMobileMap(map)) {
+    return 110
+  }
+
+  const { height } = map.getContainer().getBoundingClientRect()
+  // Keep points in the visible map area above the bottom sheet, with roomy edges.
+  const bottom = Math.min(Math.round(height * 0.45), 320)
+  const edge = 64
+  return {
+    top: edge,
+    left: edge,
+    right: edge,
+    bottom: Math.max(edge, bottom),
+  }
+}
+
 /** Fly so every point is in view and none of them share a cluster. */
 export function flyToUnclusteredPoints(
   map: maplibregl.Map,
@@ -48,10 +70,15 @@ export function flyToUnclusteredPoints(
 ): void {
   if (points.length === 0) return
 
+  const mobile = isMobileMap(map)
+  // Pull back a bit more on mobile so the cluster doesn't feel too tight.
+  const unclusterZoom =
+    zoomToUncluster(points, clusterRadiusPx) - (mobile ? 1.4 : 0.4)
+
   if (points.length === 1) {
     map.flyTo({
       center: [points[0].lng, points[0].lat],
-      zoom: Math.max(map.getZoom(), zoomToUncluster(points, clusterRadiusPx) - 0.4),
+      zoom: Math.max(map.getZoom(), unclusterZoom),
     })
     return
   }
@@ -65,18 +92,22 @@ export function flyToUnclusteredPoints(
   }
 
   const camera = map.cameraForBounds(bounds, {
-    padding: 240,
-    maxZoom: 22,
+    padding: focusPadding(map),
+    maxZoom: mobile ? 17 : 22,
   })
-  if (!camera?.center || camera.zoom == null) return
 
-  const zoom = Math.min(
-    22,
-    Math.max(camera.zoom, zoomToUncluster(points, clusterRadiusPx)) - 0.4,
-  )
+  if (camera?.center != null && camera.zoom != null) {
+    map.flyTo({
+      center: camera.center,
+      zoom: Math.min(mobile ? 17 : 22, Math.max(camera.zoom, unclusterZoom)),
+    })
+    return
+  }
 
+  // Fallback when padding is too large for the viewport (common on mobile).
+  const center = bounds.getCenter()
   map.flyTo({
-    center: camera.center,
-    zoom,
+    center: [center.lng, center.lat],
+    zoom: Math.min(mobile ? 17 : 22, Math.max(map.getZoom(), unclusterZoom)),
   })
 }

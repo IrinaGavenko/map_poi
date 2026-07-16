@@ -2,10 +2,14 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type T
 import { MOBILE_BREAKPOINT } from './constants'
 
 const CLOSE_DISTANCE = 100
+const EXPAND_DISTANCE = 40
 
 type DrawerShellProps = {
   open: boolean
+  /** Mobile peek strip — session kept, content hidden until expanded. */
+  minimized?: boolean
   onClose: () => void
+  onExpand?: () => void
   children: ReactNode
 }
 
@@ -17,7 +21,13 @@ function isScrollableTouchTarget(target: EventTarget | null): boolean {
   return Boolean(scrollable && scrollable.scrollTop > 0)
 }
 
-export default function DrawerShell({ open, onClose, children }: DrawerShellProps) {
+export default function DrawerShell({
+  open,
+  minimized = false,
+  onClose,
+  onExpand,
+  children,
+}: DrawerShellProps) {
   const [dragY, setDragY] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const startYRef = useRef<number | null>(null)
@@ -33,17 +43,15 @@ export default function DrawerShell({ open, onClose, children }: DrawerShellProp
   }, [])
 
   useEffect(() => {
-    if (!open) {
-      setDragY(0)
-      dragYRef.current = 0
-      startYRef.current = null
-      draggingRef.current = false
-    }
-  }, [open])
+    setDragY(0)
+    dragYRef.current = 0
+    startYRef.current = null
+    draggingRef.current = false
+  }, [open, minimized])
 
   const onTouchStart = (event: TouchEvent<HTMLElement>) => {
     if (!isMobile || !open) return
-    if (isScrollableTouchTarget(event.target)) return
+    if (!minimized && isScrollableTouchTarget(event.target)) return
     startYRef.current = event.touches[0]?.clientY ?? null
     draggingRef.current = startYRef.current != null
   }
@@ -52,6 +60,14 @@ export default function DrawerShell({ open, onClose, children }: DrawerShellProp
     if (!draggingRef.current || startYRef.current == null) return
     const currentY = event.touches[0]?.clientY
     if (currentY == null) return
+
+    if (minimized) {
+      const delta = Math.min(0, currentY - startYRef.current)
+      dragYRef.current = delta
+      setDragY(delta)
+      return
+    }
+
     const delta = Math.max(0, currentY - startYRef.current)
     dragYRef.current = delta
     setDragY(delta)
@@ -59,18 +75,26 @@ export default function DrawerShell({ open, onClose, children }: DrawerShellProp
 
   const endDrag = () => {
     if (!draggingRef.current) return
-    const shouldClose = dragYRef.current >= CLOSE_DISTANCE
+    const delta = dragYRef.current
     draggingRef.current = false
     startYRef.current = null
     dragYRef.current = 0
     setDragY(0)
-    if (shouldClose) onClose()
+
+    if (minimized) {
+      if (-delta >= EXPAND_DISTANCE) onExpand?.()
+      return
+    }
+
+    if (delta >= CLOSE_DISTANCE) onClose()
   }
 
   const style: CSSProperties | undefined =
-    open && dragY > 0
+    open && dragY !== 0
       ? {
-          transform: `translateY(${dragY}px)`,
+          transform: minimized
+            ? `translateY(calc(100% - var(--drawer-peek-height) + ${dragY}px))`
+            : `translateY(${dragY}px)`,
           transition: 'none',
         }
       : undefined
@@ -78,7 +102,7 @@ export default function DrawerShell({ open, onClose, children }: DrawerShellProp
   return (
     <aside
       aria-hidden={!open}
-      className={`places-drawer${open ? ' is-open' : ''}${dragY > 0 ? ' is-dragging' : ''}`}
+      className={`places-drawer${open ? ' is-open' : ''}${minimized ? ' is-minimized' : ''}${dragY !== 0 ? ' is-dragging' : ''}`}
       style={style}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}

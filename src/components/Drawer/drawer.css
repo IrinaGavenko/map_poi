@@ -29,6 +29,11 @@
   pointer-events: auto;
 }
 
+.places-drawer.is-open.is-minimized {
+  transform: translateX(calc(-100% - 32px));
+  pointer-events: none;
+}
+
 .places-drawer-handle {
   display: none;
 }
@@ -52,7 +57,8 @@
   min-width: 0;
 }
 
-.places-drawer .places-collapse-back {
+.places-drawer .places-collapse-back,
+.places-drawer .places-collapse-close {
   flex-shrink: 0;
   width: 44px;
   height: 44px;
@@ -71,8 +77,15 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.places-drawer .places-collapse-back:hover {
+.places-drawer .places-collapse-back:hover,
+.places-drawer .places-collapse-close:hover {
   background: #f9fafb;
+}
+
+.places-drawer .places-collapse-close {
+  font-size: 24px;
+  margin-left: auto;
+  margin-right: 14px;
 }
 
 .places-drawer .places-collapse-title {
@@ -327,6 +340,7 @@
 
 @media (max-width: 768px) {
   .places-drawer {
+    --drawer-peek-height: calc(28px + env(safe-area-inset-bottom, 0px));
     top: auto;
     left: 0;
     right: 0;
@@ -350,6 +364,19 @@
     transform: translateY(0);
   }
 
+  .places-drawer.is-open.is-minimized {
+    height: var(--drawer-peek-height);
+    min-height: var(--drawer-peek-height);
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    transform: translateY(0);
+    pointer-events: auto;
+    overflow: hidden;
+  }
+
+  .places-drawer.is-open.is-minimized > *:not(.places-drawer-handle) {
+    display: none;
+  }
+
   .places-drawer-handle {
     display: block;
     width: 40px;
@@ -358,5 +385,37 @@
     background: #d1d5db;
     margin: 4px auto 12px;
     flex-shrink: 0;
+    border: none;
+    padding: 0;
+  }
+
+  .places-drawer-handle--button {
+    cursor: pointer;
+    width: 56px;
+    height: 20px;
+    margin: 0 auto;
+    background: transparent;
+    position: relative;
+  }
+
+  .places-drawer-handle--button::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: #d1d5db;
+    transform: translate(-50%, -50%);
+  }
+
+  .places-drawer.is-open.is-minimized .places-drawer-handle {
+    margin: 0 auto;
+  }
+
+  .places-drawer .places-collapse-back,
+  .places-drawer .places-collapse-close {
+    box-shadow: none;
   }
 }

@@ -7,27 +7,46 @@ import '../drawer.css'
 
 type CollapseViewProps = {
   open: boolean
+  expanded: boolean
   parent: Point | null
   points: Point[]
   selected: Point | null
   onSelect: (point: Point) => void
   onBack: () => void
+  onClose: () => void
+  onMinimize: () => void
+  onExpand: () => void
 }
 
 export default function CollapseView({
   open,
+  expanded,
   parent,
   points,
   selected,
   onSelect,
   onBack,
+  onClose,
+  onMinimize,
+  onExpand,
 }: CollapseViewProps) {
   const accent = parent ? getPointIconConfig(parent).color : '#6b7280'
   const { lat, lng } = parent?.coordinates ?? { lat: 0, lng: 0 }
+  const minimized = open && !expanded
 
   return (
-    <DrawerShell open={open} onClose={onBack}>
-      <div className="places-drawer-handle" aria-hidden />
+    <DrawerShell
+      open={open}
+      minimized={minimized}
+      onClose={onMinimize}
+      onExpand={onExpand}
+    >
+      <button
+        type="button"
+        className="places-drawer-handle places-drawer-handle--button"
+        aria-label={minimized ? 'Open nested places' : undefined}
+        onClick={minimized ? onExpand : undefined}
+      />
       <div className="places-collapse-header">
         <button
           type="button"
@@ -38,6 +57,14 @@ export default function CollapseView({
           ‹
         </button>
         <h2 className="places-collapse-title">{parent?.name ?? 'Places'}</h2>
+        <button
+          type="button"
+          className="places-collapse-close"
+          onClick={onClose}
+          aria-label="Close nested places"
+        >
+          ×
+        </button>
       </div>
       {parent && (
         <div

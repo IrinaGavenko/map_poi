@@ -100,7 +100,15 @@ export default function MapView({
 
   useEffect(() => {
     if (!focusRequest || !mapRef.current) return
-    flyToUnclusteredPoints(mapRef.current, focusRequest.points)
+    const map = mapRef.current
+
+    // Wait a frame so mobile layout/drawer size is applied before fitting bounds.
+    const frame = window.requestAnimationFrame(() => {
+      map.resize()
+      flyToUnclusteredPoints(map, focusRequest.points)
+    })
+
+    return () => window.cancelAnimationFrame(frame)
   }, [focusRequest])
 
   useEffect(() => {
