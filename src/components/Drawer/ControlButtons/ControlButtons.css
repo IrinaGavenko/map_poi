@@ -26,6 +26,7 @@
   line-height: 1;
   color: #374151;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .drawer-control-button.is-active {

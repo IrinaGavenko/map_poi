@@ -7,7 +7,9 @@ import '../drawer.css'
 
 type ViewModeProps = {
   open: boolean
-  onClose: () => void
+  expanded: boolean
+  onMinimize: () => void
+  onExpand: () => void
   query: string
   onQueryChange: (value: string) => void
   points: Point[]
@@ -20,7 +22,9 @@ type ViewModeProps = {
 
 export default function ViewMode({
   open,
-  onClose,
+  expanded,
+  onMinimize,
+  onExpand,
   query,
   onQueryChange,
   points,
@@ -30,9 +34,21 @@ export default function ViewMode({
   selected,
   onSelect,
 }: ViewModeProps) {
+  const minimized = open && !expanded
+
   return (
-    <DrawerShell open={open} onClose={onClose}>
-      <div className="places-drawer-handle" aria-hidden />
+    <DrawerShell
+      open={open}
+      minimized={minimized}
+      onClose={onMinimize}
+      onExpand={onExpand}
+    >
+      <button
+        type="button"
+        className="places-drawer-handle places-drawer-handle--button"
+        aria-label={minimized ? 'Open places' : undefined}
+        onClick={minimized ? onExpand : undefined}
+      />
       <SearchInput query={query} onQueryChange={onQueryChange} />
       <PointFilter
         points={points}

@@ -9,7 +9,9 @@ import EditPointForm from './EditPointForm'
 
 type EditModeProps = {
   open: boolean
-  onClose: () => void
+  expanded: boolean
+  onMinimize: () => void
+  onExpand: () => void
   query: string
   onQueryChange: (value: string) => void
   points: Point[]
@@ -27,7 +29,9 @@ type EditModeProps = {
 
 export default function EditMode({
   open,
-  onClose,
+  expanded,
+  onMinimize,
+  onExpand,
   query,
   onQueryChange,
   points,
@@ -42,9 +46,21 @@ export default function EditMode({
   onChangePoint,
   onDeletePoint,
 }: EditModeProps) {
+  const minimized = open && !expanded
+
   return (
-    <DrawerShell open={open} onClose={onClose}>
-      <div className="places-drawer-handle" aria-hidden />
+    <DrawerShell
+      open={open}
+      minimized={minimized}
+      onClose={onMinimize}
+      onExpand={onExpand}
+    >
+      <button
+        type="button"
+        className="places-drawer-handle places-drawer-handle--button"
+        aria-label={minimized ? 'Open edit panel' : undefined}
+        onClick={minimized ? onExpand : undefined}
+      />
       <SearchInput query={query} onQueryChange={onQueryChange} />
       <PointFilter
         points={points}

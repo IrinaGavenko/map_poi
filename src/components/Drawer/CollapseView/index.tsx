@@ -1,9 +1,14 @@
-import type { CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import PointIcon from '@components/PointIcon'
 import { getPointIconConfig } from '@utils/pointIcons'
+import { filterPoints } from '@utils/filterPoints'
 import type { Point } from '@type'
 import DrawerShell from '../DrawerShell'
+import SearchInput from '../SearchInput'
+import PointFilter from '../PointFilter'
 import '../drawer.css'
+
+type CollapseTab = 'info' | 'places'
 
 type CollapseViewProps = {
   open: boolean
@@ -33,6 +38,18 @@ export default function CollapseView({
   const accent = parent ? getPointIconConfig(parent).color : '#6b7280'
   const { lat, lng } = parent?.coordinates ?? { lat: 0, lng: 0 }
   const minimized = open && !expanded
+
+  const [tab, setTab] = useState<CollapseTab>('info')
+  const [query, setQuery] = useState('')
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+
+  useEffect(() => {
+    setTab('info')
+    setQuery('')
+    setSelectedTypes([])
+  }, [parent?.id])
+
+  const filtered = filterPoints(points, query, selectedTypes)
 
   return (
     <DrawerShell
@@ -66,9 +83,32 @@ export default function CollapseView({
           ×
         </button>
       </div>
-      {parent && (
+
+      <div className="places-collapse-tabs" role="tablist" aria-label="Nested place sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'info'}
+          className={`places-collapse-tab${tab === 'info' ? ' is-active' : ''}`}
+          onClick={() => setTab('info')}
+        >
+          Info
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'places'}
+          className={`places-collapse-tab${tab === 'places' ? ' is-active' : ''}`}
+          onClick={() => setTab('places')}
+        >
+          Places
+        </button>
+      </div>
+
+      {tab === 'info' && parent && (
         <div
           className="places-collapse-parent"
+          role="tabpanel"
           style={{ '--collapse-accent': accent } as CSSProperties}
         >
           {parent.picture[0] ? (
@@ -118,21 +158,35 @@ export default function CollapseView({
           </div>
         </div>
       )}
-      <div className="places-list">
-        {points.map((point, index) => (
-          <div
-            key={`${point.id}-${index}`}
-            className={`places-list-item${selected?.id === point.id ? ' is-selected' : ''}`}
-            onClick={() => onSelect(point)}
-          >
-            <PointIcon point={point} size={28} />
-            <span className="places-list-name">{point.name}</span>
-            <span className="places-list-chevron" aria-hidden>
-              ›
-            </span>
+
+      {tab === 'places' && (
+        <>
+          <div className="places-collapse-filters">
+            <SearchInput query={query} onQueryChange={setQuery} />
+            <PointFilter
+              points={points}
+              query={query}
+              selectedTypes={selectedTypes}
+              onTypesChange={setSelectedTypes}
+            />
           </div>
-        ))}
-      </div>
+          <div className="places-list" role="tabpanel">
+            {filtered.map((point, index) => (
+              <div
+                key={`${point.id}-${index}`}
+                className={`places-list-item${selected?.id === point.id ? ' is-selected' : ''}`}
+                onClick={() => onSelect(point)}
+              >
+                <PointIcon point={point} size={28} />
+                <span className="places-list-name">{point.name}</span>
+                <span className="places-list-chevron" aria-hidden>
+                  ›
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </DrawerShell>
   )
 }

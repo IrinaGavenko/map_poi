@@ -17,6 +17,7 @@ export default function App() {
           points={app.mapPoints}
           selected={app.selected}
           setSelected={app.selectPoint}
+          clearSelected={app.clearSelected}
           addingPoint={app.addingPoint}
           onAddPoint={app.addPoint}
           focusRequest={app.mapFocus}
@@ -31,57 +32,65 @@ export default function App() {
         onTypesChange={app.setSelectedTypes}
       />
 
-      <ControlButtons
-        drawerMode={app.collapseDrawerExpanded ? 'places' : app.drawerMode}
-        onToggle={app.toggleDrawer}
-      />
+      <ControlButtons drawerMode={app.controlDrawerMode} onToggle={app.toggleDrawer} />
 
-      <ViewMode
-        open={app.drawerMode === 'places' && !app.collapseActive}
-        onClose={() => app.setDrawerMode(null)}
-        query={app.query}
-        onQueryChange={app.setQuery}
-        points={app.points}
-        filtered={app.filtered}
-        selectedTypes={app.selectedTypes}
-        onTypesChange={app.setSelectedTypes}
-        selected={app.selected}
-        onSelect={app.selectPoint}
-      />
+      {/* Mount only the active drawer so places + edit never overlap in the DOM. */}
+      {app.activePanel === 'places' && (
+        <ViewMode
+          open
+          expanded={app.drawerExpanded}
+          onMinimize={app.minimizeDrawer}
+          onExpand={app.expandDrawer}
+          query={app.query}
+          onQueryChange={app.setQuery}
+          points={app.points}
+          filtered={app.filtered}
+          selectedTypes={app.selectedTypes}
+          onTypesChange={app.setSelectedTypes}
+          selected={app.selected}
+          onSelect={app.selectPointFromDrawer}
+        />
+      )}
 
-      <CollapseView
-        open={app.collapseActive}
-        expanded={app.collapseExpanded}
-        parent={app.collapseSession?.parent ?? null}
-        points={app.collapseSession?.nested ?? []}
-        selected={app.selected}
-        onSelect={app.selectPoint}
-        onBack={() => app.exitCollapse(true)}
-        onClose={() => app.exitCollapse(false)}
-        onMinimize={app.minimizeCollapse}
-        onExpand={app.expandCollapse}
-      />
+      {app.activePanel === 'collapse' && (
+        <CollapseView
+          open
+          expanded={app.collapseExpanded}
+          parent={app.collapseSession?.parent ?? null}
+          points={app.collapseSession?.nested ?? []}
+          selected={app.selected}
+          onSelect={app.selectPointFromDrawer}
+          onBack={() => app.exitCollapse(true)}
+          onClose={() => app.exitCollapse(false)}
+          onMinimize={app.minimizeCollapse}
+          onExpand={app.expandCollapse}
+        />
+      )}
 
-      <EditMode
-        open={app.drawerMode === 'edit' && !app.collapseActive}
-        onClose={app.closeEditDrawer}
-        query={app.query}
-        onQueryChange={app.setQuery}
-        points={app.points}
-        filtered={app.filtered}
-        selectedTypes={app.selectedTypes}
-        onTypesChange={app.setSelectedTypes}
-        availableTypes={app.availableTypes}
-        selected={app.selected}
-        onSelect={(point) => {
-          app.setAddingPoint(false)
-          app.selectPoint(point)
-        }}
-        addingPoint={app.addingPoint}
-        onToggleAdding={() => app.setAddingPoint((active) => !active)}
-        onChangePoint={app.updateSelectedPoint}
-        onDeletePoint={app.deleteSelectedPoint}
-      />
+      {app.activePanel === 'edit' && (
+        <EditMode
+          open
+          expanded={app.drawerExpanded}
+          onMinimize={app.minimizeDrawer}
+          onExpand={app.expandDrawer}
+          query={app.query}
+          onQueryChange={app.setQuery}
+          points={app.points}
+          filtered={app.filtered}
+          selectedTypes={app.selectedTypes}
+          onTypesChange={app.setSelectedTypes}
+          availableTypes={app.availableTypes}
+          selected={app.selected}
+          onSelect={(point) => {
+            app.setAddingPoint(false)
+            app.selectPointFromDrawer(point)
+          }}
+          addingPoint={app.addingPoint}
+          onToggleAdding={() => app.setAddingPoint((active) => !active)}
+          onChangePoint={app.updateSelectedPoint}
+          onDeletePoint={app.deleteSelectedPoint}
+        />
+      )}
     </div>
   )
 }

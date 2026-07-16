@@ -15,6 +15,7 @@ type MapViewProps = {
   points: Point[]
   selected: Point | null
   setSelected: (point: Point) => void
+  clearSelected: () => void
   addingPoint?: boolean
   onAddPoint?: (coordinates: { lat: number; lng: number }) => void
   focusRequest?: MapFocusRequest | null
@@ -68,6 +69,7 @@ export default function MapView({
   points,
   selected,
   setSelected,
+  clearSelected,
   addingPoint = false,
   onAddPoint,
   focusRequest = null,
@@ -75,13 +77,20 @@ export default function MapView({
   const mapRef = useRef<maplibregl.Map | null>(null)
   const popupRef = useRef<maplibregl.Popup | null>(null)
   const pointsRef = useRef(points)
+  const selectedIdRef = useRef<string | null>(selected?.id ?? null)
   const addingPointRef = useRef(addingPoint)
   const onAddPointRef = useRef(onAddPoint)
   const setSelectedRef = useRef(setSelected)
+  const clearSelectedRef = useRef(clearSelected)
+  const closingPopupFromReact = useRef(false)
 
   useEffect(() => {
     pointsRef.current = points
   }, [points])
+
+  useEffect(() => {
+    selectedIdRef.current = selected?.id ?? null
+  }, [selected?.id])
 
   useEffect(() => {
     addingPointRef.current = addingPoint
@@ -97,6 +106,10 @@ export default function MapView({
   useEffect(() => {
     setSelectedRef.current = setSelected
   }, [setSelected])
+
+  useEffect(() => {
+    clearSelectedRef.current = clearSelected
+  }, [clearSelected])
 
   useEffect(() => {
     if (!focusRequest || !mapRef.current) return
@@ -140,6 +153,22 @@ export default function MapView({
     })
     popupRef.current = popup
 
+    const showPointPopup = (point: Point) => {
+      const mapInstance = mapRef.current
+      const popupInstance = popupRef.current
+      if (!mapInstance || !popupInstance) return
+
+      popupInstance
+        .setLngLat([point.coordinates.lng, point.coordinates.lat])
+        .setHTML(buildPopupContent(point))
+        .addTo(mapInstance)
+    }
+
+    popup.on('close', () => {
+      if (closingPopupFromReact.current) return
+      clearSelectedRef.current()
+    })
+
     const setPointer = () => {
       if (addingPointRef.current) return
       map.getCanvas().style.cursor = 'pointer'
@@ -162,9 +191,15 @@ export default function MapView({
         (typeof collapseFromFeature === 'string' && collapseFromFeature) ||
         undefined
 
-      setSelectedRef.current(
-        isCollapsible ? { ...point, isCollapsible } : point,
-      )
+      const nextPoint = isCollapsible ? { ...point, isCollapsible } : point
+      const alreadySelected = String(selectedIdRef.current) === String(point.id)
+
+      setSelectedRef.current(nextPoint)
+
+      // Same point still selected after closing the popup — reopen it explicitly.
+      if (alreadySelected && !isCollapsible) {
+        showPointPopup(point)
+      }
     }
 
     const onClusterClick = (e: maplibregl.MapLayerMouseEvent) => {
@@ -278,13 +313,17 @@ export default function MapView({
     if (!mapRef.current) return
 
     if (!selectedId) {
+      closingPopupFromReact.current = true
       popupRef.current?.remove()
+      closingPopupFromReact.current = false
       return
     }
 
     const point = pointsRef.current.find((p) => String(p.id) === String(selectedId))
     if (!point || point.isCollapsible) {
+      closingPopupFromReact.current = true
       popupRef.current?.remove()
+      closingPopupFromReact.current = false
       return
     }
 
@@ -302,8 +341,26 @@ export default function MapView({
       .addTo(mapRef.current)
   }, [selectedId])
 
+  // Refresh open popup only when the selected point's displayed fields change
+  // (e.g. edit form), not when the points array identity changes from unrelated UI.
+  const selectedPopupKey = (() => {
+    if (!selectedId) return null
+    const point = points.find((p) => String(p.id) === String(selectedId))
+    if (!point || point.isCollapsible) return null
+    return [
+      point.id,
+      point.name,
+      point.description,
+      point.link,
+      point.type.join(','),
+      point.picture[0] ?? '',
+      point.coordinates.lat,
+      point.coordinates.lng,
+    ].join('|')
+  })()
+
   useEffect(() => {
-    if (!selectedId || !popupRef.current?.isOpen()) return
+    if (!selectedPopupKey || !popupRef.current?.isOpen()) return
 
     const point = pointsRef.current.find((p) => String(p.id) === String(selectedId))
     if (!point || point.isCollapsible) {
@@ -323,7 +380,7 @@ export default function MapView({
     if (shouldRestore) {
       active.focus({ preventScroll: true })
     }
-  }, [points, selectedId])
+  }, [selectedPopupKey, selectedId])
 
   return <div id="map" style={{ height: '100%', width: '100%' }} />
 }

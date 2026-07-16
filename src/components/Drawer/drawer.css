@@ -20,7 +20,7 @@
   overflow-x: hidden;
   overflow-y: hidden;
   transform: translateX(calc(-100% - 32px));
-  transition: transform 0.25s ease;
+  transition: transform 0.4s ease, height 0.4s ease, padding 0.4s ease, min-height 0.4s ease;
   pointer-events: none;
 }
 
@@ -46,6 +46,11 @@
 .places-drawer > .places-collapse-header,
 .places-drawer > div:not(.places-list):not(.places-drawer-body):not(.places-drawer-handle):not(.places-collapse-header):not(.places-collapse-parent) {
   padding-right: 14px;
+}
+
+/* Nested places filters — shown inside Places tab. */
+.places-collapse-filters {
+  flex-shrink: 0;
 }
 
 .places-drawer .places-collapse-header {
@@ -83,9 +88,7 @@
 }
 
 .places-drawer .places-collapse-close {
-  font-size: 24px;
-  margin-left: auto;
-  margin-right: 14px;
+  display: none;
 }
 
 .places-drawer .places-collapse-title {
@@ -99,14 +102,46 @@
   white-space: nowrap;
 }
 
+.places-drawer .places-collapse-tabs {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin: 0 14px 12px 0;
+  padding: 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.places-drawer .places-collapse-tab {
+  flex: 1;
+  min-height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.places-drawer .places-collapse-tab.is-active {
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+}
+
 .places-drawer .places-collapse-parent {
   --collapse-accent: #6b7280;
-  flex-shrink: 0;
-  margin: 0 14px 8px 0;
+  flex: 1;
+  min-height: 0;
+  margin: 0 14px 0 0;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .places-drawer .places-collapse-parent-media {
@@ -374,7 +409,8 @@
   }
 
   .places-drawer.is-open.is-minimized > *:not(.places-drawer-handle) {
-    display: none;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .places-drawer-handle {
@@ -414,8 +450,7 @@
     margin: 0 auto;
   }
 
-  .places-drawer .places-collapse-back,
-  .places-drawer .places-collapse-close {
+  .places-drawer .places-collapse-back {
     box-shadow: none;
   }
 }
