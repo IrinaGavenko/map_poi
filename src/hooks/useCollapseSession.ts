@@ -1,10 +1,11 @@
 import { useRef, useState, type Dispatch, type SetStateAction } from 'react'
-import { loadCollapsePoints } from '@utils/datasets'
-import type { Point } from '@type'
+import { loadCollapseDataset } from '@utils/datasets'
+import type { CollapsePolygon, Point } from '@type'
 
 export type CollapseSession = {
   parent: Point
   nested: Point[]
+  polygon: CollapsePolygon | null
   previousPoints: Point[]
 }
 
@@ -40,15 +41,19 @@ export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs
   }
 
   const enter = async (point: Point, collapseFile: string) => {
-    const nested = await loadCollapsePoints(collapseFile)
+    const { points: nested, polygon } = await loadCollapseDataset(collapseFile)
     const previousPoints = pointsRef.current
-    setSession({ parent: point, nested, previousPoints })
+    setSession({ parent: point, nested, polygon, previousPoints })
     setExpanded(true)
     setPoints([...previousPoints.filter((p) => p.id !== point.id), ...nested])
     mapFocusKey.current += 1
+    const focusPoints =
+      polygon && polygon.coordinates.length > 0
+        ? polygon.coordinates
+        : nested.map((p) => p.coordinates)
     setMapFocus({
       key: mapFocusKey.current,
-      points: nested.map((p) => p.coordinates),
+      points: focusPoints,
     })
   }
 

@@ -2,9 +2,14 @@ import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
 import { buildIconImageExpression, CLUSTER_ICON_ID, getPointIconConfig, loadMapIcons } from '@utils/pointIcons'
 import { CLUSTER_RADIUS_PX, flyToUnclusteredPoints } from '@utils/mapFocus'
+import { collapsePolygonToGeoJSON } from '@utils/collapsePolygon'
 import { toGeoJSON } from '@utils/toGeoJSON'
-import type { Point } from '@type'
+import type { CollapsePolygon, Point } from '@type'
 import './MapView.css'
+
+const COLLAPSE_POLYGON_SOURCE = 'collapse-polygon'
+const COLLAPSE_POLYGON_LINE = 'collapse-polygon-line'
+const COLLAPSE_POLYGON_FILL = 'collapse-polygon-fill'
 
 type MapFocusRequest = {
   key: number
@@ -19,6 +24,7 @@ type MapViewProps = {
   addingPoint?: boolean
   onAddPoint?: (coordinates: { lat: number; lng: number }) => void
   focusRequest?: MapFocusRequest | null
+  collapsePolygon?: CollapsePolygon | null
 }
 
 function buildPopupContent(point: Point): string {
@@ -73,10 +79,12 @@ export default function MapView({
   addingPoint = false,
   onAddPoint,
   focusRequest = null,
+  collapsePolygon = null,
 }: MapViewProps) {
   const mapRef = useRef<maplibregl.Map | null>(null)
   const popupRef = useRef<maplibregl.Popup | null>(null)
   const pointsRef = useRef(points)
+  const collapsePolygonRef = useRef(collapsePolygon)
   const selectedIdRef = useRef<string | null>(selected?.id ?? null)
   const addingPointRef = useRef(addingPoint)
   const onAddPointRef = useRef(onAddPoint)
@@ -87,6 +95,10 @@ export default function MapView({
   useEffect(() => {
     pointsRef.current = points
   }, [points])
+
+  useEffect(() => {
+    collapsePolygonRef.current = collapsePolygon
+  }, [collapsePolygon])
 
   useEffect(() => {
     selectedIdRef.current = selected?.id ?? null
@@ -235,7 +247,37 @@ export default function MapView({
         clusterRadius: CLUSTER_RADIUS_PX,
       })
 
+      map.addSource(COLLAPSE_POLYGON_SOURCE, {
+        type: 'geojson',
+        data: collapsePolygonToGeoJSON(collapsePolygonRef.current),
+      })
+
       await loadMapIcons(map)
+
+      map.addLayer({
+        id: COLLAPSE_POLYGON_FILL,
+        type: 'fill',
+        source: COLLAPSE_POLYGON_SOURCE,
+        paint: {
+          'fill-color': ['coalesce', ['get', 'color'], '#3b82f6'],
+          'fill-opacity': 0.08,
+        },
+      })
+
+      map.addLayer({
+        id: COLLAPSE_POLYGON_LINE,
+        type: 'line',
+        source: COLLAPSE_POLYGON_SOURCE,
+        paint: {
+          'line-color': ['coalesce', ['get', 'color'], '#3b82f6'],
+          'line-width': 3,
+          'line-opacity': 1,
+        },
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
+        },
+      })
 
       map.addLayer({
         id: 'clusters',
@@ -287,6 +329,14 @@ export default function MapView({
       popupRef.current = null
     }
   }, [])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const src = map.getSource(COLLAPSE_POLYGON_SOURCE) as maplibregl.GeoJSONSource | undefined
+    if (!src) return
+    src.setData(collapsePolygonToGeoJSON(collapsePolygon))
+  }, [collapsePolygon])
 
   useEffect(() => {
     const map = mapRef.current

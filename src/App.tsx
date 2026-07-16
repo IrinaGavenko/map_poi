@@ -11,7 +11,16 @@ export default function App() {
   const app = useMapApp()
 
   return (
-    <div className={`app-shell${app.drawerOpen ? ' is-drawer-open' : ''}`}>
+    <div
+      className={[
+        'app-shell',
+        app.drawerOpen ? 'is-drawer-open' : '',
+        app.collapseActive ? 'is-collapse-active' : '',
+        app.collapseActive && !app.collapseExpanded ? 'is-collapse-minimized' : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <div className="app-shell-map">
         <MapView
           points={app.mapPoints}
@@ -21,13 +30,14 @@ export default function App() {
           addingPoint={app.addingPoint}
           onAddPoint={app.addPoint}
           focusRequest={app.mapFocus}
+          collapsePolygon={app.collapseSession?.polygon ?? null}
         />
       </div>
 
       <DatasetSelector value={app.datasetId} onChange={app.handleDatasetChange} />
 
       <MapLegend
-        types={app.availableTypes}
+        types={app.legendTypes}
         selectedTypes={app.selectedTypes}
         onTypesChange={app.setSelectedTypes}
       />

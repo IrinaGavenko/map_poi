@@ -1,42 +1,73 @@
-[
-  {
-    "id": "FF-1",
-    "name": "FF-1",
-    "type": ["tent"],
-    "description": "Under collapse",
-    "icon": "pin",
-    "picture": ["https://picsum.photos/400?random=miami1"],
-    "link": "https://www.miamiandbeaches.com/",
-    "coordinates": { "lat": 25.7825, "lng": -80.1345 }
-  },
-  {
-    "id": "FF-2",
-    "name": "FF-2",
-    "type": ["tent"],
-    "description": "Under collapse",
-    "icon": "pin",
-    "picture": ["https://picsum.photos/400?random=miami1"],
-    "link": "https://www.miamiandbeaches.com/",
-    "coordinates": { "lat": 25.7824, "lng": -80.1347 }
-  },
-  {
-    "id": "FF-3",
-    "name": "FF-3",
-    "type": ["tent"],
-    "description": "Under collapse",
-    "icon": "pin",
-    "picture": ["https://picsum.photos/400?random=miami1"],
-    "link": "https://www.miamiandbeaches.com/",
-    "coordinates": { "lat": 25.7822, "lng": -80.1349 }
-  },
-  {
-    "id": "FF-4",
-    "name": "FF-4",
-    "type": ["tent"],
-    "description": "Under collapse",
-    "icon": "pin",
-    "picture": ["https://picsum.photos/400?random=miami1"],
-    "link": "https://www.miamiandbeaches.com/",
-    "coordinates": { "lat": 25.7827, "lng": -80.1341 }
-  }
-]
+{
+  "polygon": {
+    "color": "#FF0000",
+    "coordinates": [
+    {
+      "lat": 25.7825,
+      "lng": -80.1345
+    },
+    {
+      "lat": 25.7824,
+      "lng": -80.1347
+    },
+    {
+      "lat": 25.7823,
+      "lng": -80.1349
+    },
+    {
+      "lat": 25.7822,
+      "lng": -80.1349
+    },
+    {
+      "lat": 25.7821,
+      "lng": -80.1349
+    },
+    {
+      "lat": 25.782,
+      "lng": -80.1349
+    }
+  ]
+},
+  "points": [
+    {
+      "id": "FF-1",
+      "name": "FF-1",
+      "type": ["tent"],
+      "description": "Under collapse",
+      "icon": "pin",
+      "picture": ["https://picsum.photos/400?random=miami1"],
+      "link": "https://www.miamiandbeaches.com/",
+      "coordinates": { "lat": 25.7825, "lng": -80.1345 }
+    },
+    {
+      "id": "FF-2",
+      "name": "FF-2",
+      "type": ["tent"],
+      "description": "Under collapse",
+      "icon": "pin",
+      "picture": ["https://picsum.photos/400?random=miami1"],
+      "link": "https://www.miamiandbeaches.com/",
+      "coordinates": { "lat": 25.7824, "lng": -80.1347 }
+    },
+    {
+      "id": "FF-3",
+      "name": "FF-3",
+      "type": ["tent"],
+      "description": "Under collapse",
+      "icon": "pin",
+      "picture": ["https://picsum.photos/400?random=miami1"],
+      "link": "https://www.miamiandbeaches.com/",
+      "coordinates": { "lat": 25.7822, "lng": -80.1349 }
+    },
+    {
+      "id": "FF-4",
+      "name": "FF-4",
+      "type": ["tent"],
+      "description": "Under collapse",
+      "icon": "pin",
+      "picture": ["https://picsum.photos/400?random=miami1"],
+      "link": "https://www.miamiandbeaches.com/",
+      "coordinates": { "lat": 25.7827, "lng": -80.1341 }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { DrawerMode } from '@components/Drawer/ControlButtons'
 import type { Point } from '@type'
+import { filterPoints, getPointTypes } from '@utils/filterPoints'
 import { isMobileViewport } from '@utils/isMobile'
 import { useDataset } from './useDataset'
 import { usePointFilters } from './usePointFilters'
@@ -73,6 +74,7 @@ export function useMapApp() {
     collapse.exit()
     selection.setSelected(null)
     drawers.setAddingPoint(false)
+    filters.resetFilters()
     // Never open edit from collapse exit — only places or nothing.
     drawers.setDrawerMode(openPlaces ? 'places' : null)
   }
@@ -155,12 +157,28 @@ export function useMapApp() {
           ? 'edit'
           : null
 
+  const legendTypes = useMemo(
+    () =>
+      collapse.isActive
+        ? getPointTypes(collapse.session?.nested ?? [])
+        : filters.availableTypes,
+    [collapse.isActive, collapse.session?.nested, filters.availableTypes],
+  )
+
+  const mapPoints = useMemo(() => {
+    if (collapse.isActive) {
+      return filterPoints(dataset.points, '', filters.selectedTypes)
+    }
+    return filters.filtered
+  }, [collapse.isActive, dataset.points, filters.selectedTypes, filters.filtered])
+
   return {
     datasetId: dataset.datasetId,
     points: dataset.points,
-    mapPoints: collapse.isActive ? dataset.points : filters.filtered,
+    mapPoints,
     filtered: filters.filtered,
     availableTypes: filters.availableTypes,
+    legendTypes,
     query: filters.query,
     setQuery: filters.setQuery,
     selectedTypes: filters.selectedTypes,
