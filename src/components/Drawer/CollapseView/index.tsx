@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import PointIcon from '@components/PointIcon'
+import { getCategoryTitle } from '@type/categories'
 import { getPointIconConfig } from '@utils/pointIcons'
 import { filterPoints } from '@utils/filterPoints'
 import type { Point } from '@type'
@@ -124,7 +125,7 @@ export default function CollapseView({
                 <div className="places-collapse-parent-tags">
                   {parent.type.map((type) => (
                     <span key={type} className="places-collapse-parent-tag">
-                      {type}
+                      {getCategoryTitle(type)}
                     </span>
                   ))}
                 </div>

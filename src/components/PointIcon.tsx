@@ -1,4 +1,9 @@
-import { getPointIconConfig } from '@utils/pointIcons'
+import { getPointCategoryId, getPointIconConfig } from '@utils/pointIcons'
+import {
+  getCategoryImageUrl,
+  getCategoryRenderType,
+  getPinEmojiForCategory,
+} from '@type/categories'
 import type { Point } from '@type'
 
 type PointIconProps = {
@@ -7,7 +12,35 @@ type PointIconProps = {
 }
 
 export default function PointIcon({ point, size = 22 }: PointIconProps) {
-  const { color, icon } = getPointIconConfig(point)
+  const categoryId = getPointCategoryId(point)
+  const { color } = getPointIconConfig(point)
+  const renderType = getCategoryRenderType(categoryId)
+  const imageUrl = getCategoryImageUrl(categoryId)
+
+  if ((renderType === 'picture' || renderType === 'icon') && imageUrl) {
+    const width = renderType === 'picture' ? Math.round(size * 1.6) : Math.round(size * 1.35)
+    return (
+      <span
+        aria-hidden
+        style={{
+          width,
+          height: size,
+          borderRadius: 4,
+          border: `2px solid ${color}`,
+          overflow: 'hidden',
+          display: 'inline-flex',
+          flexShrink: 0,
+          background: '#ffffff',
+        }}
+      >
+        <img
+          src={imageUrl}
+          alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
+      </span>
+    )
+  }
 
   return (
     <span
@@ -25,7 +58,7 @@ export default function PointIcon({ point, size = 22 }: PointIconProps) {
         lineHeight: 1,
       }}
     >
-      {icon}
+      {getPinEmojiForCategory(categoryId)}
     </span>
   )
 }

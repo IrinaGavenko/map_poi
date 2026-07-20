@@ -1,26 +1,46 @@
-import type { ExpressionSpecification, Map } from 'maplibre-gl'
+import type { ExpressionSpecification, Map as MapLibreMap } from 'maplibre-gl'
 import type { Point } from '@type'
 import {
+  CATEGORY_TYPE,
+  DEFAULT_CATEGORY_COLOR,
+  DEFAULT_CATEGORY_PICTURE,
   FALLBACK_POINT_CATEGORY,
+  getCategoryImageUrl,
+  getCategoryRenderType,
+  getPinEmojiForCategory,
   POINT_CATEGORY_CONFIG,
-  type PointCategoryConfig,
+  RECT_POINT_CATEGORY_IDS,
+  resolvePointCategoryConfig,
+  type ResolvedPointCategoryConfig,
 } from '@type/categories'
 
-export type { PointCategoryConfig as PointIconConfig }
+export type { ResolvedPointCategoryConfig as PointIconConfig }
 
 export const POINT_ICON_CONFIG = POINT_CATEGORY_CONFIG
 export const CLUSTER_ICON_ID = 'cluster-button'
 
-export function getPointIconKey(point: Point): string {
-  const type = point.type[0]
-  if (type && type in POINT_CATEGORY_CONFIG) return type
+export function getPointCategoryId(point: Point): string {
+  const categoryId = point.type[0]
+  if (categoryId && categoryId in POINT_CATEGORY_CONFIG) return categoryId
   if (point.icon in POINT_CATEGORY_CONFIG) return point.icon
   return FALLBACK_POINT_CATEGORY.id
 }
 
-export function getPointIconConfig(point: Point): PointCategoryConfig {
-  return POINT_CATEGORY_CONFIG[getPointIconKey(point)]
+export function getPointIconKey(point: Point): string {
+  return getPointCategoryId(point)
 }
+
+export function getPointIconConfig(point: Point): ResolvedPointCategoryConfig {
+  return resolvePointCategoryConfig(getPointCategoryId(point))
+}
+
+/** Small rectangle for `icon` render type (clusters with pins). */
+export const ICON_MARKER_WIDTH = 56
+export const ICON_MARKER_HEIGHT = 40
+
+/** Large rectangle for `picture` render type (never clustered). */
+export const PICTURE_MARKER_WIDTH = 140
+export const PICTURE_MARKER_HEIGHT = 100
 
 function roundRect(
   ctx: CanvasRenderingContext2D,
@@ -65,6 +85,128 @@ function createPinImageData(color: string, icon: string): ImageData {
   return ctx.getImageData(0, 0, width, height)
 }
 
+function loadImageElement(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => reject(new Error(`Failed to load image: ${src}`))
+    img.src = src
+  })
+}
+
+async function loadImage(url: string): Promise<HTMLImageElement> {
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const response = await fetch(url)
+      if (!response.ok) throw new Error('fetch failed')
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      try {
+        return await loadImageElement(objectUrl)
+      } finally {
+        URL.revokeObjectURL(objectUrl)
+      }
+    } catch {
+      // Fall through to direct image load.
+    }
+  }
+
+  return loadImageElement(url)
+}
+
+function createRectPlaceholderImageData(
+  width: number,
+  height: number,
+  borderColor: string,
+): ImageData {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return new ImageData(width, height)
+
+  const radius = Math.max(4, Math.round(Math.min(width, height) * 0.12))
+  const border = Math.max(2, Math.round(Math.min(width, height) * 0.04))
+
+  roundRect(ctx, 0, 0, width, height, radius)
+  ctx.fillStyle = '#f3f4f6'
+  ctx.fill()
+
+  roundRect(ctx, 0, 0, width, height, radius)
+  ctx.strokeStyle = borderColor
+  ctx.lineWidth = border
+  ctx.stroke()
+
+  return ctx.getImageData(0, 0, width, height)
+}
+
+function createRectImageData(
+  image: HTMLImageElement,
+  width: number,
+  height: number,
+  borderColor: string,
+): ImageData {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return new ImageData(width, height)
+
+  const radius = Math.max(4, Math.round(Math.min(width, height) * 0.12))
+  const border = Math.max(2, Math.round(Math.min(width, height) * 0.04))
+  const innerX = border
+  const innerY = border
+  const innerW = width - border * 2
+  const innerH = height - border * 2
+
+  roundRect(ctx, 0, 0, width, height, radius)
+  ctx.fillStyle = '#ffffff'
+  ctx.fill()
+
+  roundRect(ctx, 0, 0, width, height, radius)
+  ctx.strokeStyle = borderColor
+  ctx.lineWidth = border
+  ctx.stroke()
+
+  ctx.save()
+  roundRect(ctx, innerX, innerY, innerW, innerH, Math.max(2, radius - 1))
+  ctx.clip()
+
+  const scale = Math.min(innerW / image.width, innerH / image.height)
+  const drawW = image.width * scale
+  const drawH = image.height * scale
+  const drawX = innerX + (innerW - drawW) / 2
+  const drawY = innerY + (innerH - drawH) / 2
+  ctx.drawImage(image, drawX, drawY, drawW, drawH)
+  ctx.restore()
+
+  return ctx.getImageData(0, 0, width, height)
+}
+
+async function createRectMarkerImageData(
+  pictureUrl: string,
+  borderColor: string,
+  width: number,
+  height: number,
+): Promise<ImageData> {
+  const urls =
+    pictureUrl === DEFAULT_CATEGORY_PICTURE
+      ? [DEFAULT_CATEGORY_PICTURE]
+      : [pictureUrl, DEFAULT_CATEGORY_PICTURE]
+
+  for (const url of urls) {
+    try {
+      const img = await loadImage(url)
+      return createRectImageData(img, width, height, borderColor)
+    } catch {
+      // Try next URL.
+    }
+  }
+
+  return createRectPlaceholderImageData(width, height, borderColor)
+}
+
 /** Matches `.drawer-control-button` look: 40×40, white, border, shadow, radius 8. */
 function createClusterButtonImageData(): ImageData {
   const size = 88
@@ -101,13 +243,42 @@ export function buildIconImageExpression(): ExpressionSpecification {
   return ['match', ['get', 'iconKey'], ...pairs, FALLBACK_POINT_CATEGORY.id] as unknown as ExpressionSpecification
 }
 
-export function loadMapIcons(map: Map): Promise<void> {
-  for (const [key, { color, icon }] of Object.entries(POINT_CATEGORY_CONFIG)) {
-    const imageData = createPinImageData(color, icon)
-    if (map.hasImage(key)) {
-      map.removeImage(key)
+export function buildIconAnchorExpression(): ExpressionSpecification {
+  const pairs = RECT_POINT_CATEGORY_IDS.flatMap((key) => [key, 'center'])
+  return ['match', ['get', 'iconKey'], ...pairs, 'bottom'] as unknown as ExpressionSpecification
+}
+
+export async function loadMapIcons(map: MapLibreMap): Promise<void> {
+  for (const [categoryId, config] of Object.entries(POINT_CATEGORY_CONFIG)) {
+    const typeConfig = CATEGORY_TYPE[config.type]
+    const color = typeConfig?.color ?? DEFAULT_CATEGORY_COLOR
+    const renderType = getCategoryRenderType(categoryId)
+    let imageData: ImageData
+
+    if (renderType === 'picture') {
+      const pictureUrl = getCategoryImageUrl(categoryId)!
+      imageData = await createRectMarkerImageData(
+        pictureUrl,
+        color,
+        PICTURE_MARKER_WIDTH,
+        PICTURE_MARKER_HEIGHT,
+      )
+    } else if (renderType === 'icon') {
+      const pictureUrl = getCategoryImageUrl(categoryId)!
+      imageData = await createRectMarkerImageData(
+        pictureUrl,
+        color,
+        ICON_MARKER_WIDTH,
+        ICON_MARKER_HEIGHT,
+      )
+    } else {
+      imageData = createPinImageData(color, getPinEmojiForCategory(categoryId))
     }
-    map.addImage(key, imageData, { pixelRatio: 2 })
+
+    if (map.hasImage(categoryId)) {
+      map.removeImage(categoryId)
+    }
+    map.addImage(categoryId, imageData, { pixelRatio: 2 })
   }
 
   const clusterImage = createClusterButtonImageData()
@@ -115,6 +286,4 @@ export function loadMapIcons(map: Map): Promise<void> {
     map.removeImage(CLUSTER_ICON_ID)
   }
   map.addImage(CLUSTER_ICON_ID, clusterImage, { pixelRatio: 2 })
-
-  return Promise.resolve()
 }

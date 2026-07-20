@@ -1,3 +1,4 @@
+import { getCategoryTitle } from '@type/categories'
 import { filterPoints, getPointTypes } from '@utils/filterPoints'
 import type { Point } from '@type'
 
@@ -50,7 +51,6 @@ export default function PointFilter({
               style={{
                 padding: '4px 10px',
                 fontSize: 12,
-                textTransform: 'capitalize',
                 borderRadius: 999,
                 border: `1px solid ${active ? '#3b82f6' : '#d1d5db'}`,
                 background: active ? '#eff6ff' : '#fff',
@@ -58,7 +58,7 @@ export default function PointFilter({
                 cursor: 'pointer',
               }}
             >
-              {type}
+              {getCategoryTitle(type)}
             </button>
           )
         })}

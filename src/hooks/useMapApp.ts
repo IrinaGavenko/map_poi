@@ -167,10 +167,10 @@ export function useMapApp() {
 
   const mapPoints = useMemo(() => {
     if (collapse.isActive) {
-      return filterPoints(dataset.points, '', filters.selectedTypes)
+      return filterPoints(collapse.session?.nested ?? [], '', filters.selectedTypes)
     }
     return filters.filtered
-  }, [collapse.isActive, dataset.points, filters.selectedTypes, filters.filtered])
+  }, [collapse.isActive, collapse.session?.nested, filters.selectedTypes, filters.filtered])
 
   return {
     datasetId: dataset.datasetId,

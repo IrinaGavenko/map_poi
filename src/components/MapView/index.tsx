@@ -1,9 +1,15 @@
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
-import { buildIconImageExpression, CLUSTER_ICON_ID, getPointIconConfig, loadMapIcons } from '@utils/pointIcons'
+import { buildIconAnchorExpression, buildIconImageExpression, CLUSTER_ICON_ID, getPointCategoryId, getPointIconConfig, loadMapIcons } from '@utils/pointIcons'
 import { CLUSTER_RADIUS_PX, flyToUnclusteredPoints } from '@utils/mapFocus'
 import { collapsePolygonToGeoJSON } from '@utils/collapsePolygon'
-import { toGeoJSON } from '@utils/toGeoJSON'
+import { splitPointsGeoJSON } from '@utils/toGeoJSON'
+import {
+  getCategoryImageUrl,
+  getCategoryRenderType,
+  getCategoryTitle,
+  getPinEmojiForCategory,
+} from '@type/categories'
 import type { CollapsePolygon, Point } from '@type'
 import './MapView.css'
 
@@ -28,17 +34,26 @@ type MapViewProps = {
 }
 
 function buildPopupContent(point: Point): string {
-  const { color, icon } = getPointIconConfig(point)
+  const categoryId = getPointCategoryId(point)
+  const { color } = getPointIconConfig(point)
+  const renderType = getCategoryRenderType(categoryId)
+  const categoryImageUrl = getCategoryImageUrl(categoryId)
   const { lat, lng } = point.coordinates
   const categories = point.type
     .map(
       (type) =>
-        `<span class="map-popup-tag" style="--popup-accent:${color}">${type}</span>`,
+        `<span class="map-popup-tag" style="--popup-accent:${color}">${getCategoryTitle(type)}</span>`,
     )
     .join('')
   const image = point.picture[0]
     ? `<div class="map-popup-media"><img class="map-popup-image" src="${point.picture[0]}" alt="" /></div>`
     : `<div class="map-popup-media map-popup-media--empty" style="--popup-accent:${color}"></div>`
+  const logo =
+    (renderType === 'icon' || renderType === 'picture') && categoryImageUrl
+      ? `<span class="map-popup-icon map-popup-icon--image" aria-hidden style="border-color:${color}">
+          <img src="${categoryImageUrl}" alt="" />
+        </span>`
+      : `<span class="map-popup-icon" aria-hidden style="background:${color}">${getPinEmojiForCategory(categoryId)}</span>`
   const moreInfo = point.link
     ? `<a class="map-popup-link" href="${point.link}" target="_blank" rel="noopener noreferrer">
         <span class="map-popup-link-icon" aria-hidden>↗</span>
@@ -55,7 +70,7 @@ function buildPopupContent(point: Point): string {
       ${image}
       <div class="map-popup-body">
         <div class="map-popup-heading">
-          <span class="map-popup-icon" aria-hidden style="background:${color}">${icon}</span>
+          ${logo}
           <div class="map-popup-heading-text">
             <h3 class="map-popup-title">${point.name}</h3>
             <div class="map-popup-tags">${categories}</div>
@@ -232,7 +247,7 @@ export default function MapView({
       if (!addingPointRef.current || !onAddPointRef.current) return
 
       const hit = map.queryRenderedFeatures(e.point, {
-        layers: ['points', 'clusters'],
+        layers: ['points', 'picture-points', 'clusters'],
       })
       if (hit.length > 0) return
 
@@ -240,11 +255,18 @@ export default function MapView({
     }
 
     map.on('load', async () => {
+      const initial = splitPointsGeoJSON(pointsRef.current)
+
       map.addSource('points', {
         type: 'geojson',
-        data: toGeoJSON(pointsRef.current),
+        data: initial.clustered,
         cluster: true,
         clusterRadius: CLUSTER_RADIUS_PX,
+      })
+
+      map.addSource('picture-points', {
+        type: 'geojson',
+        data: initial.picture,
       })
 
       map.addSource(COLLAPSE_POLYGON_SOURCE, {
@@ -309,15 +331,32 @@ export default function MapView({
           'icon-image': buildIconImageExpression(),
           'icon-size': 1,
           'icon-allow-overlap': true,
-          'icon-anchor': 'bottom',
+          'icon-ignore-placement': true,
+          'icon-anchor': buildIconAnchorExpression(),
+        },
+      })
+
+      map.addLayer({
+        id: 'picture-points',
+        type: 'symbol',
+        source: 'picture-points',
+        layout: {
+          'icon-image': buildIconImageExpression(),
+          'icon-size': 1,
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+          'icon-anchor': 'center',
         },
       })
 
       map.on('click', 'points', onPointClick)
+      map.on('click', 'picture-points', onPointClick)
       map.on('click', 'clusters', onClusterClick)
       map.on('click', onMapClick)
       map.on('mouseenter', 'points', setPointer)
       map.on('mouseleave', 'points', clearPointer)
+      map.on('mouseenter', 'picture-points', setPointer)
+      map.on('mouseleave', 'picture-points', clearPointer)
       map.on('mouseenter', 'clusters', setPointer)
       map.on('mouseleave', 'clusters', clearPointer)
     })
@@ -341,8 +380,9 @@ export default function MapView({
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    const src = map.getSource('points') as maplibregl.GeoJSONSource | undefined
-    if (!src) return
+    const clusteredSrc = map.getSource('points') as maplibregl.GeoJSONSource | undefined
+    const pictureSrc = map.getSource('picture-points') as maplibregl.GeoJSONSource | undefined
+    if (!clusteredSrc || !pictureSrc) return
 
     const active = document.activeElement
     const shouldRestore =
@@ -350,7 +390,9 @@ export default function MapView({
       (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') &&
       !map.getContainer().contains(active)
 
-    src.setData(toGeoJSON(points))
+    const { clustered, picture } = splitPointsGeoJSON(points)
+    clusteredSrc.setData(clustered)
+    pictureSrc.setData(picture)
 
     if (shouldRestore) {
       active.focus({ preventScroll: true })

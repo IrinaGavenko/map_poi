@@ -92,6 +92,22 @@
   color: #fff;
 }
 
+.map-popup-icon--image {
+  border-radius: 6px;
+  border: 2px solid #6b7280;
+  background: #ffffff;
+  overflow: hidden;
+  padding: 0;
+  color: inherit;
+}
+
+.map-popup-icon--image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .map-popup-heading-text {
   min-width: 0;
   flex: 1;

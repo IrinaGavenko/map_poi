@@ -45,7 +45,8 @@ export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs
     const previousPoints = pointsRef.current
     setSession({ parent: point, nested, polygon, previousPoints })
     setExpanded(true)
-    setPoints([...previousPoints.filter((p) => p.id !== point.id), ...nested])
+    // Only nested places while collapsed — restore previousPoints on exit.
+    setPoints(nested)
     mapFocusKey.current += 1
     const focusPoints =
       polygon && polygon.coordinates.length > 0

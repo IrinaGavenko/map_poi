@@ -1,4 +1,10 @@
-import { getPointCategoryConfig } from '@type/categories'
+import {
+  getCategoryImageUrl,
+  getCategoryRenderType,
+  getCategoryTitle,
+  getPinEmojiForCategory,
+  resolvePointCategoryConfig,
+} from '@type/categories'
 import './MapLegend.css'
 
 type MapLegendProps = {
@@ -23,7 +29,9 @@ export default function MapLegend({
   return (
     <div className="map-legend" role="group" aria-label="Filter by type">
       {types.map((type) => {
-        const config = getPointCategoryConfig(type)
+        const config = resolvePointCategoryConfig(type)
+        const renderType = getCategoryRenderType(type)
+        const imageUrl = getCategoryImageUrl(type)
         const active = selectedTypes.length === 0 || selectedTypes.includes(type)
         return (
           <button
@@ -34,9 +42,18 @@ export default function MapLegend({
             onClick={() => toggleType(type)}
           >
             <span className="map-legend-icon" aria-hidden>
-              {config.icon}
+              {(renderType === 'picture' || renderType === 'icon') && imageUrl ? (
+                <img
+                  className="map-legend-picture"
+                  src={imageUrl}
+                  alt=""
+                  style={{ borderColor: config.color }}
+                />
+              ) : (
+                getPinEmojiForCategory(type)
+              )}
             </span>
-            <span className="map-legend-label">{type}</span>
+            <span className="map-legend-label">{getCategoryTitle(type)}</span>
           </button>
         )
       })}

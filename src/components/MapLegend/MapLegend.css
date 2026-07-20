@@ -60,11 +60,20 @@
   background: transparent;
 }
 
+.map-legend-picture {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
 .map-legend-label {
   font-size: 13px;
   font-weight: 500;
   color: #111827;
-  text-transform: capitalize;
 }
 
 @media (max-width: 768px) {

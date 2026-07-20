@@ -1,0 +1,1656 @@
+[
+  {
+    "id": "AIR-MIA-FLL",
+    "name": "Fort Lauderdale-Hollywood International Airport",
+    "type": [
+      "airport"
+    ],
+    "description": "",
+    "icon": "airport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0732019421389,
+      "lng": -80.1512569100752
+    }
+  },
+  {
+    "id": "AIR-MIA-FXE",
+    "name": "Fort Lauderdale Executive Airport",
+    "type": [
+      "airport"
+    ],
+    "description": "",
+    "icon": "airport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.2005594479539,
+      "lng": -80.1714572558783
+    }
+  },
+  {
+    "id": "AIR-MIA-MIA",
+    "name": "Miami International Airport",
+    "type": [
+      "airport"
+    ],
+    "description": "2100 NW 42nd Ave, Miami, FL 33142, USA",
+    "icon": "airport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.79587,
+      "lng": -80.28705
+    }
+  },
+  {
+    "id": "AIR-MIA-OPF",
+    "name": "Miami Opa-Locka Executive Airport",
+    "type": [
+      "airport"
+    ],
+    "description": "",
+    "icon": "airport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9094497575039,
+      "lng": -80.2683426423283
+    }
+  },
+  {
+    "id": "FRM-MIA-FM1",
+    "name": "FIFA Rewards -  FIFA Museum - Miami",
+    "type": [
+      "fifa_museum"
+    ],
+    "description": "Step inside the FIFA Museum in Miami and collect your exclusive Stamp on the FIFA Rewards Map.",
+    "icon": "rewardsmuseum",
+    "picture": [],
+    "link": "https://www.fifa.com/rewards/map?lat=25.780537&lon=-80.189863",
+    "coordinates": {
+      "lat": 25.7798327,
+      "lng": -80.1900789
+    }
+  },
+  {
+    "id": "FMU-MIA-FRE",
+    "name": "FIFA Museum (\"Unidad - The World's Game\" in Miami)",
+    "type": [
+      "fifa_museum"
+    ],
+    "description": "“Unidad - The World's Game” in Miami. Freedom Tower. \nThe FIFA Museum in Miami is open from Wednesday to Sunday, 10AM - 6PM. \nClosed on Mondays &Tuesdays",
+    "icon": "fifamuseum",
+    "picture": [],
+    "link": "https://www.fifamuseum.com/en/miami/unidad-the-worlds-game",
+    "coordinates": {
+      "lat": 25.7803136446086,
+      "lng": -80.1895384457001
+    },
+    "isDedicated": true
+  },
+  {
+    "id": "AIR-MIA-FLL-RCC",
+    "name": "FLL Rental Car Center (RCC)",
+    "type": [
+      "car_rental"
+    ],
+    "description": "",
+    "icon": "car",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0716347728259,
+      "lng": -80.1370881002071
+    }
+  },
+  {
+    "id": "AIR-MIA-RCC",
+    "name": "MIA Rental Car Center (RCC)",
+    "type": [
+      "car_rental"
+    ],
+    "description": "",
+    "icon": "car",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7969531143442,
+      "lng": -80.2603269713285
+    }
+  },
+  {
+    "id": "TRAN-MIA-OPF-GR",
+    "name": "OPF Go Rentals at Atlantic Aviation",
+    "type": [
+      "car_rental"
+    ],
+    "description": "",
+    "icon": "car",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9101095285292,
+      "lng": -80.2717419808629
+    }
+  },
+  {
+    "id": "TRAN-MIA-OPF-HCR",
+    "name": "OPF Hertz Car Rental",
+    "type": [
+      "car_rental"
+    ],
+    "description": "",
+    "icon": "car",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9101804812237,
+      "lng": -80.2674654695995
+    }
+  },
+  {
+    "id": "FFF-MIA-BAY",
+    "name": "FIFA Fan Festival Miami",
+    "type": [
+      "fifa_fan_festival"
+    ],
+    "description": "Free FIFA Fan Festival at Bayfront Park, Miami's iconic waterfront park in Downtown. No tickets required. Daily match broadcasts, cultural fan experiences, and F&B reflecting Miami's diversity. First-come, first-served. Jun 13-Jul 5, 2026.",
+    "icon": "fanfestival",
+    "picture": [
+      "/FWC203/pois/FFF-MIA.png"
+    ],
+    "link": "https://fifaworldcup.com/fan-festival-miami",
+    "coordinates": {
+      "lat": 25.77526,
+      "lng": -80.18619
+    },
+    "isCollapsible": "FF.json"
+  },
+  {
+    "id": "MIA-FSTORE1",
+    "name": "FIFA Store (Aventura Mall)",
+    "type": [
+      "fifa_store"
+    ],
+    "description": "19501 Biscayne Blvd, Aventura, FL 33180",
+    "icon": "fifastore",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9579560590685,
+      "lng": -80.145232778598
+    }
+  },
+  {
+    "id": "MIA-FSTORE2",
+    "name": "FIFA Store (Dolphin Mall)",
+    "type": [
+      "fifa_store"
+    ],
+    "description": "Pop-Up and In Line. 11401 NW 12th St, Miami, FL 33172",
+    "icon": "fifastore",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7887126920175,
+      "lng": -80.3811752942945
+    }
+  },
+  {
+    "id": "MIA-FSTORE3",
+    "name": "FIFA Store (Lincoln Road)",
+    "type": [
+      "fifa_store"
+    ],
+    "description": "1006 Lincoln Road, Miami Beach, Florida 33139",
+    "icon": "fifastore",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7902699078193,
+      "lng": -80.1390786424047
+    }
+  },
+  {
+    "id": "MIA-FSTORE4",
+    "name": "FIFA Store (Dadeland)",
+    "type": [
+      "fifa_store"
+    ],
+    "description": "7535 N Kendall Dr, Miami, FL 33156",
+    "icon": "fifastore",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.6902311811234,
+      "lng": -80.3135981467848
+    }
+  },
+  {
+    "id": "MIA-FSTORE5",
+    "name": "FIFA Store (Sawgrass)",
+    "type": [
+      "fifa_store"
+    ],
+    "description": "12801 W Sunrise Blvd, Sunrise, FL 33323",
+    "icon": "fifastore",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.150453237141,
+      "lng": -80.3199193683642
+    }
+  },
+  {
+    "id": "MTH-MIA-FLM",
+    "name": "SpringHill Suites by Marriott Fort Lauderdale Miramar",
+    "type": [
+      "hotel"
+    ],
+    "description": "10880 Marks Way, Miramar, FL 33025.      954-435-4900",
+    "icon": "hotel",
+    "picture": [],
+    "link": "https://www.marriott.com/hotels/travel/fllwm-springhill-suites-fort-lauderdale-miramar",
+    "coordinates": {
+      "lat": 25.9746603,
+      "lng": -80.2952541
+    }
+  },
+  {
+    "id": "LAN-MIA-BAM",
+    "name": "FIFA Rewards -  Bayside Marketplace",
+    "type": [
+      "fifa_reward"
+    ],
+    "description": "Large waterside shopping center with many familiar stores, plus take-out & sit-down restaurants.",
+    "icon": "rewardslandmark",
+    "picture": [],
+    "link": "https://www.fifa.com/rewards/map?lat=25.777020&lon=-80.184939",
+    "coordinates": {
+      "lat": 25.77702,
+      "lng": -80.184939
+    }
+  },
+  {
+    "id": "LAN-MIA-HAV",
+    "name": "FIFA Rewards -  Little Havana",
+    "type": [
+      "fifa_reward"
+    ],
+    "description": "Little Havana is Miami’s vibrant Cuban heart, with Latin American art galleries and busy restaurants. Cafes with walk-up windows sell Cuban coffee to cigar-smoking patrons. On Calle Ocho (SW 8th Street), locals discuss politics over dominoes at Maximo Gomez Park, dubbed Domino Park by locals. The historic Tower Theater screens independent and revival films, while the area's clubs host live Latin music.",
+    "icon": "rewardslandmark",
+    "picture": [],
+    "link": "https://www.fifa.com/rewards/map?lat=25.765591&lon=-80.219368",
+    "coordinates": {
+      "lat": 25.765591,
+      "lng": -80.219368
+    }
+  },
+  {
+    "id": "LAN-MIA-MBB",
+    "name": "FIFA Rewards -  Miami Beach Boardwalk",
+    "type": [
+      "fifa_reward"
+    ],
+    "description": "Palm-shaded lawns, paths & a playground mark this park that begins the Miami Beach boardwalk.",
+    "icon": "rewardslandmark",
+    "picture": [],
+    "link": "https://www.fifa.com/rewards/map?lat=25.799457&lon=-80.125549",
+    "coordinates": {
+      "lat": 25.799457,
+      "lng": -80.125549
+    }
+  },
+  {
+    "id": "LAN-MIA-VIZ",
+    "name": "FIFA Rewards -  Vizcaya Museum and Gardens",
+    "type": [
+      "fifa_reward"
+    ],
+    "description": "Historic estate with formal gardens & sculptures, grottos & circa-1914 mansion turned museum.",
+    "icon": "rewardslandmark",
+    "picture": [],
+    "link": "https://www.fifa.com/rewards/map?lat=25.744114&lon=-80.210313",
+    "coordinates": {
+      "lat": 25.744114,
+      "lng": -80.210313
+    }
+  },
+  {
+    "id": "LAN-MIA-WYN",
+    "name": "FIFA Rewards -  Wynwood Walls",
+    "type": [
+      "fifa_reward"
+    ],
+    "description": "Unique outdoor destination featuring huge, colorful street murals by artists from around the globe.",
+    "icon": "rewardslandmark",
+    "picture": [],
+    "link": "https://www.fifa.com/rewards/map?lat=25.801094&lon=-80.199702",
+    "coordinates": {
+      "lat": 25.801094,
+      "lng": -80.199702
+    }
+  },
+  {
+    "id": "PRG-MIA-CHP",
+    "name": "Chopin Plaza",
+    "type": [
+      "parking_lot"
+    ],
+    "description": "Parking",
+    "icon": "parking",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7728710773549,
+      "lng": -80.1860257342913
+    }
+  },
+  {
+    "id": "PRG-MIA-GG",
+    "name": "Golden Glades Parking",
+    "type": [
+      "parking_lot"
+    ],
+    "description": "",
+    "icon": "parking",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.920741027175,
+      "lng": -80.2147216400455
+    }
+  },
+  {
+    "id": "TRAN-MIA-PRG",
+    "name": "Dr. Martin Luther King, Jr. Parking",
+    "type": [
+      "parking_lot"
+    ],
+    "description": "",
+    "icon": "parking",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.832169976115,
+      "lng": -80.2398117776808
+    }
+  },
+  {
+    "id": "TRAN-MIA-SHRH-PRG",
+    "name": "Seminole Hard Rock Hotel & Casino Parking",
+    "type": [
+      "parking_lot"
+    ],
+    "description": "",
+    "icon": "parking",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0493467701821,
+      "lng": -80.2077294243282
+    }
+  },
+  {
+    "id": "AIR-MIA-DRS3",
+    "name": "MIA Taxi - Terminal D - Arrivals Ground Level",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "Door 3",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7967388724689,
+      "lng": -80.2764584942764
+    }
+  },
+  {
+    "id": "AIR-MIA-DRS6",
+    "name": "MIA Taxi - Terminal D - Arrivals Ground Level",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "Door 6",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7966468658151,
+      "lng": -80.2777441174767
+    }
+  },
+  {
+    "id": "AIR-MIA-DRS-AL1",
+    "name": "MIA Rideshare - Terminal D - Arrivals Level 1 (Doors 1 - 8)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7966525552314,
+      "lng": -80.2760925706167
+    }
+  },
+  {
+    "id": "AIR-MIA-ERS-AL1",
+    "name": "MIA Rideshare - Terminal E - Arrivals Level 1 (Doors 9 - 10)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7953086226121,
+      "lng": -80.2784918272643
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RIDE1",
+    "name": "FLL Rideshare - Terminal 1 - Arrivals - Zone Z",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0725460642496,
+      "lng": -80.1374217833118
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RIDE2",
+    "name": "FLL Rideshare - Terminal 2 - Arrivals - Secton H",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0725532462114,
+      "lng": -80.1418299699857
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RIDE3",
+    "name": "FLL Rideshare - Terminal 3 - Arrivals - Zone A - Palm Garage",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0707236768445,
+      "lng": -80.1445938619226
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RIDE4",
+    "name": "FLL Rideshare - Terminal 4 - Arrivals - Zone C - Palm Garage",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0707035698862,
+      "lng": -80.1438457462806
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-TAXI1",
+    "name": "FLL Taxi - Terminal 1 - Arrivals",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0723742645922,
+      "lng": -80.1404821816065
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-TAXI2",
+    "name": "FLL Taxi - Terminal 2 - Arrivals",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0725660226786,
+      "lng": -80.1429542602364
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-TAXI3",
+    "name": "FLL Taxi - Terminal 3 - Arrivals",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0721520525626,
+      "lng": -80.1450741400877
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-TAXI4",
+    "name": "FLL Taxi - Terminal 4 - Arrivals",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0702500250527,
+      "lng": -80.1443963965373
+    }
+  },
+  {
+    "id": "AIR-MIA-FRS",
+    "name": "MIA Taxi - Terminal F - Arrivals Ground Level",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7943334889944,
+      "lng": -80.2783319294558
+    }
+  },
+  {
+    "id": "AIR-MIA-FRS-AL1",
+    "name": "MIA Rideshare - Terminal F - Arrivals Level 1 (Doors 12 - 13)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7944240117717,
+      "lng": -80.2784999307955
+    }
+  },
+  {
+    "id": "AIR-MIA-GRS-AL1",
+    "name": "MIA Rideshare - Terminal G - Arrivals Level 1 (Doors 14, 16, 17)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7939490041817,
+      "lng": -80.2778876550613
+    }
+  },
+  {
+    "id": "AIR-MIA-HRS",
+    "name": "MIA Taxi - Terminal H - Arrivals Ground Level",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7937972279061,
+      "lng": -80.2756920626963
+    }
+  },
+  {
+    "id": "AIR-MIA-HRS-AL1",
+    "name": "MIA Rideshare - Terminal H - Arrivals Level 1 (Doors 19 - 21)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7937676574523,
+      "lng": -80.2766074397287
+    }
+  },
+  {
+    "id": "AIR-MIA-JRS",
+    "name": "MIA Taxi - Terminal J - Arrivals Ground Level",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7938044312581,
+      "lng": -80.2749080145473
+    }
+  },
+  {
+    "id": "AIR-MIA-JRS-AL1",
+    "name": "MIA Rideshare - Terminal J - Arrivals Level 1 (Doors 24, 26, 28, 32)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7938097413444,
+      "lng": -80.2752490612165
+    }
+  },
+  {
+    "id": "AIR-MIA-JRS-DL1",
+    "name": "MIA Rideshare - Terminal J - Departures (Doors 25, 28)",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7937552134862,
+      "lng": -80.275008022646
+    }
+  },
+  {
+    "id": "TRAN-MIA-OPF-RIDE",
+    "name": "OPF Rideshare",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9057231110469,
+      "lng": -80.2706935301076
+    }
+  },
+  {
+    "id": "PRG-MIA-GG-RIDE",
+    "name": "Golden Glades Rideshare - Pick Up / Drop Off",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9206047971465,
+      "lng": -80.2166002835817
+    }
+  },
+  {
+    "id": "TRAN-MIA-BAS-RIDE",
+    "name": "Brightline Aventura Rideshare - Pick Up / Drop Off",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9583057811998,
+      "lng": -80.1491788685393
+    }
+  },
+  {
+    "id": "TRAN-MIA-RIDE",
+    "name": "Dr. Martin Luther King, Jr. Station Rideshare - Pick Up / Drop Off",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.8313459178713,
+      "lng": -80.2397528354813
+    }
+  },
+  {
+    "id": "TRAN-MIA-SHRH-RIDE",
+    "name": "Seminole Hard Rock Hotel & Casino - Rideshare Pick Up / Drop Off",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "rideshare",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.051737207764,
+      "lng": -80.2105403793211
+    }
+  },
+  {
+    "id": "PRG-MIA-GG-PNRSH",
+    "name": "Golden Glades Park & Ride Shuttle",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "shuttle",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9214450319397,
+      "lng": -80.215473946129
+    }
+  },
+  {
+    "id": "TRAN-MIA-BAS-PNRSH",
+    "name": "Brightline Aventura Park & Ride Shuttle",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "shuttle",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9584486764086,
+      "lng": -80.1480600068485
+    }
+  },
+  {
+    "id": "TRAN-MIA-PNRSH",
+    "name": "Dr. Martin Luther King, Jr. Park & Ride Shuttle",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "shuttle",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.8324247741131,
+      "lng": -80.2405413418746
+    }
+  },
+  {
+    "id": "TRAN-MIA-SHRH-SH",
+    "name": "Seminole Hard Rock Hotel & Casino Shuttle",
+    "type": [
+      "shuttle_stop"
+    ],
+    "description": "",
+    "icon": "shuttle",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0510335759582,
+      "lng": -80.207740153164
+    }
+  },
+  {
+    "id": "TRAN-MIA-AMBT",
+    "name": "Aventura Mall Bus Terminal",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9584884630463,
+      "lng": -80.1450533801715
+    }
+  },
+  {
+    "id": "AIR-MIA-BS",
+    "name": "Miami Airport Bus Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7981257508634,
+      "lng": -80.2588628419626
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-AIRS",
+    "name": "Tri-Rail Fort Lauderdale/Hollywood International Airport Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0616849904865,
+      "lng": -80.1656871416769
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-TRS",
+    "name": "Tri-Rail Bus Shuttle - Train Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0616927033784,
+      "lng": -80.1660888660778
+    }
+  },
+  {
+    "id": "AIR-MIA-MIC",
+    "name": "Miami Intermodal Center",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7967496490954,
+      "lng": -80.259151283938
+    }
+  },
+  {
+    "id": "AIR-MIA-MS",
+    "name": "Miami Airport Metro Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7972194385515,
+      "lng": -80.2585877013292
+    }
+  },
+  {
+    "id": "AIR-MIA-TRAS",
+    "name": "Miami Airport Train Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7971923665403,
+      "lng": -80.2582846452264
+    }
+  },
+  {
+    "id": "TRAN-MIA-BAS",
+    "name": "Brightline Aventura Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9584602630107,
+      "lng": -80.1472833004982
+    }
+  },
+  {
+    "id": "TRAN-MIA-BCT",
+    "name": "Broward County Transit (Central Terminal)",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.1232820873441,
+      "lng": -80.1450096940166
+    }
+  },
+  {
+    "id": "TRAN-MIA-BFLS",
+    "name": "Brightline Fort Lauderdale Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.1236165688866,
+      "lng": -80.1460738986318
+    }
+  },
+  {
+    "id": "TRAN-MIA-BFLS-SH",
+    "name": "Brightline FLL Bus Shuttle - Train Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.1234116945887,
+      "lng": -80.1461233686178
+    }
+  },
+  {
+    "id": "TRAN-MIA-CTB",
+    "name": "Central Terminal Bay C1 - Route 1 - BCT Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.1227155154691,
+      "lng": -80.145144729485
+    }
+  },
+  {
+    "id": "TRAN-MIA-FLTS",
+    "name": "Fort Lauderdale Train Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.1194522620187,
+      "lng": -80.1698128866673
+    }
+  },
+  {
+    "id": "TRAN-MIA-GCS",
+    "name": "Government Center Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7758736386911,
+      "lng": -80.1960930054555
+    }
+  },
+  {
+    "id": "TRAN-MIA-GGS",
+    "name": "Golden Glades Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9214532761682,
+      "lng": -80.2170940054496
+    }
+  },
+  {
+    "id": "TRAN-MIA-MCS",
+    "name": "Miami Central Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7807420992342,
+      "lng": -80.196076434291
+    }
+  },
+  {
+    "id": "TRAN-MIA-MIAS",
+    "name": "MIA Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7951655489134,
+      "lng": -80.2770215163578
+    }
+  },
+  {
+    "id": "TRAN-MIA-MICS",
+    "name": "MIC Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7967875128999,
+      "lng": -80.2591813376072
+    }
+  },
+  {
+    "id": "TRAN-MIA-MLK",
+    "name": "Dr. Martin Luther King, Jr. Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.8324337042337,
+      "lng": -80.241160934289
+    }
+  },
+  {
+    "id": "TRAN-MIA-NTS",
+    "name": "Northside Train Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.845721421341,
+      "lng": -80.2487820800114
+    }
+  },
+  {
+    "id": "TRAN-MIA-OTV",
+    "name": "Overtown Transit Village",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7802752993104,
+      "lng": -80.1965503054554
+    }
+  },
+  {
+    "id": "TRAN-MIA-TRFS",
+    "name": "Tri-Rail/Metrorail Transfer Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.8455202219315,
+      "lng": -80.2596626621825
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-ARCCS",
+    "name": "Airport & Rental Car Center - Route 1 - BCT Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0720924014103,
+      "lng": -80.1395783662956
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-BRLSH1",
+    "name": "Brightline FLL Bus Shuttle - Terminal 1 - Ground Transportation Area 1 - Zone B",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0725439698748,
+      "lng": -80.1416351945696
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-BRLSH23",
+    "name": "Brightline FLL Bus Shuttle - Terminal 2 & 3 - Ground Transportation Area 2 - Zone F",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0725649998685,
+      "lng": -80.144515334902
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-BRLSH4",
+    "name": "Brightline FLL Bus Shuttle - Terminal 4 - Ground Transportation Area 3 - Zone F",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0701390023466,
+      "lng": -80.1447874061394
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RCC-SH2",
+    "name": "FLL Rental Car Center Bus Shuttle - Terminal 2 - Arrivals",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0724782332455,
+      "lng": -80.1434066686615
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RCC-SH3",
+    "name": "FLL Rental Car Center Bus Shuttle - Terminal 3 - Arrivals",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0715396181745,
+      "lng": -80.1450826140556
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-RCC-SH4",
+    "name": "FLL Rental Car Center Bus Shuttle - Terminal 4 - Arrivals",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0702937178423,
+      "lng": -80.1439278793033
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-SH1",
+    "name": "Tri-Rail Bus Shuttle - Terminal 1 - Ground Level",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.072370356371,
+      "lng": -80.1406174627371
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-SH23",
+    "name": "Tri-Rail Bus Shuttle - Terminal 2 & 3",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0724053684902,
+      "lng": -80.1449158354986
+    }
+  },
+  {
+    "id": "AIR-MIA-FLL-SH4",
+    "name": "Tri-Rail Bus Shuttle - Terminal 4 - Ground Level",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.0704973168725,
+      "lng": -80.1448456785801
+    }
+  },
+  {
+    "id": "AIR-MIA-FXE-BS",
+    "name": "Northwest 62nd St & Northwest 21st Av - Route 62 - BCT Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 26.2028917448447,
+      "lng": -80.1725884154442
+    }
+  },
+  {
+    "id": "AIR-MIA-OPF-BS",
+    "name": "Opa-Locka Tri-Rail Bus Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9000571087199,
+      "lng": -80.252943995981
+    }
+  },
+  {
+    "id": "AIR-MIA-OPF-TRS",
+    "name": "Tri-Rail Opa-Locka Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.8999068154065,
+      "lng": -80.2529618217201
+    }
+  },
+  {
+    "id": "AIR-MIA-TROS",
+    "name": "Maimi Airport Trolley Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.795367325996,
+      "lng": -80.2586645353403
+    }
+  },
+  {
+    "id": "TRAN-MIA-BB-FIF",
+    "name": "Biscayne Blvd & NE 5 St Bus Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7788020654492,
+      "lng": -80.1888222882873
+    }
+  },
+  {
+    "id": "TRAN-MIA-BB-FTH",
+    "name": "Biscayne Blvd & NE 4 St Bus Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7780464292921,
+      "lng": -80.1879200992502
+    }
+  },
+  {
+    "id": "TRAN-MIA-BB-NB",
+    "name": "Biscayne Blvd & E Flagler St Bus Stop - Northbound",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7742011657057,
+      "lng": -80.187097806657
+    }
+  },
+  {
+    "id": "TRAN-MIA-BB-SB",
+    "name": "Biscayne Blvd & E Flagler St Bus Stop - Southbound",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7746859486727,
+      "lng": -80.1878876120982
+    }
+  },
+  {
+    "id": "TRAN-MIA-BB-SEC",
+    "name": "Biscayne Blvd & NE 2 St Bus Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7765504818376,
+      "lng": -80.1874784682405
+    }
+  },
+  {
+    "id": "TRAN-MIA-BB-THI",
+    "name": "Biscayne Blvd & NE 3 St Bus Stop",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.777459137203,
+      "lng": -80.1884293962819
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-BYP",
+    "name": "Metromover - Bayfront Park",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7731137004812,
+      "lng": -80.1872841054556
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-CB",
+    "name": "Metromover - College Bayside",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7775598538993,
+      "lng": -80.1899149789106
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-CN",
+    "name": "Metromover - College North",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.779039874481,
+      "lng": -80.1920724439154
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-FS",
+    "name": "Metromover - First Street",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7756789773531,
+      "lng": -80.1898227342912
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-FT",
+    "name": "Metromover - Freedom Tower",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7807160469828,
+      "lng": -80.1905408805391
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-KCS",
+    "name": "Metromover - Knight Center Metromover Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7718592496825,
+      "lng": -80.1917123259494
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-MAM",
+    "name": "Metromover - Miami Avenue Metromover",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7735656271694,
+      "lng": -80.1935804447781
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-MWC",
+    "name": "Metromover - Miami Worldcenter",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.782701844927,
+      "lng": -80.1906245091728
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-RW",
+    "name": "Metromover - Riverwalk",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7712162578672,
+      "lng": -80.1925322734026
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-THS",
+    "name": "Metromover - Third Street Metromover Station",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7720507183065,
+      "lng": -80.1935134092743
+    }
+  },
+  {
+    "id": "TRAN-MIA-MM-WDF",
+    "name": "Metromover - Wilkie D. Ferguson",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.7788363773511,
+      "lng": -80.1953037054554
+    }
+  },
+  {
+    "id": "TRAN-MIA-OPF-NW37NB",
+    "name": "NW 37 Av & Bagdad Av Bus Stop - Northbound",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9058177201697,
+      "lng": -80.2580267185022
+    }
+  },
+  {
+    "id": "TRAN-MIA-OPF-NW37SB",
+    "name": "NW 37 Av & Bagdad Av Bus Stop - Southbound",
+    "type": [
+      "transit_stop"
+    ],
+    "description": "",
+    "icon": "transport",
+    "picture": [],
+    "link": "",
+    "coordinates": {
+      "lat": 25.9056801584324,
+      "lng": -80.2583055889686
+    }
+  }
+]
