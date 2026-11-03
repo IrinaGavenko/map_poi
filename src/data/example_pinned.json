@@ -1,0 +1,40 @@
+{
+  "type": "pinned",
+  
+  "//point": "Main visual representation of the marker on the map",
+  "point": {
+    "id": "<prefix>-<place>-<id>",
+    "type": "pinned",
+
+    "display_picture": "https://example.com/images/demo-center.png",
+    "coordinates": {
+      "//lat": "Number from -90 to 90.",
+      "lat": 0.0,
+      "//lng": "Number from -180 to 180.",
+      "lng": 0.0
+    },
+
+  "//point_content": "Optional. Content of the marker, displayed in the popup when the marker is clicked, if null -- the popup is not displayed",
+  "point_content": {
+    "name": "Demo Map Center",
+
+      "//pictures": "Optional, by default - []. Pictures to display in the description section, if empty -- the section is not displayed",
+      "pictures": ["https://example.com/images/demo-center.png"],
+
+      "//description": "Optional, by default - null, text to display in the description section, if empty -- the section is not displayed",
+      "description": "A main attraction that stays visible and does not cluster.",
+
+      "//link": "Optional, by default - null link in the description section, if null -- the section is not displayd",
+      "link": "https://example.com/places/demo-center",
+
+      "//includeInCategorySearch": "Optional, by default - false. Includes the marker in the category search, if true -- needs to be a category id from the categories.json",
+      "includeInCategorySearch": false,
+
+      "//isCollapsible": "Optional, by default - false. Collapsed with other markers in the same zone",
+      "isCollapsible": false,
+
+      "//isNested": "Optional, by default - false. Contains nested markers, if true -- needs to be a file name of the nested zone",
+      "isNested": null
+    }
+  }
+}

@@ -1,3 +1,25 @@
+export type { PinnedCoordinates, PinnedPointContent, PinnedPoint, PinnedMarker } from './pinned'
+export type {
+  CustomCoordinates,
+  CustomPoint,
+  CustomPointContent,
+  CustomMarker,
+} from './custom'
+export type {
+  CategorizedCoordinates,
+  CategorizedPoint,
+  CategorizedPointContent,
+  CategorizedMarker,
+} from './categorized'
+
+import type { PinnedMarker } from './pinned'
+import type { CustomMarker } from './custom'
+import type { CategorizedMarker } from './categorized'
+
+/** Any marker wrapper matching `example_pinned|custom|categorized.json`. */
+export type Marker = PinnedMarker | CustomMarker | CategorizedMarker
+
+/** Legacy flat point shape still used by the current map UI. */
 export type Point = {
   id: string
   name: string

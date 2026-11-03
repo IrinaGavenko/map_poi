@@ -1,0 +1,35 @@
+{
+  "type": "categorized",
+
+  "//point": "Main visual representation of the marker on the map",
+  "point": {
+    "id": "<prefix>-<category>-<id>",
+    "type": "categorized",
+    
+    "//categories": "Non-empty string array of category ids from categories.json. Example: [\"cafe\"] or [\"cafe\", \"museum\"].",
+    "categories": ["cafe"],
+
+    "coordinates": {
+      "//lat": "Number from -90 to 90.",
+      "lat": -10.25,
+      "//lng": "Number from -180 to 180.",
+      "lng": 20.75
+    }
+  },
+
+  "point_content": {
+    "name": "Demo Cafe",
+
+    "//picture": "Optional gallery image URL/path strings for the description UI (not the map pin art). Use [] if none.",
+    "picture": ["https://example.com/images/cafe-interior.jpg"],
+
+    "//description": "Free-text body (address, hours, notes). Can be empty \"\". Photos for the detail UI can also go in picture[].",
+    "description": "123 Example Street. Open daily 8:00–18:00.",
+
+    "//link": "URL string, or \"\" if none.",
+    "link": "",
+
+    "//priority": "Integer >= 0. Default is 0. Higher priority wins when two markers are close.",
+    "priority": 10
+  }
+}

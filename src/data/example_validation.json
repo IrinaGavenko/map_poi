@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/miami-map/dataset.schema.json",
+  "$comment": "Phase 0 — JSON Schema used to validate a general dataset. Field descriptions document allowed types and fixed values.",
+  "title": "MapDataset",
+  "description": "Root map dataset: versioned document with optional meta/categories, a points array, and optional nested collapses.",
+  "type": "object",
+  "required": ["version", "points"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "Dataset format version. Integer >= 1.",
+      "type": "integer",
+      "minimum": 1,
+      "examples": [1]
+    },
+    "meta": {
+      "description": "Optional human-facing metadata for the dataset (not drawn on the map).",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Stable dataset id string (storage / selector / sharing).",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["demo-map"]
+        },
+        "title": {
+          "description": "Short display name.",
+          "type": "string",
+          "examples": ["Demo Map"]
+        },
+        "description": {
+          "description": "Longer summary of the map contents.",
+          "type": "string",
+          "examples": ["Dummy dataset showing all marker kinds."]
+        }
+      },
+      "additionalProperties": false
+    },
+    "categories": {
+      "description": "Either a path string to categories.json, or an inline categories document.",
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "examples": ["./example_categories.json"]
+        },
+        { "$ref": "#/$defs/categoriesDocument" }
+      ]
+    },
+    "points": {
+      "description": "Top-level markers. Mixed kinds allowed. Each item must match pinned | custom | categorized rules.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/point" }
+    },
+    "collapses": {
+      "description": "Nested datasets keyed by isCollapsible file name (e.g. \"zone-a.json\").",
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/collapseDataset" },
+      "examples": [{ "zone-a.json": { "polygon": null, "points": [] } }]
+    }
+  },
+  "$defs": {
+    "coordinates": {
+      "description": "Geographic position in WGS84 degrees.",
+      "type": "object",
+      "required": ["lat", "lng"],
+      "additionalProperties": false,
+      "properties": {
+        "lat": {
+          "description": "Latitude. Number from -90 to 90.",
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "examples": [0.0, -10.25]
+        },
+        "lng": {
+          "description": "Longitude. Number from -180 to 180.",
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "examples": [0.0, 20.75]
+        }
+      }
+    },
+    "basePoint": {
+      "description": "Fields shared by pinned, custom, and categorized markers.",
+      "type": "object",
+      "required": ["id", "kind", "name", "coordinates"],
+      "properties": {
+        "id": {
+          "description": "Stable unique marker id (any non-empty string).",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["PIN-DEMO-01", "CUS-DEMO-01", "CAT-DEMO-01"]
+        },
+        "kind": {
+          "description": "Marker family. Fixed enum values only.",
+          "enum": ["pinned", "custom", "categorized"]
+        },
+        "name": {
+          "description": "Display title string.",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["Demo Cafe"]
+        },
+        "description": {
+          "description": "Popup/detail free text. Use \"\" if empty.",
+          "type": "string",
+          "examples": ["123 Example Street.", ""]
+        },
+        "link": {
+          "description": "External URL string, or \"\" if none.",
+          "type": "string",
+          "examples": ["https://example.com", ""]
+        },
+        "coordinates": {
+          "description": "Marker position.",
+          "$ref": "#/$defs/coordinates"
+        },
+        "picture": {
+          "description": "Array of image URL/path strings. Meaning depends on kind.",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "examples": [[], ["https://example.com/a.jpg"]]
+        }
+      }
+    },
+    "pinnedPoint": {
+      "description": "Pinned: never clusters, excluded from category search, optional nested zone. Do not set type or priority.",
+      "allOf": [
+        { "$ref": "#/$defs/basePoint" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "description": "Fixed value: \"pinned\".",
+              "const": "pinned"
+            },
+            "shape": {
+              "description": "Marker silhouette string. Examples: \"custom\", \"circle\", \"badge\".",
+              "type": "string",
+              "examples": ["custom", "circle", "badge"]
+            },
+            "includeInCategorySearch": {
+              "description": "Fixed value for pinned: false.",
+              "const": false
+            },
+            "cluster": {
+              "description": "Fixed value for pinned: false.",
+              "const": false
+            },
+            "isCollapsible": {
+              "description": "Optional nested-zone key into collapses (e.g. \"zone-a.json\"). Omit if none.",
+              "type": "string",
+              "minLength": 1,
+              "examples": ["zone-a.json"]
+            }
+          },
+          "not": { "required": ["type", "priority"] }
+        }
+      ]
+    },
+    "customPoint": {
+      "description": "Custom: large rectangle photo marker. Requires picture (non-empty) and priority. Do not set type or isCollapsible.",
+      "allOf": [
+        { "$ref": "#/$defs/basePoint" },
+        {
+          "type": "object",
+          "required": ["priority", "picture"],
+          "properties": {
+            "kind": {
+              "description": "Fixed value: \"custom\".",
+              "const": "custom"
+            },
+            "shape": {
+              "description": "Fixed value for custom: \"rectangle\".",
+              "const": "rectangle"
+            },
+            "priority": {
+              "description": "Integer >= 0. Higher wins when two custom markers are close.",
+              "type": "integer",
+              "minimum": 0,
+              "examples": [0, 10, 100]
+            },
+            "filterGroup": {
+              "description": "Filter bucket string. Examples: \"special\", \"route\", \"personal\".",
+              "type": "string",
+              "minLength": 1,
+              "examples": ["special", "route", "personal"]
+            },
+            "picture": {
+              "description": "Required non-empty array of image URL/path strings.",
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "examples": [["https://example.com/stop.jpg"]]
+            }
+          },
+          "not": { "required": ["type", "isCollapsible"] }
+        }
+      ]
+    },
+    "categorizedPoint": {
+      "description": "Categorized: regular POI. Requires type[] category ids. Do not set priority.",
+      "allOf": [
+        { "$ref": "#/$defs/basePoint" },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "kind": {
+              "description": "Fixed value: \"categorized\".",
+              "const": "categorized"
+            },
+            "type": {
+              "description": "Non-empty array of category ids from categories.json.",
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "minLength": 1 },
+              "examples": [["cafe"], ["cafe", "museum"]]
+            },
+            "cluster": {
+              "description": "Boolean. Usually true for pin categories; picture-style often false.",
+              "type": "boolean",
+              "examples": [true, false]
+            },
+            "isCollapsible": {
+              "description": "Optional nested-zone key into collapses.",
+              "type": "string",
+              "minLength": 1,
+              "examples": ["zone-a.json"]
+            }
+          },
+          "not": { "required": ["priority"] }
+        }
+      ]
+    },
+    "point": {
+      "description": "A marker of any supported kind.",
+      "oneOf": [
+        { "$ref": "#/$defs/pinnedPoint" },
+        { "$ref": "#/$defs/customPoint" },
+        { "$ref": "#/$defs/categorizedPoint" }
+      ]
+    },
+    "collapseDataset": {
+      "description": "Nested zone loaded when entering a collapsible pin.",
+      "type": "object",
+      "required": ["points"],
+      "additionalProperties": false,
+      "properties": {
+        "polygon": {
+          "description": "Optional highlight polygon while nested zone is open. Use null if none.",
+          "type": ["object", "null"],
+          "required": ["color", "coordinates"],
+          "additionalProperties": false,
+          "properties": {
+            "color": {
+              "description": "CSS color string for the polygon.",
+              "type": "string",
+              "minLength": 1,
+              "examples": ["#ff0000", "red"]
+            },
+            "coordinates": {
+              "description": "Ordered polygon ring vertices. At least 3 {lat,lng} points.",
+              "type": "array",
+              "minItems": 3,
+              "items": { "$ref": "#/$defs/coordinates" }
+            }
+          }
+        },
+        "points": {
+          "description": "Markers shown only while this nested zone is active (same shapes as top-level points).",
+          "type": "array",
+          "items": { "$ref": "#/$defs/point" }
+        }
+      }
+    },
+    "categoriesDocument": {
+      "description": "Categories document. Same shape as example_categories.json / CategoryTypeConfig (without // comment keys).",
+      "type": "object",
+      "required": ["version", "categories"],
+      "properties": {
+        "version": {
+          "description": "Categories document format version. Integer >= 1.",
+          "type": "integer",
+          "minimum": 1,
+          "examples": [1]
+        },
+        "categories": {
+          "description": "Concrete categories keyed by id. Each value matches CategoryTypeConfig.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["id", "name", "type"],
+            "properties": {
+              "id": {
+                "description": "Stable category id (same as the object key).",
+                "type": "string",
+                "minLength": 1,
+                "examples": ["cafe"]
+              },
+              "name": {
+                "description": "Human-readable label in legend, filters, and popups.",
+                "type": "string",
+                "minLength": 1,
+                "examples": ["Cafe"]
+              },
+              "type": {
+                "description": "Marker family this category styles.",
+                "enum": ["pinned", "custom", "categorized"]
+              },
+              "priority": {
+                "description": "Optional. Integer >= 0. Default 0.",
+                "type": "integer",
+                "minimum": 0,
+                "examples": [0, 10]
+              },
+              "size": {
+                "description": "Optional. Marker display size hint (px).",
+                "type": "number",
+                "examples": [28, 48]
+              },
+              "viewColor": {
+                "description": "Optional. Map/view color (CSS hex), or null.",
+                "type": ["string", "null"],
+                "examples": ["#3366ff", null]
+              },
+              "viewIcon": {
+                "description": "Optional. Emoji/short icon for map/view, or null.",
+                "type": ["string", "null"],
+                "examples": ["☕", null]
+              },
+              "viewPicture": {
+                "description": "Optional. Image URL/path for map/view art, or null.",
+                "type": ["string", "null"],
+                "examples": ["https://example.com/a.jpg", null]
+              },
+              "viewPriority": {
+                "description": "Optional. Draw/stack priority on the map view.",
+                "type": "integer",
+                "minimum": 0,
+                "examples": [0, 100]
+              },
+              "categoryListIcon": {
+                "description": "Optional. Icon for legend / category list UI, or null.",
+                "type": ["string", "null"],
+                "examples": ["☕", null]
+              },
+              "categoryListPicture": {
+                "description": "Optional. Image for legend / category list UI, or null.",
+                "type": ["string", "null"],
+                "examples": ["/assets/example-museum.png", null]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "type": "custom",
+  "//point": "Main visual representation of the marker on the map",
+  "point": {
+    "//id": "Any unique string.",
+    "id": "CUS-DEMO-01",
+    "type": "custom",
+
+    "//hasCategory": "Optional, by default - false. If true -- needs to be a category id from the categories.json and use display properties from its category",
+    "hasCategory": false,
+
+    "//display_picture": "Optional, by default - null. Null is available only if hasCategory is false or category doesn't have display_picture",
+    "display_picture": "https://example.com/images/demo-center.png",
+
+    "coordinates": {
+      "//lat": "Number from -90 to 90.",
+      "lat": 1.5,
+      "//lng": "Number from -180 to 180.",
+      "lng": -1.5
+      }
+    },
+
+  "point_content": {
+
+      "name": "Demo Map Center",
+
+      "//pictures": "Optional, by default - []. Pictures to display in the description section, if empty -- the section is not displayed",
+      "pictures": ["https://example.com/images/demo-center.png"],
+
+      "//description": "Optional, by default - null, text to display in the description section, if empty -- the section is not displayed",
+      "description": "A main attraction that stays visible and does not cluster.",
+
+      "//link": "Optional, by default - null link in the description section, if null -- the section is not displayd",
+      "link": "https://example.com/places/demo-center",
+
+      "//includeInCategorySearch": "Optional, by default - the same as hasCategory. Includes the marker in the category search, if true -- needs to be a category id from the categories.json",
+      "includeInCategorySearch": false,
+
+      "//isCollapsible": "Optional, by default - false. Collapsed with other markers in the same zone",
+      "isCollapsible": false,
+
+      "//priority": "Integer >= 0. Default is 0. Higher priority wins when two markers are close.",
+      "priority": 10
+  }
+}

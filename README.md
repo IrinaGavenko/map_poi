@@ -21,7 +21,7 @@ Interactive map of points of interest (POIs) for Miami and related FIFA World Cu
 - Switch maps from the **Select map** control
 - Each visible JSON file under `src/data/` (excluding `collapse-*` and `_`-prefixed files) is a dataset
 - Current datasets include `miami` and `test`
-- Last selected dataset is remembered in `localStorage`
+- Last selected dataset name is remembered in `localStorage`
 
 ### Filters & legend
 

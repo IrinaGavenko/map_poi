@@ -1,0 +1,130 @@
+{
+  "$comment": "Phase 0 — General map dataset. Dummy file showing how pinned + custom + categorized points live together with categories and nested collapses.",
+  "//version": "Dataset format version. Integer >= 1.",
+  "version": 1,
+  "//meta": "Optional. Human-facing dataset info (not drawn on the map).",
+  "meta": {
+    "//id": "Stable dataset id string (storage / selector / sharing).",
+    "id": "demo-map",
+    "//title": "Short display name.",
+    "title": "Demo Map",
+    "//description": "Longer summary of the map contents.",
+    "description": "Dummy dataset showing all marker kinds and a nested zone."
+  },
+  "//categories": "Either a path string to a categories file, OR an inline categories object (same shape as example_categories.json).",
+  "categories": "./example_categories.json",
+  "//points": "Array of mixed-kind markers. Each item must set kind and the fields required for that kind.",
+  "points": [
+    {
+      "// --- pinned example ---": "",
+      "id": "PIN-DEMO-01",
+      "//kind": "Fixed: \"pinned\".",
+      "kind": "pinned",
+      "name": "Demo Map Center",
+      "description": "Pinned: never clusters, excluded from category search.",
+      "link": "https://example.com/places/demo-center",
+      "coordinates": { "lat": 0.0, "lng": 0.0 },
+      "//picture": "Pinned: own marker image(s). Array of strings; can be [].",
+      "picture": ["https://example.com/images/demo-center.png"],
+      "//shape": "String, e.g. \"custom\" | \"circle\" | \"badge\".",
+      "shape": "custom",
+      "//includeInCategorySearch": "Fixed for pinned: false.",
+      "includeInCategorySearch": false,
+      "//cluster": "Fixed for pinned: false.",
+      "cluster": false,
+      "//isCollapsible": "Optional. Key into collapses. Omit if no nested zone.",
+      "isCollapsible": "zone-a.json"
+    },
+    {
+      "// --- custom example ---": "",
+      "id": "CUS-DEMO-01",
+      "//kind": "Fixed: \"custom\".",
+      "kind": "custom",
+      "name": "Demo Photo Stop",
+      "description": "Custom: large photo rectangle with priority.",
+      "link": "https://example.com/photos/demo-stop",
+      "coordinates": { "lat": 1.5, "lng": -1.5 },
+      "//picture": "Custom: required non-empty string array of image URLs/paths.",
+      "picture": ["https://example.com/images/stop-main.jpg"],
+      "//shape": "Fixed for custom: \"rectangle\".",
+      "shape": "rectangle",
+      "//priority": "Integer >= 0. Higher wins when custom markers are close.",
+      "priority": 10,
+      "//filterGroup": "String filter bucket, e.g. \"special\" | \"route\" | \"personal\".",
+      "filterGroup": "special"
+    },
+    {
+      "// --- categorized (pin-style category) ---": "",
+      "id": "CAT-DEMO-01",
+      "//kind": "Fixed: \"categorized\".",
+      "kind": "categorized",
+      "name": "Demo Cafe",
+      "//type": "Non-empty array of category ids from categories.json.",
+      "type": ["cafe"],
+      "description": "123 Example Street.",
+      "link": "",
+      "coordinates": { "lat": -10.25, "lng": 20.75 },
+      "//picture": "Categorized: optional gallery images for detail UI. Use [].",
+      "picture": [],
+      "//cluster": "Boolean. Usually true for pin categories.",
+      "cluster": true
+    },
+    {
+      "// --- categorized (icon-style category) ---": "",
+      "id": "CAT-DEMO-02",
+      "kind": "categorized",
+      "name": "Demo Museum",
+      "type": ["museum"],
+      "description": "Example of a categorized point using an icon-style category.",
+      "link": "https://example.com/museum",
+      "coordinates": { "lat": -10.3, "lng": 20.8 },
+      "picture": ["https://example.com/images/museum-gallery.jpg"],
+      "cluster": true
+    },
+    {
+      "// --- categorized (picture-style category) ---": "",
+      "id": "CAT-DEMO-03",
+      "kind": "categorized",
+      "name": "Demo Landmark",
+      "type": ["landmark"],
+      "description": "Example of a categorized point using a picture-style category.",
+      "link": "https://example.com/landmark",
+      "coordinates": { "lat": -10.4, "lng": 20.9 },
+      "picture": [],
+      "//cluster": "Picture-style categories often set false so they stay unclustered.",
+      "cluster": false
+    }
+  ],
+  "//collapses": "Object map. Keys = isCollapsible values. Values = nested { polygon, points }.",
+  "collapses": {
+    "//zone-a.json": "Nested content for isCollapsible: \"zone-a.json\".",
+    "zone-a.json": {
+      "//polygon": "Optional highlight polygon while nested zone is open. Use null if none.",
+      "polygon": {
+        "//color": "CSS color string for the polygon.",
+        "color": "#ff0000",
+        "//coordinates": "Array of {lat,lng} ring vertices. Need at least 3.",
+        "coordinates": [
+          { "lat": 0.01, "lng": -0.01 },
+          { "lat": 0.01, "lng": 0.01 },
+          { "lat": -0.01, "lng": 0.01 },
+          { "lat": -0.01, "lng": -0.01 }
+        ]
+      },
+      "//points": "Markers shown only inside this nested zone (same point shapes as top-level).",
+      "points": [
+        {
+          "id": "CAT-ZONE-01",
+          "kind": "categorized",
+          "name": "Demo Gate",
+          "type": ["other"],
+          "description": "Nested categorized point inside zone-a.",
+          "link": "",
+          "coordinates": { "lat": 0.0, "lng": 0.0 },
+          "picture": [],
+          "cluster": true
+        }
+      ]
+    }
+  }
+}

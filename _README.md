@@ -34,11 +34,13 @@ Implemented automated testing, CI workflows, and performance optimizations for l
 * They use a large rectangular shape and can show custom photos or images.
 * You can filter them like the “special places” category, which hides all smaller items from the map.
 * They have a priority index. If two custom places are close together, the one with the higher index will collapse.
+* Can't be nested, but can be non-collapsible
 
 **Regular places**: restaurants, coffee shops, transport points, etc -- locations with fixed categories 
 
 * They have their own category and category properties, like pin style and colors.
 * All photos are shown inside the description.
+* Always included in the category search
 
 </details>
 

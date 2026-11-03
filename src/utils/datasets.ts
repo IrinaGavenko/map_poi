@@ -10,7 +10,7 @@ function datasetIdFromPath(path: string): string {
 }
 
 function isHiddenDatasetId(id: string): boolean {
-  return id.startsWith('_') || id.startsWith('collapse-')
+  return id.startsWith('_') || id.startsWith('collapse-') || id.startsWith('example_')
 }
 
 function isLatLng(value: unknown): value is LatLng {

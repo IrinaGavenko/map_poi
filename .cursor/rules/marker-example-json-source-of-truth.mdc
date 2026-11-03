@@ -1,0 +1,15 @@
+---
+description: Keep marker form prompts in sync with example_*.json (source of truth for marker structure)
+globs: src/data/example_*.json,prompts/**
+alwaysApply: false
+---
+
+# Marker structure source of truth
+
+`src/data/example_pinned.json`, `example_custom.json`, and `example_categorized.json` are the **source of truth** for each marker type’s structure.
+
+When any of those files change:
+
+1. Update the matching prompt in `prompts/` (`create-pinned-marker-form.md`, `create-custom-marker-form.md`, `create-categorized-marker-form.md`) so canonical shape, fields, validation, and checklists match.
+2. Follow `prompts/README.md`.
+3. Prefer aligning `example_general.json` / `example_validation.json` to the example files — never rewrite prompts to match an outdated general/validation shape.
