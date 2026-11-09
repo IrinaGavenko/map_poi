@@ -1,5 +1,12 @@
 # Needs change / completion
 
+## Bugs
+
+- [ ] Zoom in/out while a popup is open
+- [ ] Map moves too fast after a marker click
+- [ ] Double-click behavior
+- [ ] Exit from the nested area
+
 ## Requirements (`_README.md`)
 
 - [x] Collapsible pins for zoom (clustering)

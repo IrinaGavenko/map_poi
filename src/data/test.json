@@ -1,30 +1,57 @@
-[
-  {
-    "id": "test-1",
-    "name": "South Beach",
-    "isCollapsible": "FF.json",
-    "type": ["beach"],
-    "description": "Coolapsible point",
-    "icon": "pin",
-    "picture": ["https://picsum.photos/400?random=miami1"],
-    "link": "https://www.miamiandbeaches.com/",
-    "coordinates": { "lat": 25.7826, "lng": -80.1341 }
+{
+  "version": 1,
+  "meta": {
+    "id": "test",
+    "title": "Test Map",
+    "description": "Small test dataset"
   },
-  {
-    "id": "7",
-    "name": "Miami Point 7",
-    "type": [
-      "nightlife"
-    ],
-    "description": "Generated Miami tourist location",
-    "icon": "pin",
-    "picture": [
-      "https://picsum.photos/400?random=7"
-    ],
-    "link": "https://example.com",
-    "coordinates": {
-      "lat": 25.757904,
-      "lng": -80.22613
+  "categories": "categories.json",
+  "points": [
+    {
+      "type": "pinned",
+      "point": {
+        "id": "test-1",
+        "type": "pinned",
+        "display_picture": "https://picsum.photos/400?random=miami1",
+        "coordinates": {
+          "lat": 25.7826,
+          "lng": -80.1341
+        },
+        "point_content": {
+          "name": "South Beach",
+          "pictures": [
+            "https://picsum.photos/400?random=miami1"
+          ],
+          "description": "Coolapsible point",
+          "link": "https://www.miamiandbeaches.com/",
+          "includeInCategorySearch": false,
+          "isCollapsible": false,
+          "isNested": "FF.json"
+        }
+      }
+    },
+    {
+      "type": "categorized",
+      "point": {
+        "id": "7",
+        "type": "categorized",
+        "categories": [
+          "nightlife"
+        ],
+        "coordinates": {
+          "lat": 25.757904,
+          "lng": -80.22613
+        }
+      },
+      "point_content": {
+        "name": "Miami Point 7",
+        "picture": [
+          "https://picsum.photos/400?random=7"
+        ],
+        "description": "Generated Miami tourist location",
+        "link": "https://example.com",
+        "priority": 0
+      }
     }
-  }
-]
+  ]
+}

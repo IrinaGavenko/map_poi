@@ -1,9 +1,4 @@
-import { getPointCategoryId, getPointIconConfig } from '@utils/pointIcons'
-import {
-  getCategoryImageUrl,
-  getCategoryRenderType,
-  getPinEmojiForCategory,
-} from '@type/categories'
+import { getPointIconConfig, getPointVisualMode } from '@utils/pointIcons'
 import type { Point } from '@type'
 
 type PointIconProps = {
@@ -12,13 +7,11 @@ type PointIconProps = {
 }
 
 export default function PointIcon({ point, size = 22 }: PointIconProps) {
-  const categoryId = getPointCategoryId(point)
-  const { color } = getPointIconConfig(point)
-  const renderType = getCategoryRenderType(categoryId)
-  const imageUrl = getCategoryImageUrl(categoryId)
+  const config = getPointIconConfig(point)
+  const visualMode = getPointVisualMode(point)
 
-  if ((renderType === 'picture' || renderType === 'icon') && imageUrl) {
-    const width = renderType === 'picture' ? Math.round(size * 1.6) : Math.round(size * 1.35)
+  if ((visualMode === 'picture' || visualMode === 'icon') && config.imageUrl) {
+    const width = visualMode === 'picture' ? Math.round(size * 1.6) : Math.round(size * 1.35)
     return (
       <span
         aria-hidden
@@ -26,7 +19,7 @@ export default function PointIcon({ point, size = 22 }: PointIconProps) {
           width,
           height: size,
           borderRadius: 4,
-          border: `2px solid ${color}`,
+          border: `2px solid ${config.color}`,
           overflow: 'hidden',
           display: 'inline-flex',
           flexShrink: 0,
@@ -34,7 +27,7 @@ export default function PointIcon({ point, size = 22 }: PointIconProps) {
         }}
       >
         <img
-          src={imageUrl}
+          src={config.imageUrl}
           alt=""
           style={{ width: '100%', height: '100%', objectFit: 'contain' }}
         />
@@ -49,7 +42,7 @@ export default function PointIcon({ point, size = 22 }: PointIconProps) {
         width: size,
         height: size,
         borderRadius: '50%',
-        background: color,
+        background: config.color,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -58,7 +51,7 @@ export default function PointIcon({ point, size = 22 }: PointIconProps) {
         lineHeight: 1,
       }}
     >
-      {getPinEmojiForCategory(categoryId)}
+      {config.emoji}
     </span>
   )
 }

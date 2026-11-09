@@ -41,11 +41,15 @@ export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs
   }
 
   const enter = async (point: Point, collapseFile: string) => {
-    const { points: nested, polygon } = await loadCollapseDataset(collapseFile)
     const previousPoints = pointsRef.current
-    setSession({ parent: point, nested, polygon, previousPoints })
+    // Hide the isNested parent and all outside markers immediately while loading.
+    setSession({ parent: point, nested: [], polygon: null, previousPoints })
     setExpanded(true)
-    // Only nested places while collapsed — restore previousPoints on exit.
+    setPoints([])
+
+    const { points: nested, polygon } = await loadCollapseDataset(collapseFile)
+    setSession({ parent: point, nested, polygon, previousPoints })
+    // Only nested-zone places while active — restore previousPoints on exit.
     setPoints(nested)
     mapFocusKey.current += 1
     const focusPoints =

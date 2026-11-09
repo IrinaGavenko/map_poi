@@ -1,21 +1,24 @@
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
-import { buildIconAnchorExpression, buildIconImageExpression, CLUSTER_ICON_ID, getPointCategoryId, getPointIconConfig, loadMapIcons } from '@utils/pointIcons'
-import { CLUSTER_RADIUS_PX, flyToUnclusteredPoints } from '@utils/mapFocus'
-import { collapsePolygonToGeoJSON } from '@utils/collapsePolygon'
-import { splitPointsGeoJSON } from '@utils/toGeoJSON'
 import {
-  getCategoryImageUrl,
-  getCategoryRenderType,
-  getCategoryTitle,
-  getPinEmojiForCategory,
-} from '@type/categories'
+  CLUSTER_ICON_ID,
+  getPointIconConfig,
+  getPointVisualMode,
+  loadMapIcons,
+} from '@utils/pointIcons'
+import { CLUSTER_RADIUS_PX, flyToUnclusteredPoints } from '@utils/mapFocus'
+import { collapseMaskToGeoJSON, collapsePolygonToGeoJSON } from '@utils/collapsePolygon'
+import { splitPointsGeoJSON } from '@utils/toGeoJSON'
+import { getCategoryTitle } from '@type/categories'
+import { resolvePublicUrl } from '@utils/publicUrl'
 import type { CollapsePolygon, Point } from '@type'
 import './MapView.css'
 
 const COLLAPSE_POLYGON_SOURCE = 'collapse-polygon'
 const COLLAPSE_POLYGON_LINE = 'collapse-polygon-line'
 const COLLAPSE_POLYGON_FILL = 'collapse-polygon-fill'
+const COLLAPSE_MASK_SOURCE = 'collapse-mask'
+const COLLAPSE_MASK_FILL = 'collapse-mask-fill'
 
 type MapFocusRequest = {
   key: number
@@ -33,32 +36,43 @@ type MapViewProps = {
   collapsePolygon?: CollapsePolygon | null
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}
+
 function buildPopupContent(point: Point): string {
-  const categoryId = getPointCategoryId(point)
-  const { color } = getPointIconConfig(point)
-  const renderType = getCategoryRenderType(categoryId)
-  const categoryImageUrl = getCategoryImageUrl(categoryId)
+  const config = getPointIconConfig(point)
+  const visualMode = getPointVisualMode(point)
   const { lat, lng } = point.coordinates
-  const categories = point.type
+  const color = config.color
+  const categories = point.categories
     .map(
       (type) =>
-        `<span class="map-popup-tag" style="--popup-accent:${color}">${getCategoryTitle(type)}</span>`,
+        `<span class="map-popup-tag" style="--popup-accent:${color}">${escapeHtml(getCategoryTitle(type))}</span>`,
     )
     .join('')
-  const image = point.picture[0]
-    ? `<div class="map-popup-media"><img class="map-popup-image" src="${point.picture[0]}" alt="" /></div>`
+  const galleryUrl = point.pictures[0] ? resolvePublicUrl(point.pictures[0]) : ''
+  const image = galleryUrl
+    ? `<div class="map-popup-media"><img class="map-popup-image" src="${escapeHtml(galleryUrl)}" alt="" /></div>`
     : `<div class="map-popup-media map-popup-media--empty" style="--popup-accent:${color}"></div>`
   const logo =
-    (renderType === 'icon' || renderType === 'picture') && categoryImageUrl
+    (visualMode === 'icon' || visualMode === 'picture') && config.imageUrl
       ? `<span class="map-popup-icon map-popup-icon--image" aria-hidden style="border-color:${color}">
-          <img src="${categoryImageUrl}" alt="" />
+          <img src="${escapeHtml(config.imageUrl)}" alt="" />
         </span>`
-      : `<span class="map-popup-icon" aria-hidden style="background:${color}">${getPinEmojiForCategory(categoryId)}</span>`
+      : `<span class="map-popup-icon" aria-hidden style="background:${color}">${escapeHtml(config.emoji)}</span>`
   const moreInfo = point.link
-    ? `<a class="map-popup-link" href="${point.link}" target="_blank" rel="noopener noreferrer">
+    ? `<a class="map-popup-link" href="${escapeHtml(point.link)}" target="_blank" rel="noopener noreferrer">
         <span class="map-popup-link-icon" aria-hidden>↗</span>
         More info
       </a>`
+    : ''
+  const description = point.description
+    ? `<p class="map-popup-description">${escapeHtml(point.description)}</p>`
     : ''
   const googleMaps = `<a class="map-popup-link map-popup-link--secondary" href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener noreferrer">
         <span class="map-popup-link-icon" aria-hidden>📍</span>
@@ -72,11 +86,11 @@ function buildPopupContent(point: Point): string {
         <div class="map-popup-heading">
           ${logo}
           <div class="map-popup-heading-text">
-            <h3 class="map-popup-title">${point.name}</h3>
+            <h3 class="map-popup-title">${escapeHtml(point.name)}</h3>
             <div class="map-popup-tags">${categories}</div>
           </div>
         </div>
-        <p class="map-popup-description">${point.description}</p>
+        ${description}
         <div class="map-popup-actions">
           ${moreInfo}
           ${googleMaps}
@@ -106,6 +120,8 @@ export default function MapView({
   const setSelectedRef = useRef(setSelected)
   const clearSelectedRef = useRef(clearSelected)
   const closingPopupFromReact = useRef(false)
+  const iconsReadyRef = useRef(false)
+  const pointsUpdateIdRef = useRef(0)
 
   useEffect(() => {
     pointsRef.current = points
@@ -142,7 +158,6 @@ export default function MapView({
     if (!focusRequest || !mapRef.current) return
     const map = mapRef.current
 
-    // Wait a frame so mobile layout/drawer size is applied before fitting bounds.
     const frame = window.requestAnimationFrame(() => {
       map.resize()
       flyToUnclusteredPoints(map, focusRequest.points)
@@ -181,6 +196,7 @@ export default function MapView({
     popupRef.current = popup
 
     const showPointPopup = (point: Point) => {
+      if (!point.hasPopup) return
       const mapInstance = mapRef.current
       const popupInstance = popupRef.current
       if (!mapInstance || !popupInstance) return
@@ -212,19 +228,10 @@ export default function MapView({
       const point = pointsRef.current.find((p) => String(p.id) === String(id))
       if (!point) return
 
-      const collapseFromFeature = feature.properties?.isCollapsible
-      const isCollapsible =
-        (typeof point.isCollapsible === 'string' && point.isCollapsible) ||
-        (typeof collapseFromFeature === 'string' && collapseFromFeature) ||
-        undefined
-
-      const nextPoint = isCollapsible ? { ...point, isCollapsible } : point
       const alreadySelected = String(selectedIdRef.current) === String(point.id)
+      setSelectedRef.current(point)
 
-      setSelectedRef.current(nextPoint)
-
-      // Same point still selected after closing the popup — reopen it explicitly.
-      if (alreadySelected && !isCollapsible) {
+      if (alreadySelected && !point.isNested && point.hasPopup) {
         showPointPopup(point)
       }
     }
@@ -274,32 +281,13 @@ export default function MapView({
         data: collapsePolygonToGeoJSON(collapsePolygonRef.current),
       })
 
-      await loadMapIcons(map)
-
-      map.addLayer({
-        id: COLLAPSE_POLYGON_FILL,
-        type: 'fill',
-        source: COLLAPSE_POLYGON_SOURCE,
-        paint: {
-          'fill-color': ['coalesce', ['get', 'color'], '#3b82f6'],
-          'fill-opacity': 0.08,
-        },
+      map.addSource(COLLAPSE_MASK_SOURCE, {
+        type: 'geojson',
+        data: collapseMaskToGeoJSON(collapsePolygonRef.current),
       })
 
-      map.addLayer({
-        id: COLLAPSE_POLYGON_LINE,
-        type: 'line',
-        source: COLLAPSE_POLYGON_SOURCE,
-        paint: {
-          'line-color': ['coalesce', ['get', 'color'], '#3b82f6'],
-          'line-width': 3,
-          'line-opacity': 1,
-        },
-        layout: {
-          'line-cap': 'round',
-          'line-join': 'round',
-        },
-      })
+      await loadMapIcons(map, pointsRef.current)
+      iconsReadyRef.current = true
 
       map.addLayer({
         id: 'clusters',
@@ -328,11 +316,11 @@ export default function MapView({
         source: 'points',
         filter: ['!', ['has', 'point_count']],
         layout: {
-          'icon-image': buildIconImageExpression(),
+          'icon-image': ['get', 'iconKey'],
           'icon-size': 1,
           'icon-allow-overlap': true,
           'icon-ignore-placement': true,
-          'icon-anchor': buildIconAnchorExpression(),
+          'icon-anchor': ['get', 'iconAnchor'],
         },
       })
 
@@ -341,11 +329,47 @@ export default function MapView({
         type: 'symbol',
         source: 'picture-points',
         layout: {
-          'icon-image': buildIconImageExpression(),
+          'icon-image': ['get', 'iconKey'],
           'icon-size': 1,
           'icon-allow-overlap': true,
           'icon-ignore-placement': true,
           'icon-anchor': 'center',
+        },
+      })
+
+      // Cover markers/map outside the nested zone (hole keeps zone contents visible).
+      map.addLayer({
+        id: COLLAPSE_MASK_FILL,
+        type: 'fill',
+        source: COLLAPSE_MASK_SOURCE,
+        paint: {
+          'fill-color': '#0f172a',
+          'fill-opacity': 0.45,
+        },
+      })
+
+      map.addLayer({
+        id: COLLAPSE_POLYGON_FILL,
+        type: 'fill',
+        source: COLLAPSE_POLYGON_SOURCE,
+        paint: {
+          'fill-color': ['coalesce', ['get', 'color'], '#3b82f6'],
+          'fill-opacity': 0.08,
+        },
+      })
+
+      map.addLayer({
+        id: COLLAPSE_POLYGON_LINE,
+        type: 'line',
+        source: COLLAPSE_POLYGON_SOURCE,
+        paint: {
+          'line-color': ['coalesce', ['get', 'color'], '#3b82f6'],
+          'line-width': 3,
+          'line-opacity': 1,
+        },
+        layout: {
+          'line-cap': 'round',
+          'line-join': 'round',
         },
       })
 
@@ -366,15 +390,17 @@ export default function MapView({
       map.remove()
       mapRef.current = null
       popupRef.current = null
+      iconsReadyRef.current = false
     }
   }, [])
 
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
-    const src = map.getSource(COLLAPSE_POLYGON_SOURCE) as maplibregl.GeoJSONSource | undefined
-    if (!src) return
-    src.setData(collapsePolygonToGeoJSON(collapsePolygon))
+    const polygonSrc = map.getSource(COLLAPSE_POLYGON_SOURCE) as maplibregl.GeoJSONSource | undefined
+    const maskSrc = map.getSource(COLLAPSE_MASK_SOURCE) as maplibregl.GeoJSONSource | undefined
+    if (polygonSrc) polygonSrc.setData(collapsePolygonToGeoJSON(collapsePolygon))
+    if (maskSrc) maskSrc.setData(collapseMaskToGeoJSON(collapsePolygon))
   }, [collapsePolygon])
 
   useEffect(() => {
@@ -390,13 +416,27 @@ export default function MapView({
       (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA') &&
       !map.getContainer().contains(active)
 
-    const { clustered, picture } = splitPointsGeoJSON(points)
-    clusteredSrc.setData(clustered)
-    pictureSrc.setData(picture)
+    const updateId = ++pointsUpdateIdRef.current
+    // Apply GeoJSON synchronously so the isNested parent and outside markers
+    // disappear before any async icon work can race and restore them.
+    const initial = splitPointsGeoJSON(points)
+    clusteredSrc.setData(initial.clustered)
+    pictureSrc.setData(initial.picture)
 
-    if (shouldRestore) {
-      active.focus({ preventScroll: true })
-    }
+    void (async () => {
+      if (iconsReadyRef.current) {
+        await loadMapIcons(map, points)
+      }
+      if (updateId !== pointsUpdateIdRef.current) return
+
+      const { clustered, picture } = splitPointsGeoJSON(points)
+      clusteredSrc.setData(clustered)
+      pictureSrc.setData(picture)
+
+      if (shouldRestore) {
+        active.focus({ preventScroll: true })
+      }
+    })()
   }, [points])
 
   const selectedId = selected?.id ?? null
@@ -412,7 +452,7 @@ export default function MapView({
     }
 
     const point = pointsRef.current.find((p) => String(p.id) === String(selectedId))
-    if (!point || point.isCollapsible) {
+    if (!point || point.isNested || !point.hasPopup) {
       closingPopupFromReact.current = true
       popupRef.current?.remove()
       closingPopupFromReact.current = false
@@ -433,19 +473,17 @@ export default function MapView({
       .addTo(mapRef.current)
   }, [selectedId])
 
-  // Refresh open popup only when the selected point's displayed fields change
-  // (e.g. edit form), not when the points array identity changes from unrelated UI.
   const selectedPopupKey = (() => {
     if (!selectedId) return null
     const point = points.find((p) => String(p.id) === String(selectedId))
-    if (!point || point.isCollapsible) return null
+    if (!point || point.isNested || !point.hasPopup) return null
     return [
       point.id,
       point.name,
       point.description,
       point.link,
-      point.type.join(','),
-      point.picture[0] ?? '',
+      point.categories.join(','),
+      point.pictures[0] ?? '',
       point.coordinates.lat,
       point.coordinates.lng,
     ].join('|')
@@ -455,7 +493,7 @@ export default function MapView({
     if (!selectedPopupKey || !popupRef.current?.isOpen()) return
 
     const point = pointsRef.current.find((p) => String(p.id) === String(selectedId))
-    if (!point || point.isCollapsible) {
+    if (!point || point.isNested || !point.hasPopup) {
       popupRef.current.remove()
       return
     }

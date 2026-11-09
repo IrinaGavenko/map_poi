@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { applyPointEdits } from '@utils/normalizeMarker'
 import type { Point } from '@type'
 import './EditMode.css'
 
@@ -19,7 +20,7 @@ export default function EditPointForm({
   const draftRef = useRef(point)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const typeOptions = [...new Set([...availableTypes, ...draft.type])].sort()
+  const typeOptions = [...new Set([...availableTypes, ...draft.categories])].sort()
 
   useEffect(() => {
     setDraft(point)
@@ -33,7 +34,8 @@ export default function EditPointForm({
     }
   }, [])
 
-  const scheduleCommit = (next: Point) => {
+  const scheduleCommit = (partial: Partial<Point>) => {
+    const next = applyPointEdits(draftRef.current, partial)
     draftRef.current = next
     setDraft(next)
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -51,12 +53,15 @@ export default function EditPointForm({
   }
 
   const toggleType = (type: string) => {
-    const current = draftRef.current.type
+    const current = draftRef.current.categories
     const nextTypes = current.includes(type)
       ? current.filter((t) => t !== type)
       : [...current, type]
     if (nextTypes.length === 0) return
-    scheduleCommit({ ...draftRef.current, type: nextTypes })
+    scheduleCommit({
+      categories: nextTypes,
+      primaryCategoryId: nextTypes[0] ?? null,
+    })
   }
 
   return (
@@ -65,7 +70,7 @@ export default function EditPointForm({
         Name
         <input
           value={draft.name}
-          onChange={(e) => scheduleCommit({ ...draftRef.current, name: e.target.value })}
+          onChange={(e) => scheduleCommit({ name: e.target.value })}
           onBlur={flushCommit}
         />
       </label>
@@ -73,7 +78,7 @@ export default function EditPointForm({
         Description
         <textarea
           value={draft.description}
-          onChange={(e) => scheduleCommit({ ...draftRef.current, description: e.target.value })}
+          onChange={(e) => scheduleCommit({ description: e.target.value })}
           onBlur={flushCommit}
           rows={3}
         />
@@ -82,7 +87,7 @@ export default function EditPointForm({
         <span className="places-edit-types-label">Type</span>
         <div className="places-edit-types-chips" role="group" aria-label="Place types">
           {typeOptions.map((type) => {
-            const active = draft.type.includes(type)
+            const active = draft.categories.includes(type)
             return (
               <button
                 key={type}
@@ -101,19 +106,18 @@ export default function EditPointForm({
         Link
         <input
           value={draft.link}
-          onChange={(e) => scheduleCommit({ ...draftRef.current, link: e.target.value })}
+          onChange={(e) => scheduleCommit({ link: e.target.value })}
           onBlur={flushCommit}
         />
       </label>
       <label>
         Image link
         <input
-          value={draft.picture[0] ?? ''}
+          value={draft.pictures[0] ?? ''}
           onChange={(e) => {
             const url = e.target.value
             scheduleCommit({
-              ...draftRef.current,
-              picture: url ? [url, ...draftRef.current.picture.slice(1)] : [],
+              pictures: url ? [url, ...draftRef.current.pictures.slice(1)] : [],
             })
           }}
           onBlur={flushCommit}

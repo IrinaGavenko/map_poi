@@ -3,6 +3,7 @@ import PointIcon from '@components/PointIcon'
 import { getCategoryTitle } from '@type/categories'
 import { getPointIconConfig } from '@utils/pointIcons'
 import { filterPoints } from '@utils/filterPoints'
+import { resolvePublicUrl } from '@utils/publicUrl'
 import type { Point } from '@type'
 import DrawerShell from '../DrawerShell'
 import SearchInput from '../SearchInput'
@@ -39,6 +40,7 @@ export default function CollapseView({
   const accent = parent ? getPointIconConfig(parent).color : '#6b7280'
   const { lat, lng } = parent?.coordinates ?? { lat: 0, lng: 0 }
   const minimized = open && !expanded
+  const parentImage = parent?.pictures[0] ? resolvePublicUrl(parent.pictures[0]) : ''
 
   const [tab, setTab] = useState<CollapseTab>('info')
   const [query, setQuery] = useState('')
@@ -112,9 +114,9 @@ export default function CollapseView({
           role="tabpanel"
           style={{ '--collapse-accent': accent } as CSSProperties}
         >
-          {parent.picture[0] ? (
+          {parentImage ? (
             <div className="places-collapse-parent-media">
-              <img src={parent.picture[0]} alt="" />
+              <img src={parentImage} alt="" />
             </div>
           ) : null}
           <div className="places-collapse-parent-body">
@@ -123,7 +125,7 @@ export default function CollapseView({
               <div className="places-collapse-parent-heading-text">
                 <h3 className="places-collapse-parent-name">{parent.name}</h3>
                 <div className="places-collapse-parent-tags">
-                  {parent.type.map((type) => (
+                  {parent.categories.map((type) => (
                     <span key={type} className="places-collapse-parent-tag">
                       {getCategoryTitle(type)}
                     </span>

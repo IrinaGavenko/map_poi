@@ -1,5 +1,6 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
 import { createPoint } from '@utils/createPoint'
+import { applyPointEdits } from '@utils/normalizeMarker'
 import type { Point } from '@type'
 
 type UsePointSelectionArgs = {
@@ -16,8 +17,7 @@ export function usePointSelection({
   const [selected, setSelected] = useState<Point | null>(null)
 
   const selectPoint = (point: Point) => {
-    const collapseFile =
-      typeof point.isCollapsible === 'string' ? point.isCollapsible.trim() : ''
+    const collapseFile = point.isNested?.trim() ?? ''
 
     if (collapseFile) {
       onBeforeCollapse?.()
@@ -30,8 +30,9 @@ export function usePointSelection({
   }
 
   const updateSelectedPoint = (point: Point) => {
-    setSelected(point)
-    setPoints((points) => points.map((p) => (p.id === point.id ? point : p)))
+    const next = applyPointEdits(point, point)
+    setSelected(next)
+    setPoints((points) => points.map((p) => (p.id === next.id ? next : p)))
   }
 
   const deleteSelectedPoint = () => {

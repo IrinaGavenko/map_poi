@@ -119,12 +119,11 @@ export function useMapApp() {
   }
 
   const selectPointFromDrawer = (point: Point) => {
-    const isCollapsible =
-      typeof point.isCollapsible === 'string' && point.isCollapsible.trim()
+    const hasNestedZone = Boolean(point.isNested?.trim())
 
     selection.selectPoint(point)
 
-    if (!isCollapsible) scheduleMinimize()
+    if (!hasNestedZone) scheduleMinimize()
   }
 
   const minimizeDrawer = () => {

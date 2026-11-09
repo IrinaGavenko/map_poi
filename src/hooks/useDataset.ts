@@ -10,7 +10,7 @@ export function useDataset() {
     let cancelled = false
 
     void loadDataset(datasetId).then((next) => {
-      if (!cancelled) setPoints(next)
+      if (!cancelled) setPoints(next.points)
     })
 
     return () => {

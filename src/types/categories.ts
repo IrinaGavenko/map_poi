@@ -1,11 +1,6 @@
 /**
- * Categories — current shape matches `src/data/example_categories.json`.
- * Legacy pin/icon/picture runtime below is @deprecated but kept so the app runs.
+ * Categories — runtime shape matches `src/data/categories.json` / `example_categories.json`.
  */
-
-// ---------------------------------------------------------------------------
-// Current (source of truth: example_categories.json + CategoryTypeConfig)
-// ---------------------------------------------------------------------------
 
 export type CategoryRenderType = 'pinned' | 'custom' | 'categorized'
 
@@ -28,234 +23,112 @@ export type CategoryTypeConfig = {
   categoryListPicture?: string | null
 }
 
-/** Full categories document (`example_categories.json` without `//` comment keys). */
+/** Full categories document (`categories.json` without `//` comment keys). */
 export type CategoriesDocument = {
   version: number
   categories: Record<string, CategoryTypeConfig>
 }
 
-// ---------------------------------------------------------------------------
-// @deprecated — previous pin | icon | picture model (keeps current map UI running)
-// ---------------------------------------------------------------------------
+/** Visual mode used by map icons / legend (derived from category + marker). */
+export type MarkerVisualMode = 'pin' | 'icon' | 'picture'
 
-/**
- * @deprecated Legacy map render mode. Prefer `CategoryRenderType` (`pinned` | `custom` | `categorized`).
- */
-export type LegacyCategoryRenderType = 'pin' | 'icon' | 'picture'
-
-/**
- * @deprecated Legacy style-group id. Prefer category `id` + `CategoryTypeConfig.type`.
- */
-export type LegacyCategoryType =
-  | 'transport'
-  | 'rideshare'
-  | 'redishare'
-  | 'fifa'
-  | 'global'
-  | 'accommodation'
-  | 'car'
-  | 'stadium'
-  | 'unknown'
-
-/**
- * @deprecated Legacy style-group config (`CATEGORY_TYPE` values). Prefer `CategoryTypeConfig`.
- */
-export type LegacyCategoryTypeConfig = {
-  color?: string
-  type: LegacyCategoryRenderType
-}
-
-/** @deprecated Prefer defaults from the categories document / `CategoryTypeConfig.viewColor`. */
 export const DEFAULT_CATEGORY_COLOR = '#6b7280'
 
-/** @deprecated Prefer `CategoryTypeConfig.viewPicture` / document defaults. */
 export const DEFAULT_CATEGORY_PICTURE =
   'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'
 
-/** @deprecated Prefer loading style from `CategoriesDocument`. */
-export const CATEGORY_TYPE: Record<LegacyCategoryType, LegacyCategoryTypeConfig> = {
-  unknown: {
-    type: 'pin',
-    color: '#6b7280',
-  },
-  transport: {
-    type: 'pin',
-    color: '#0ea5e9',
-  },
-  car: {
-    type: 'pin',
-    color: '#8b5cf6',
-  },
-  stadium: {
-    type: 'pin',
-    color: '#22c55e',
-  },
-  rideshare: {
-    type: 'pin',
-    color: '#22c55e',
-  },
-  redishare: {
-    type: 'pin',
-    color: '#22c55e',
-  },
-  global: {
-    type: 'picture',
-  },
-  fifa: {
-    type: 'icon',
-  },
-  accommodation: {
-    type: 'pin',
-    color: '#d97706',
-  },
+export const FALLBACK_CATEGORY: CategoryTypeConfig = {
+  id: 'other',
+  name: 'Other',
+  type: 'categorized',
+  priority: 0,
+  viewColor: DEFAULT_CATEGORY_COLOR,
+  viewIcon: '📍',
+  viewPicture: null,
+  categoryListIcon: '📍',
+  categoryListPicture: null,
+}
+
+let registry: Record<string, CategoryTypeConfig> = {
+  [FALLBACK_CATEGORY.id]: FALLBACK_CATEGORY,
+}
+
+export function getCategoriesRegistry(): Record<string, CategoryTypeConfig> {
+  return registry
+}
+
+export function setCategoriesRegistry(doc: CategoriesDocument | null | undefined): void {
+  const next: Record<string, CategoryTypeConfig> = {
+    [FALLBACK_CATEGORY.id]: { ...FALLBACK_CATEGORY },
+  }
+
+  if (doc?.categories) {
+    for (const [id, config] of Object.entries(doc.categories)) {
+      if (id.startsWith('//')) continue
+      if (!config || typeof config !== 'object') continue
+      next[id] = {
+        ...config,
+        id: typeof config.id === 'string' && config.id ? config.id : id,
+      }
+    }
+  }
+
+  registry = next
+}
+
+export function getCategoryConfig(categoryId: string | null | undefined): CategoryTypeConfig {
+  if (categoryId && registry[categoryId]) return registry[categoryId]
+  return registry[FALLBACK_CATEGORY.id] ?? FALLBACK_CATEGORY
+}
+
+export function getCategoryTitle(categoryId: string): string {
+  return getCategoryConfig(categoryId).name || categoryId
+}
+
+export function getCategoryColor(categoryId: string | null | undefined): string {
+  const color = getCategoryConfig(categoryId).viewColor
+  return color && color.trim() ? color.trim() : DEFAULT_CATEGORY_COLOR
+}
+
+export function isPictureIcon(icon: string): boolean {
+  const value = icon.trim()
+  return /^https?:\/\//i.test(value) || value.startsWith('/') || value.startsWith('assets/')
+}
+
+/** Map/list image from category config, if any. */
+export function getCategoryImageUrl(categoryId: string | null | undefined): string | undefined {
+  const config = getCategoryConfig(categoryId)
+  const picture = config.viewPicture?.trim() || config.categoryListPicture?.trim()
+  if (picture) return picture
+  const icon = config.viewIcon?.trim() || config.categoryListIcon?.trim()
+  if (icon && isPictureIcon(icon)) return icon
+  return undefined
+}
+
+export function getCategoryListIcon(categoryId: string | null | undefined): string {
+  const config = getCategoryConfig(categoryId)
+  const icon = config.categoryListIcon?.trim() || config.viewIcon?.trim()
+  if (icon && !isPictureIcon(icon)) return icon
+  return '📍'
 }
 
 /**
- * @deprecated Prefer `CategoryTypeConfig`. Legacy POINT_CATEGORIES entry shape.
+ * Visual mode for a category family:
+ * - pinned → large picture marker
+ * - custom → rectangular picture/icon marker
+ * - categorized → pin (or small icon rect when viewPicture is set)
  */
-export type PointCategoryConfig = {
-  icon: string
-  type: LegacyCategoryType
-  title: string
+export function getCategoryVisualMode(categoryId: string | null | undefined): MarkerVisualMode {
+  const config = getCategoryConfig(categoryId)
+  if (config.type === 'pinned') return 'picture'
+  if (config.type === 'custom') return 'icon'
+  if (config.viewPicture?.trim()) return 'icon'
+  return 'pin'
 }
 
-/** @deprecated */
-export type ResolvedPointCategoryConfig = PointCategoryConfig & {
-  color: string
+export function knownCategoryIds(): string[] {
+  return Object.keys(registry)
+    .filter((id) => id !== FALLBACK_CATEGORY.id || registry[id] === FALLBACK_CATEGORY)
+    .filter((id) => id in registry)
+    .sort()
 }
-
-/** @deprecated Prefer `CategoriesDocument.categories`. */
-export const POINT_CATEGORIES = {
-  airport: { icon: '🛫', type: 'transport', title: 'Airport' },
-  car_rental: { icon: '🚗', type: 'car', title: 'Car Rental' },
-  hotel: { icon: '🏨', type: 'accommodation', title: 'Hotel' },
-  transit_stop: { icon: '🚏', type: 'transport', title: 'Transit Stop' },
-  transit_station: { icon: '🚉', type: 'transport', title: 'Transit Station' },
-  bus_hub: { icon: '🚍', type: 'transport', title: 'Bus Hub' },
-  shuttle_stop: { icon: '🚌', type: 'rideshare', title: 'Shuttle Stop' },
-  redishare_stop: { icon: '🚕', type: 'redishare', title: 'Redishare Stop' },
-  parking_lot: { icon: '🅿️', type: 'car', title: 'Parking Lot' },
-  gate: { icon: '🚪', type: 'stadium', title: 'Gate' },
-  fifa_store: {
-    icon: `${import.meta.env.BASE_URL}assets/fifaStore.jpg`,
-    type: 'fifa',
-    title: 'FIFA Store',
-  },
-  fifa_museum: {
-    icon: `${import.meta.env.BASE_URL}assets/fifaMuseum.png`,
-    type: 'fifa',
-    title: 'FIFA Museum',
-  },
-  fifa_reward: {
-    icon: `${import.meta.env.BASE_URL}assets/fifaReward.png`,
-    type: 'fifa',
-    title: 'FIFA Reward',
-  },
-  fifa_fan_festival: {
-    icon: `${import.meta.env.BASE_URL}assets/fifaFanfest.jpeg`,
-    type: 'global',
-    title: 'FIFA Fan Festival',
-  },
-} as const satisfies Record<string, PointCategoryConfig>
-
-/** @deprecated */
-export type PointCategoryId = keyof typeof POINT_CATEGORIES
-
-/** @deprecated */
-export const AVAILABLE_POINT_CATEGORIES = Object.keys(POINT_CATEGORIES) as PointCategoryId[]
-
-/** @deprecated */
-export const FALLBACK_POINT_CATEGORY = {
-  id: 'pin',
-  icon: '📍',
-  type: 'unknown',
-  title: 'Pin',
-} as const satisfies PointCategoryConfig & { id: string }
-
-/** @deprecated */
-export const POINT_CATEGORY_CONFIG: Record<string, PointCategoryConfig> = {
-  ...POINT_CATEGORIES,
-  [FALLBACK_POINT_CATEGORY.id]: {
-    icon: FALLBACK_POINT_CATEGORY.icon,
-    type: FALLBACK_POINT_CATEGORY.type,
-    title: FALLBACK_POINT_CATEGORY.title,
-  },
-}
-
-/** @deprecated */
-export function getPointCategoryConfig(category: string): PointCategoryConfig {
-  return POINT_CATEGORY_CONFIG[category] ?? POINT_CATEGORY_CONFIG[FALLBACK_POINT_CATEGORY.id]
-}
-
-/** @deprecated */
-export function getCategoryTypeConfig(categoryType: LegacyCategoryType): LegacyCategoryTypeConfig {
-  return CATEGORY_TYPE[categoryType]
-}
-
-/** @deprecated */
-export function getCategoryColor(categoryId: string): string {
-  const config = getPointCategoryConfig(categoryId)
-  return CATEGORY_TYPE[config.type]?.color ?? DEFAULT_CATEGORY_COLOR
-}
-
-/** @deprecated */
-export function resolvePointCategoryConfig(categoryId: string): ResolvedPointCategoryConfig {
-  const config = getPointCategoryConfig(categoryId)
-  return {
-    ...config,
-    color: getCategoryColor(categoryId),
-  }
-}
-
-/** @deprecated */
-export function getCategoryTitle(categoryId: string): string {
-  const config = getPointCategoryConfig(categoryId)
-  return config.title || categoryId
-}
-
-/** @deprecated Returns legacy pin/icon/picture mode for the current map UI. */
-export function getCategoryRenderType(categoryId: string): LegacyCategoryRenderType {
-  const config = getPointCategoryConfig(categoryId)
-  return CATEGORY_TYPE[config.type]?.type ?? 'pin'
-}
-
-/** @deprecated */
-export function isPictureIcon(icon: string): boolean {
-  const value = icon.trim()
-  return /^https?:\/\//i.test(value) || value.startsWith('/')
-}
-
-/** @deprecated */
-export function getCategoryImageUrl(categoryId: string): string | undefined {
-  const renderType = getCategoryRenderType(categoryId)
-  if (renderType !== 'icon' && renderType !== 'picture') return undefined
-  const { icon } = getPointCategoryConfig(categoryId)
-  return isPictureIcon(icon) ? icon.trim() : DEFAULT_CATEGORY_PICTURE
-}
-
-/** @deprecated Prefer getCategoryImageUrl */
-export function getPictureUrlForCategory(categoryId: string): string | undefined {
-  return getCategoryImageUrl(categoryId)
-}
-
-/** @deprecated */
-export function getPinEmojiForCategory(categoryId: string): string {
-  const { icon } = getPointCategoryConfig(categoryId)
-  return isPictureIcon(icon) ? '' : icon
-}
-
-/** @deprecated */
-export const PICTURE_POINT_CATEGORY_IDS = (Object.keys(POINT_CATEGORY_CONFIG) as string[]).filter(
-  (categoryId) => getCategoryRenderType(categoryId) === 'picture',
-)
-
-/** @deprecated */
-export const ICON_POINT_CATEGORY_IDS = (Object.keys(POINT_CATEGORY_CONFIG) as string[]).filter(
-  (categoryId) => getCategoryRenderType(categoryId) === 'icon',
-)
-
-/** @deprecated */
-export const RECT_POINT_CATEGORY_IDS = [
-  ...ICON_POINT_CATEGORY_IDS,
-  ...PICTURE_POINT_CATEGORY_IDS,
-]

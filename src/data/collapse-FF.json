@@ -26,33 +26,45 @@
   },
   "points": [
     {
-      "id": "FFF-MIA-GAT2",
-      "name": "FIFA Fan Festival Gate",
-      "type": [
-        "gate"
-      ],
-      "description": "Entry / Exit (Media, Sponsor, General Admission)",
-      "icon": "gate",
-      "picture": [],
-      "link": "",
-      "coordinates": {
-        "lat": 25.7767969379459,
-        "lng": -80.1873052153455
+      "type": "categorized",
+      "point": {
+        "id": "FFF-MIA-GAT2",
+        "type": "categorized",
+        "categories": [
+          "gate"
+        ],
+        "coordinates": {
+          "lat": 25.7767969379459,
+          "lng": -80.1873052153455
+        }
+      },
+      "point_content": {
+        "name": "FIFA Fan Festival Gate",
+        "picture": [],
+        "description": "Entry / Exit (Media, Sponsor, General Admission)",
+        "link": "",
+        "priority": 0
       }
     },
     {
-      "id": "FFF-MIA-GAT3",
-      "name": "FIFA Fan Festival Gate",
-      "type": [
-        "gate"
-      ],
-      "description": "Entry (General Admission)",
-      "icon": "gate",
-      "picture": [],
-      "link": "",
-      "coordinates": {
-        "lat": 25.7733969502771,
-        "lng": -80.1854805989529
+      "type": "categorized",
+      "point": {
+        "id": "FFF-MIA-GAT3",
+        "type": "categorized",
+        "categories": [
+          "gate"
+        ],
+        "coordinates": {
+          "lat": 25.7733969502771,
+          "lng": -80.1854805989529
+        }
+      },
+      "point_content": {
+        "name": "FIFA Fan Festival Gate",
+        "picture": [],
+        "description": "Entry (General Admission)",
+        "link": "",
+        "priority": 0
       }
     }
   ]

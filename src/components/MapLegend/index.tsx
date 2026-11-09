@@ -1,10 +1,11 @@
 import {
   getCategoryImageUrl,
-  getCategoryRenderType,
+  getCategoryListIcon,
   getCategoryTitle,
-  getPinEmojiForCategory,
-  resolvePointCategoryConfig,
+  getCategoryVisualMode,
 } from '@type/categories'
+import { resolvePointCategoryConfig } from '@utils/pointIcons'
+import { resolvePublicUrl } from '@utils/publicUrl'
 import './MapLegend.css'
 
 type MapLegendProps = {
@@ -30,8 +31,9 @@ export default function MapLegend({
     <div className="map-legend" role="group" aria-label="Filter by type">
       {types.map((type) => {
         const config = resolvePointCategoryConfig(type)
-        const renderType = getCategoryRenderType(type)
+        const visualMode = getCategoryVisualMode(type)
         const imageUrl = getCategoryImageUrl(type)
+        const resolvedImage = imageUrl ? resolvePublicUrl(imageUrl) : undefined
         const active = selectedTypes.length === 0 || selectedTypes.includes(type)
         return (
           <button
@@ -42,15 +44,15 @@ export default function MapLegend({
             onClick={() => toggleType(type)}
           >
             <span className="map-legend-icon" aria-hidden>
-              {(renderType === 'picture' || renderType === 'icon') && imageUrl ? (
+              {(visualMode === 'picture' || visualMode === 'icon') && resolvedImage ? (
                 <img
                   className="map-legend-picture"
-                  src={imageUrl}
+                  src={resolvedImage}
                   alt=""
                   style={{ borderColor: config.color }}
                 />
               ) : (
-                getPinEmojiForCategory(type)
+                getCategoryListIcon(type)
               )}
             </span>
             <span className="map-legend-label">{getCategoryTitle(type)}</span>

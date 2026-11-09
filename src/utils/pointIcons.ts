@@ -1,44 +1,87 @@
-import type { ExpressionSpecification, Map as MapLibreMap } from 'maplibre-gl'
+import type { Map as MapLibreMap } from 'maplibre-gl'
 import type { Point } from '@type'
 import {
-  CATEGORY_TYPE,
   DEFAULT_CATEGORY_COLOR,
   DEFAULT_CATEGORY_PICTURE,
-  FALLBACK_POINT_CATEGORY,
+  FALLBACK_CATEGORY,
+  getCategoriesRegistry,
+  getCategoryColor,
+  getCategoryConfig,
   getCategoryImageUrl,
-  getCategoryRenderType,
-  getPinEmojiForCategory,
-  POINT_CATEGORY_CONFIG,
-  RECT_POINT_CATEGORY_IDS,
-  resolvePointCategoryConfig,
-  type ResolvedPointCategoryConfig,
+  getCategoryListIcon,
+  getCategoryVisualMode,
+  type MarkerVisualMode,
 } from '@type/categories'
+import { resolvePublicUrl } from '@utils/publicUrl'
 
-export type { ResolvedPointCategoryConfig as PointIconConfig }
+export type PointIconConfig = {
+  id: string
+  color: string
+  visualMode: MarkerVisualMode
+  imageUrl?: string
+  emoji: string
+}
 
-export const POINT_ICON_CONFIG = POINT_CATEGORY_CONFIG
 export const CLUSTER_ICON_ID = 'cluster-button'
 
 export function getPointCategoryId(point: Point): string {
-  const categoryId = point.type[0]
-  if (categoryId && categoryId in POINT_CATEGORY_CONFIG) return categoryId
-  if (point.icon in POINT_CATEGORY_CONFIG) return point.icon
-  return FALLBACK_POINT_CATEGORY.id
+  if (point.primaryCategoryId && point.primaryCategoryId in getCategoriesRegistry()) {
+    return point.primaryCategoryId
+  }
+  const fromList = point.categories.find((id) => id in getCategoriesRegistry())
+  return fromList ?? FALLBACK_CATEGORY.id
 }
 
+/** MapLibre image id for this point (category id, or unique point art). */
 export function getPointIconKey(point: Point): string {
+  if (point.markerType === 'pinned') {
+    return point.displayPicture ? `point:${point.id}` : getPointCategoryId(point)
+  }
+  if (point.markerType === 'custom') {
+    if (point.displayPicture && !point.primaryCategoryId) return `point:${point.id}`
+    if (point.displayPicture) {
+      const categoryImage = getCategoryImageUrl(point.primaryCategoryId)
+      const resolvedDisplay = resolvePublicUrl(point.displayPicture)
+      const resolvedCategory = categoryImage ? resolvePublicUrl(categoryImage) : ''
+      if (resolvedDisplay && resolvedDisplay !== resolvedCategory) return `point:${point.id}`
+    }
+    return getPointCategoryId(point)
+  }
   return getPointCategoryId(point)
 }
 
-export function getPointIconConfig(point: Point): ResolvedPointCategoryConfig {
-  return resolvePointCategoryConfig(getPointCategoryId(point))
+export function getPointVisualMode(point: Point): MarkerVisualMode {
+  if (point.markerType === 'pinned') return 'picture'
+  if (point.markerType === 'custom') return 'icon'
+  return getCategoryVisualMode(getPointCategoryId(point))
 }
 
-/** Small rectangle for `icon` render type (clusters with pins). */
+export function getPointIconConfig(point: Point): PointIconConfig {
+  const categoryId = getPointCategoryId(point)
+  const visualMode = getPointVisualMode(point)
+  const imageUrl =
+    point.displayPicture ||
+    getCategoryImageUrl(categoryId) ||
+    undefined
+  return {
+    id: categoryId,
+    color: getCategoryColor(categoryId),
+    visualMode,
+    imageUrl: imageUrl ? resolvePublicUrl(imageUrl) : undefined,
+    emoji: getCategoryListIcon(categoryId),
+  }
+}
+
+/** Whether this point should stay outside the MapLibre cluster source. */
+export function isUnclusteredPoint(point: Point): boolean {
+  return getPointVisualMode(point) === 'picture' || point.markerType === 'pinned'
+}
+
+/** Small rectangle for `icon` / custom markers. */
 export const ICON_MARKER_WIDTH = 56
 export const ICON_MARKER_HEIGHT = 40
 
-/** Large rectangle for `picture` render type (never clustered). */
+/** Large rectangle for `picture` / pinned markers. */
 export const PICTURE_MARKER_WIDTH = 140
 export const PICTURE_MARKER_HEIGHT = 100
 
@@ -190,10 +233,11 @@ async function createRectMarkerImageData(
   width: number,
   height: number,
 ): Promise<ImageData> {
+  const resolved = resolvePublicUrl(pictureUrl)
   const urls =
-    pictureUrl === DEFAULT_CATEGORY_PICTURE
+    resolved === DEFAULT_CATEGORY_PICTURE
       ? [DEFAULT_CATEGORY_PICTURE]
-      : [pictureUrl, DEFAULT_CATEGORY_PICTURE]
+      : [resolved, DEFAULT_CATEGORY_PICTURE]
 
   for (const url of urls) {
     try {
@@ -238,33 +282,31 @@ function createClusterButtonImageData(): ImageData {
   return ctx.getImageData(0, 0, size, size)
 }
 
-export function buildIconImageExpression(): ExpressionSpecification {
-  const pairs = Object.keys(POINT_CATEGORY_CONFIG).flatMap((key) => [key, key])
-  return ['match', ['get', 'iconKey'], ...pairs, FALLBACK_POINT_CATEGORY.id] as unknown as ExpressionSpecification
+async function addOrReplaceImage(map: MapLibreMap, id: string, imageData: ImageData) {
+  if (map.hasImage(id)) {
+    map.removeImage(id)
+  }
+  map.addImage(id, imageData, { pixelRatio: 2 })
 }
 
-export function buildIconAnchorExpression(): ExpressionSpecification {
-  const pairs = RECT_POINT_CATEGORY_IDS.flatMap((key) => [key, 'center'])
-  return ['match', ['get', 'iconKey'], ...pairs, 'bottom'] as unknown as ExpressionSpecification
-}
+export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Promise<void> {
+  const iconKeys = new Set<string>()
 
-export async function loadMapIcons(map: MapLibreMap): Promise<void> {
-  for (const [categoryId, config] of Object.entries(POINT_CATEGORY_CONFIG)) {
-    const typeConfig = CATEGORY_TYPE[config.type]
-    const color = typeConfig?.color ?? DEFAULT_CATEGORY_COLOR
-    const renderType = getCategoryRenderType(categoryId)
+  for (const categoryId of Object.keys(getCategoriesRegistry())) {
+    const visualMode = getCategoryVisualMode(categoryId)
+    const color = getCategoryColor(categoryId)
     let imageData: ImageData
 
-    if (renderType === 'picture') {
-      const pictureUrl = getCategoryImageUrl(categoryId)!
+    if (visualMode === 'picture') {
+      const pictureUrl = getCategoryImageUrl(categoryId) ?? DEFAULT_CATEGORY_PICTURE
       imageData = await createRectMarkerImageData(
         pictureUrl,
         color,
         PICTURE_MARKER_WIDTH,
         PICTURE_MARKER_HEIGHT,
       )
-    } else if (renderType === 'icon') {
-      const pictureUrl = getCategoryImageUrl(categoryId)!
+    } else if (visualMode === 'icon') {
+      const pictureUrl = getCategoryImageUrl(categoryId) ?? DEFAULT_CATEGORY_PICTURE
       imageData = await createRectMarkerImageData(
         pictureUrl,
         color,
@@ -272,18 +314,52 @@ export async function loadMapIcons(map: MapLibreMap): Promise<void> {
         ICON_MARKER_HEIGHT,
       )
     } else {
-      imageData = createPinImageData(color, getPinEmojiForCategory(categoryId))
+      imageData = createPinImageData(color, getCategoryListIcon(categoryId))
     }
 
-    if (map.hasImage(categoryId)) {
-      map.removeImage(categoryId)
+    await addOrReplaceImage(map, categoryId, imageData)
+    iconKeys.add(categoryId)
+  }
+
+  for (const point of points) {
+    const key = getPointIconKey(point)
+    if (iconKeys.has(key)) continue
+    const config = getPointIconConfig(point)
+    const visualMode = getPointVisualMode(point)
+    const color = config.color || DEFAULT_CATEGORY_COLOR
+    const pictureUrl = config.imageUrl || DEFAULT_CATEGORY_PICTURE
+
+    let imageData: ImageData
+    if (visualMode === 'picture') {
+      imageData = await createRectMarkerImageData(
+        pictureUrl,
+        color,
+        PICTURE_MARKER_WIDTH,
+        PICTURE_MARKER_HEIGHT,
+      )
+    } else if (visualMode === 'icon') {
+      imageData = await createRectMarkerImageData(
+        pictureUrl,
+        color,
+        ICON_MARKER_WIDTH,
+        ICON_MARKER_HEIGHT,
+      )
+    } else {
+      imageData = createPinImageData(color, config.emoji)
     }
-    map.addImage(categoryId, imageData, { pixelRatio: 2 })
+
+    await addOrReplaceImage(map, key, imageData)
+    iconKeys.add(key)
   }
 
   const clusterImage = createClusterButtonImageData()
-  if (map.hasImage(CLUSTER_ICON_ID)) {
-    map.removeImage(CLUSTER_ICON_ID)
+  await addOrReplaceImage(map, CLUSTER_ICON_ID, clusterImage)
+}
+
+export function resolvePointCategoryConfig(categoryId: string) {
+  const config = getCategoryConfig(categoryId)
+  return {
+    ...config,
+    color: getCategoryColor(categoryId),
   }
-  map.addImage(CLUSTER_ICON_ID, clusterImage, { pixelRatio: 2 })
 }

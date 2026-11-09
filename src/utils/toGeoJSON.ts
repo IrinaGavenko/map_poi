@@ -1,5 +1,4 @@
-import { getPointCategoryId, getPointIconKey } from '@utils/pointIcons'
-import { getCategoryRenderType } from '@type/categories'
+import { getPointIconKey, getPointVisualMode, isUnclusteredPoint } from '@utils/pointIcons'
 import type { Point } from '@type'
 
 type PointFeature = {
@@ -7,13 +6,16 @@ type PointFeature = {
   properties: {
     id: string
     name: string
-    type: string[]
+    categories: string[]
     description: string
-    icon: string
-    picture: string[]
+    pictures: string[]
     link: string
-    isCollapsible: string | null
+    isNested: string | null
+    hasPopup: boolean
+    markerType: string
     iconKey: string
+    iconAnchor: 'center' | 'bottom'
+    priority: number
   }
   geometry: {
     type: 'Point'
@@ -27,18 +29,22 @@ type FeatureCollection = {
 }
 
 function pointToFeature(p: Point): PointFeature {
+  const visualMode = getPointVisualMode(p)
   return {
     type: 'Feature',
     properties: {
       id: p.id,
       name: p.name,
-      type: p.type,
+      categories: p.categories,
       description: p.description,
-      icon: p.icon,
-      picture: p.picture,
+      pictures: p.pictures,
       link: p.link,
-      isCollapsible: p.isCollapsible ?? null,
+      isNested: p.isNested,
+      hasPopup: p.hasPopup,
+      markerType: p.markerType,
       iconKey: getPointIconKey(p),
+      iconAnchor: visualMode === 'pin' ? 'bottom' : 'center',
+      priority: p.priority,
     },
     geometry: {
       type: 'Point',
@@ -48,8 +54,8 @@ function pointToFeature(p: Point): PointFeature {
 }
 
 /**
- * `picture` categories stay unclustered.
- * `pin` and `icon` categories share the clustered source.
+ * Pinned / picture markers stay unclustered.
+ * Categorized pins (and small icon rects) share the clustered source.
  */
 export function splitPointsGeoJSON(points: Point[]): {
   clustered: FeatureCollection
@@ -58,9 +64,12 @@ export function splitPointsGeoJSON(points: Point[]): {
   const clustered: PointFeature[] = []
   const picture: PointFeature[] = []
 
-  for (const point of points) {
+  // Higher priority drawn later within each collection (MapLibre order).
+  const sorted = [...points].sort((a, b) => a.priority - b.priority)
+
+  for (const point of sorted) {
     const feature = pointToFeature(point)
-    if (getCategoryRenderType(getPointCategoryId(point)) === 'picture') {
+    if (isUnclusteredPoint(point)) {
       picture.push(feature)
     } else {
       clustered.push(feature)
