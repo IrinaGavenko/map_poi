@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DrawerMode } from '@components/Drawer/ControlButtons'
 import type { Point } from '@type'
 import { filterPoints, getPointTypes } from '@utils/filterPoints'
 import { isMobileViewport } from '@utils/isMobile'
 import { useDataset } from './useDataset'
 import { usePointFilters } from './usePointFilters'
-import { useCollapseSession } from './useCollapseSession'
+import { useCollapseSession, type MapFocusRequest } from './useCollapseSession'
 import { useDrawerMode } from './useDrawerMode'
 import { usePointSelection } from './usePointSelection'
 
@@ -24,6 +24,9 @@ export function useMapApp() {
   const minimizeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const collapseActiveRef = useRef(collapse.isActive)
   const drawerModeRef = useRef(drawers.drawerMode)
+  const datasetFocusKey = useRef(0)
+  const focusedDatasetIdRef = useRef<string | null>(null)
+  const [datasetFocus, setDatasetFocus] = useState<MapFocusRequest | null>(null)
   collapseActiveRef.current = collapse.isActive
   drawerModeRef.current = drawers.drawerMode
 
@@ -64,9 +67,27 @@ export function useMapApp() {
     selection.setSelected(null)
     drawers.setAddingPoint(false)
     drawers.setDrawerMode(null)
+    focusedDatasetIdRef.current = null
   }, [dataset.datasetId])
 
+  // Center the map on the loaded dataset once per dataset id (open + switch).
+  useEffect(() => {
+    if (collapse.isActive) return
+    if (dataset.points.length === 0) return
+    if (focusedDatasetIdRef.current === dataset.datasetId) return
+
+    focusedDatasetIdRef.current = dataset.datasetId
+    datasetFocusKey.current += 1
+    setDatasetFocus({
+      key: datasetFocusKey.current,
+      points: dataset.points.map((point) => point.coordinates),
+      animate: false,
+    })
+  }, [collapse.isActive, dataset.datasetId, dataset.points])
+
   useEffect(() => () => clearMinimizeTimer(), [])
+
+  const mapFocus = collapse.isActive ? collapse.mapFocus : datasetFocus
 
   const exitCollapse = (openPlaces: boolean) => {
     if (!collapse.isActive) return
@@ -207,7 +228,7 @@ export function useMapApp() {
     collapseDrawerExpanded: collapse.isDrawerExpanded,
     activePanel,
     controlDrawerMode,
-    mapFocus: collapse.mapFocus,
+    mapFocus,
     minimizeCollapse: collapse.minimize,
     expandCollapse: collapse.expand,
     exitCollapse,

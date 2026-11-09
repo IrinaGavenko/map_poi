@@ -12,6 +12,8 @@ export type CollapseSession = {
 export type MapFocusRequest = {
   key: number
   points: { lat: number; lng: number }[]
+  /** Dataset open/switch uses jump; nested zone keep fly. Default fly. */
+  animate?: boolean
 }
 
 type UseCollapseSessionArgs = {

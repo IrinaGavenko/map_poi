@@ -62,24 +62,44 @@ function focusPadding(map: maplibregl.Map): maplibregl.PaddingOptions | number {
   }
 }
 
-/** Fly so every point is in view and none of them share a cluster. */
+type FocusOnPointsOptions = {
+  clusterRadiusPx?: number
+  /** When false, jump instantly (dataset open / switch). Default true. */
+  animate?: boolean
+}
+
+/** Move camera so every point is in view and none of them share a cluster. */
 export function flyToUnclusteredPoints(
   map: maplibregl.Map,
   points: LatLng[],
-  clusterRadiusPx = CLUSTER_RADIUS_PX,
+  clusterRadiusPxOrOptions: number | FocusOnPointsOptions = CLUSTER_RADIUS_PX,
 ): void {
   if (points.length === 0) return
+
+  const options: FocusOnPointsOptions =
+    typeof clusterRadiusPxOrOptions === 'number'
+      ? { clusterRadiusPx: clusterRadiusPxOrOptions, animate: true }
+      : clusterRadiusPxOrOptions
+  const clusterRadiusPx = options.clusterRadiusPx ?? CLUSTER_RADIUS_PX
+  const animate = options.animate !== false
 
   const mobile = isMobileMap(map)
   // Pull back a bit more on mobile so the cluster doesn't feel too tight.
   const unclusterZoom =
     zoomToUncluster(points, clusterRadiusPx) - (mobile ? 1.4 : 0.4)
 
+  const moveTo = (center: maplibregl.LngLatLike, zoom: number) => {
+    if (animate) map.flyTo({ center, zoom })
+    else map.jumpTo({ center, zoom })
+  }
+
   if (points.length === 1) {
-    map.flyTo({
-      center: [points[0].lng, points[0].lat],
-      zoom: Math.max(map.getZoom(), unclusterZoom),
-    })
+    // Single-point datasets: use a readable city/landmark zoom, not "max(current, …)"
+    // which keeps the previous dataset's zoom when jumping across the world.
+    const zoom = animate
+      ? Math.max(map.getZoom(), Math.min(14, unclusterZoom))
+      : Math.min(14, Math.max(12, unclusterZoom))
+    moveTo([points[0].lng, points[0].lat], zoom)
     return
   }
 
@@ -97,17 +117,17 @@ export function flyToUnclusteredPoints(
   })
 
   if (camera?.center != null && camera.zoom != null) {
-    map.flyTo({
-      center: camera.center,
-      zoom: Math.min(mobile ? 17 : 22, Math.max(camera.zoom, unclusterZoom)),
-    })
+    moveTo(
+      camera.center,
+      Math.min(mobile ? 17 : 22, Math.max(camera.zoom, unclusterZoom)),
+    )
     return
   }
 
   // Fallback when padding is too large for the viewport (common on mobile).
   const center = bounds.getCenter()
-  map.flyTo({
-    center: [center.lng, center.lat],
-    zoom: Math.min(mobile ? 17 : 22, Math.max(map.getZoom(), unclusterZoom)),
-  })
+  moveTo(
+    [center.lng, center.lat],
+    Math.min(mobile ? 17 : 22, Math.max(map.getZoom(), unclusterZoom)),
+  )
 }

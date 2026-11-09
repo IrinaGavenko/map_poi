@@ -23,6 +23,7 @@ const COLLAPSE_MASK_FILL = 'collapse-mask-fill'
 type MapFocusRequest = {
   key: number
   points: { lat: number; lng: number }[]
+  animate?: boolean
 }
 
 type MapViewProps = {
@@ -114,6 +115,7 @@ export default function MapView({
   const popupRef = useRef<maplibregl.Popup | null>(null)
   const pointsRef = useRef(points)
   const collapsePolygonRef = useRef(collapsePolygon)
+  const focusRequestRef = useRef(focusRequest)
   const selectedIdRef = useRef<string | null>(selected?.id ?? null)
   const addingPointRef = useRef(addingPoint)
   const onAddPointRef = useRef(onAddPoint)
@@ -126,6 +128,10 @@ export default function MapView({
   useEffect(() => {
     pointsRef.current = points
   }, [points])
+
+  useEffect(() => {
+    focusRequestRef.current = focusRequest
+  }, [focusRequest])
 
   useEffect(() => {
     collapsePolygonRef.current = collapsePolygon
@@ -160,7 +166,9 @@ export default function MapView({
 
     const frame = window.requestAnimationFrame(() => {
       map.resize()
-      flyToUnclusteredPoints(map, focusRequest.points)
+      flyToUnclusteredPoints(map, focusRequest.points, {
+        animate: focusRequest.animate !== false,
+      })
     })
 
     return () => window.cancelAnimationFrame(frame)
@@ -288,6 +296,13 @@ export default function MapView({
 
       await loadMapIcons(map, pointsRef.current)
       iconsReadyRef.current = true
+
+      const pendingFocus = focusRequestRef.current
+      if (pendingFocus && pendingFocus.points.length > 0) {
+        flyToUnclusteredPoints(map, pendingFocus.points, {
+          animate: pendingFocus.animate !== false,
+        })
+      }
 
       map.addLayer({
         id: 'clusters',

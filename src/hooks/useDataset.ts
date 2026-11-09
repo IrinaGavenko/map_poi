@@ -20,6 +20,7 @@ export function useDataset() {
 
   const changeDataset = (nextId: string) => {
     setDatasetId(nextId)
+    setPoints([])
     setStoredDatasetId(nextId)
   }
 
