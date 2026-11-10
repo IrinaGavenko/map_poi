@@ -41,6 +41,7 @@ Taken from `src/data/example_pinned.json` (without `//` comment keys):
       pictures?: string[]           // default []; gallery in description; [] → section hidden
       description?: string | null   // default null; empty/null → section hidden
       link?: string | null          // default null; null → link section hidden
+      google_link?: string | null   // optional; if non-empty → Open in Google Maps; else build from coordinates
       includeInCategorySearch?: boolean  // default false; if true, needs a category id from categories
       isCollapsible?: boolean       // default false; collapsed with other markers in the same zone
       isNested?: string | null      // default null; if set, file name of the nested zone
@@ -69,6 +70,7 @@ Reference: `src/data/example_pinned.json` only for field meaning and nesting.
 | `point_content.name` | text input | required when content enabled |
 | `point_content.description` | textarea | optional; empty → treat as null / hide section |
 | `point_content.link` | text input | optional; empty → null |
+| `point_content.google_link` | text input | optional; empty → null (fallback: coords) |
 | `point_content.pictures` | one or more URL inputs | optional; default `[]` |
 | `point_content.includeInCategorySearch` | checkbox | default false |
 | `point_content.isCollapsible` | checkbox | default false |

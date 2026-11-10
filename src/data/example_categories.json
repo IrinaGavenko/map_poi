@@ -1,35 +1,37 @@
 {
-  "$comment": "Phase 0 — categories.json. Shape matches src/types/categories.ts (CategoryTypeConfig). Comment keys (\"//…\") are docs only.",
-  "//version": "Schema/format version for this categories document. Integer >= 1.",
+  "$comment": "Phase 0 — categories document. Prefer `categoryTypes` (see categories_SPB.json). Legacy key `categories` is also accepted. Comment keys (\"//…\") are docs only.",
+  "//version": "Schema/format version. Integer >= 1.",
   "version": 1,
-  "//categories": "Concrete categories keyed by id. Each value matches CategoryTypeConfig.",
-  "categories": {
-    "//cafe": "Example categorized marker category (pin-style views).",
-    "cafe": {
-      "//id": "Stable category id (same as the object key). Referenced by categorized markers.",
-      "id": "cafe",
-      "//name": "Human-readable label in legend, filters, and popups.",
-      "name": "Cafe",
-      "//type": "Fixed enum: \"pinned\" | \"custom\" | \"categorized\". Which marker family this category styles.",
+  "defaults": {
+    "color": "#999999",
+    "picture": "https://example.com/fallback.png",
+    "fallbackCategoryId": "other"
+  },
+  "//categoryTypes": "Root categories appear in the legend. Subcategories set rootCategoryId (categorized markers only) and show as a small circle on the root pin.",
+  "categoryTypes": {
+    "//food": "Root categorized category.",
+    "food": {
+      "id": "food",
+      "name": "Place to eat",
       "type": "categorized",
-      "//priority": "Optional. Integer >= 0. Default 0. Higher wins when markers are close.",
       "priority": 0,
-      "//size": "Optional. Marker display size hint (px).",
       "size": 28,
-      "//viewColor": "Optional. Map/view pin or border color (CSS hex).",
-      "viewColor": "#3366ff",
-      "//viewIcon": "Optional. Emoji or short icon for map/view when not using a picture.",
-      "viewIcon": "☕",
-      "//viewPicture": "Optional. Image URL/path for map/view art.",
+      "viewColor": "#f59e0b",
+      "viewIcon": "🍽️",
       "viewPicture": null,
-      "//viewPriority": "Optional. Integer >= 0. Draw/stack priority on the map view.",
-      "viewPriority": 0,
-      "//categoryListIcon": "Optional. Icon for legend / category list UI.",
-      "categoryListIcon": "☕",
-      "//categoryListPicture": "Optional. Image URL/path for legend / category list UI.",
+      "categoryListIcon": "🍽️",
       "categoryListPicture": null
     },
-    "//museum": "Example categorized category with list/view images.",
+    "//coffee": "Subcategory of food. Lean entry: rootCategoryId + view overrides.",
+    "coffee": {
+      "id": "coffee",
+      "name": "Coffee",
+      "rootCategoryId": "food",
+      "viewColor": "#92400e",
+      "viewIcon": "☕",
+      "viewPicture": null
+    },
+    "//museum": "Root categorized category with list/view image.",
     "museum": {
       "id": "museum",
       "name": "Museum",
@@ -43,7 +45,7 @@
       "categoryListIcon": null,
       "categoryListPicture": "/assets/example-museum.png"
     },
-    "//demo_center": "Example pinned category.",
+    "//demo_center": "Example pinned category (not used for subcategory badges).",
     "demo_center": {
       "id": "demo_center",
       "name": "Demo Map Center",
@@ -71,7 +73,7 @@
       "categoryListIcon": null,
       "categoryListPicture": "https://example.com/images/stop-main.jpg"
     },
-    "//other": "Fallback / catch-all categorized category.",
+    "//other": "Fallback / catch-all root.",
     "other": {
       "id": "other",
       "name": "Other",

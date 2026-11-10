@@ -6,6 +6,7 @@
     "description": "FIFA World Cup related points of interest around Miami."
   },
   "categories": "categories.json",
+  "pinned_size": 3,
   "points": [
     {
       "type": "categorized",

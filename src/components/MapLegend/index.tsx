@@ -49,6 +49,7 @@ export default function MapLegend({
                   className="map-legend-picture"
                   src={resolvedImage}
                   alt=""
+                  draggable={false}
                   style={{ borderColor: config.color }}
                 />
               ) : (

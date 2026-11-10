@@ -1,5 +1,8 @@
 /**
- * Categories — runtime shape matches `src/data/categories.json` / `example_categories.json`.
+ * Categories — runtime shape matches `categories_SPB.json` / `categories.json`.
+ *
+ * Document map key may be `categoryTypes` (SPB) or `categories` (legacy Miami).
+ * Subcategories (categorized markers only) set `rootCategoryId`.
  */
 
 export type CategoryRenderType = 'pinned' | 'custom' | 'categorized'
@@ -7,11 +10,18 @@ export type CategoryRenderType = 'pinned' | 'custom' | 'categorized'
 export type CategoryType = string
 
 export type CategoryTypeConfig = {
-  type: CategoryRenderType
-  priority?: number
-  name: string
   id: string
+  /** Display name. Optional on lean subcategories (falls back to id). */
+  name?: string
+  /** Marker family. Roots usually set this; subcategories inherit from root. */
+  type?: CategoryRenderType
+  /**
+   * When set, this entry is a subcategory of that root.
+   * Roots omit this (or use null). Used for categorized markers only.
+   */
+  rootCategoryId?: string | null
 
+  priority?: number
   size?: number
 
   viewColor?: string | null
@@ -23,10 +33,18 @@ export type CategoryTypeConfig = {
   categoryListPicture?: string | null
 }
 
-/** Full categories document (`categories.json` without `//` comment keys). */
+/** Full categories document. */
 export type CategoriesDocument = {
   version: number
-  categories: Record<string, CategoryTypeConfig>
+  defaults?: {
+    color?: string
+    picture?: string
+    fallbackCategoryId?: string
+  }
+  /** SPB / preferred key. */
+  categoryTypes?: Record<string, CategoryTypeConfig>
+  /** Legacy Miami key (same entry shape). */
+  categories?: Record<string, CategoryTypeConfig>
 }
 
 /** Visual mode used by map icons / legend (derived from category + marker). */
@@ -53,6 +71,15 @@ let registry: Record<string, CategoryTypeConfig> = {
   [FALLBACK_CATEGORY.id]: FALLBACK_CATEGORY,
 }
 
+function categoryMapFromDoc(
+  doc: CategoriesDocument | null | undefined,
+): Record<string, CategoryTypeConfig> | null {
+  if (!doc) return null
+  if (doc.categoryTypes && typeof doc.categoryTypes === 'object') return doc.categoryTypes
+  if (doc.categories && typeof doc.categories === 'object') return doc.categories
+  return null
+}
+
 export function getCategoriesRegistry(): Record<string, CategoryTypeConfig> {
   return registry
 }
@@ -62,8 +89,9 @@ export function setCategoriesRegistry(doc: CategoriesDocument | null | undefined
     [FALLBACK_CATEGORY.id]: { ...FALLBACK_CATEGORY },
   }
 
-  if (doc?.categories) {
-    for (const [id, config] of Object.entries(doc.categories)) {
+  const map = categoryMapFromDoc(doc)
+  if (map) {
+    for (const [id, config] of Object.entries(map)) {
       if (id.startsWith('//')) continue
       if (!config || typeof config !== 'object') continue
       next[id] = {
@@ -76,13 +104,70 @@ export function setCategoriesRegistry(doc: CategoriesDocument | null | undefined
   registry = next
 }
 
+/** True when the category has no `rootCategoryId` (legend / filter list item). */
+export function isRootCategory(categoryId: string | null | undefined): boolean {
+  if (!categoryId) return false
+  const config = registry[categoryId]
+  if (!config) return false
+  const root = config.rootCategoryId?.trim()
+  return !root
+}
+
+/** Root id for a category (itself if already a root). */
+export function getRootCategoryId(categoryId: string | null | undefined): string {
+  if (!categoryId) return FALLBACK_CATEGORY.id
+  const config = registry[categoryId]
+  if (!config) return FALLBACK_CATEGORY.id
+  const root = config.rootCategoryId?.trim()
+  if (root && registry[root]) return root
+  return categoryId in registry ? categoryId : FALLBACK_CATEGORY.id
+}
+
+/** Subcategory ids that point at this root. */
+export function getSubcategoryIds(rootId: string): string[] {
+  return Object.keys(registry)
+    .filter((id) => registry[id]?.rootCategoryId?.trim() === rootId)
+    .sort()
+}
+
+/**
+ * Expand selected root filter ids to include their subcategories
+ * (so filtering by "food" also matches "coffee").
+ */
+export function expandCategoryFilterIds(selectedRootIds: string[]): string[] {
+  if (selectedRootIds.length === 0) return []
+  const expanded = new Set<string>()
+  for (const id of selectedRootIds) {
+    expanded.add(id)
+    for (const sub of getSubcategoryIds(id)) expanded.add(sub)
+  }
+  return [...expanded]
+}
+
+/** Resolved config: subcategories inherit missing fields from their root. */
 export function getCategoryConfig(categoryId: string | null | undefined): CategoryTypeConfig {
-  if (categoryId && registry[categoryId]) return registry[categoryId]
-  return registry[FALLBACK_CATEGORY.id] ?? FALLBACK_CATEGORY
+  if (!categoryId || !registry[categoryId]) {
+    return registry[FALLBACK_CATEGORY.id] ?? FALLBACK_CATEGORY
+  }
+
+  const config = registry[categoryId]
+  const rootId = config.rootCategoryId?.trim()
+  if (!rootId || !registry[rootId]) return config
+
+  const root = registry[rootId]
+  return {
+    ...root,
+    ...config,
+    id: config.id,
+    name: config.name?.trim() || config.id,
+    type: config.type ?? root.type ?? 'categorized',
+    rootCategoryId: rootId,
+  }
 }
 
 export function getCategoryTitle(categoryId: string): string {
-  return getCategoryConfig(categoryId).name || categoryId
+  const config = getCategoryConfig(categoryId)
+  return config.name?.trim() || categoryId
 }
 
 export function getCategoryColor(categoryId: string | null | undefined): string {
@@ -127,8 +212,10 @@ export function getCategoryVisualMode(categoryId: string | null | undefined): Ma
 }
 
 export function knownCategoryIds(): string[] {
-  return Object.keys(registry)
-    .filter((id) => id !== FALLBACK_CATEGORY.id || registry[id] === FALLBACK_CATEGORY)
-    .filter((id) => id in registry)
-    .sort()
+  return Object.keys(registry).sort()
+}
+
+/** Root category ids only (for legend / filters). */
+export function knownRootCategoryIds(): string[] {
+  return Object.keys(registry).filter((id) => isRootCategory(id)).sort()
 }

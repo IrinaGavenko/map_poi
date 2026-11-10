@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "defaults": {
+    "color": "#999999",
+    "picture": "https://example.com/fallback.png",
+    "fallbackCategoryId": "other"
+  },
+  "//categoryTypes": "Root categories and optional subcategories. Subcategories set rootCategoryId (categorized markers only).",
+  "categoryTypes": {
+    "food": {
+      "id": "food",
+      "name": "Place to eat",
+      "type": "categorized",
+      "priority": 0,
+      "size": 28,
+      "viewColor": "#f59e0b",
+      "viewIcon": "🍽️",
+      "viewPicture": null,
+      "categoryListIcon": "🍽️"
+    },
+    "coffee": {
+      "id": "coffee",
+      "name": "Coffee",
+      "rootCategoryId": "food",
+      "viewColor": "#92400e",
+      "viewIcon": "☕",
+      "viewPicture": null
+    },
+    "restaurants": {
+      "id": "restaurants",
+      "name": "Restaurants",
+      "rootCategoryId": "food",
+      "viewColor": "#b45309",
+      "viewIcon": "🍝",
+      "viewPicture": null
+    },
+    "street_food": {
+      "id": "street_food",
+      "name": "Street food",
+      "rootCategoryId": "food",
+      "viewColor": "#d97706",
+      "viewIcon": "🌮",
+      "viewPicture": null
+    },
+    "other": {
+      "id": "other",
+      "name": "Other",
+      "type": "categorized",
+      "priority": 0,
+      "viewColor": "#999999",
+      "viewIcon": "📍",
+      "viewPicture": null,
+      "categoryListIcon": "📍"
+    }
+  }
+}

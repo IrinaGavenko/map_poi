@@ -54,6 +54,9 @@ Taken from `src/data/example_categorized.json` (without `//` comment keys):
     // URL string, or "" if none.
     link?: string
 
+    // Optional. If non-empty → Open in Google Maps; else build from coordinates.
+    google_link?: string | null
+
     // Integer >= 0. Default 0. Higher wins when two markers are close.
     priority?: number
   }
@@ -81,6 +84,7 @@ Reference: `src/data/example_categorized.json` only for field meaning and nestin
 | `point_content.name` | text input | required |
 | `point_content.description` | textarea | optional; allow `""` |
 | `point_content.link` | text input | optional; allow `""` |
+| `point_content.google_link` | text input | optional; empty → null (fallback: coords) |
 | `point_content.picture` | one or more URL inputs | optional gallery; default `[]` |
 | `point_content.priority` | number input (integer ≥ 0) | optional; default `0` |
 | `type`, `point.type` | hidden / read-only | always `"categorized"` |

@@ -30,6 +30,11 @@ export type CategorizedPointContent = {
   description?: string
   /** URL string, or `""` if none. */
   link?: string
+  /**
+   * Optional. If non-empty, used for “Open in Google Maps”.
+   * If empty/null/omitted, the link is built from `coordinates`.
+   */
+  google_link?: string | null
   /** Integer >= 0. Default `0`. Higher wins when markers are close. */
   priority?: number
 }

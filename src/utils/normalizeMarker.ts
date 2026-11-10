@@ -6,6 +6,7 @@ import type {
   PinnedMarker,
   Point,
 } from '@type'
+import { getPinnedSize } from '@utils/pinnedSize'
 
 function asString(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -61,6 +62,7 @@ function normalizePinned(marker: PinnedMarker): Point {
     name,
     description: content?.description?.trim() ?? '',
     link: content?.link?.trim() ?? '',
+    googleLink: content?.google_link?.trim() ?? '',
     pictures,
     displayPicture: asString(marker.point.display_picture),
     categories,
@@ -70,12 +72,15 @@ function normalizePinned(marker: PinnedMarker): Point {
     isCollapsible: Boolean(content?.isCollapsible),
     hasPopup,
     priority: 100,
+    pinnedSize: getPinnedSize(),
     source: marker,
   }
 }
 
-function normalizeCustom(marker: CustomMarker): Point {
+function normalizeCustom(marker: CustomMarker): Point | null {
   const content = marker.point_content
+  if (!content || typeof content !== 'object') return null
+
   const hasCategory = marker.point.hasCategory
   const include =
     content.includeInCategorySearch !== undefined
@@ -93,6 +98,7 @@ function normalizeCustom(marker: CustomMarker): Point {
     name: content.name ?? '',
     description: content.description?.trim() ?? '',
     link: content.link?.trim() ?? '',
+    googleLink: content.google_link?.trim() ?? '',
     pictures: asStringArray(content.pictures),
     displayPicture: asString(marker.point.display_picture ?? null),
     categories,
@@ -102,12 +108,15 @@ function normalizeCustom(marker: CustomMarker): Point {
     isCollapsible: Boolean(content.isCollapsible),
     hasPopup: true,
     priority: typeof content.priority === 'number' ? content.priority : 0,
+    pinnedSize: getPinnedSize(),
     source: marker,
   }
 }
 
-function normalizeCategorized(marker: CategorizedMarker): Point {
+function normalizeCategorized(marker: CategorizedMarker): Point | null {
   const content = marker.point_content
+  if (!content || typeof content !== 'object') return null
+
   const categories = asStringArray(marker.point.categories)
   const safeCategories =
     categories.length > 0 ? (categories as [string, ...string[]]) : (['other'] as [string, ...string[]])
@@ -118,6 +127,7 @@ function normalizeCategorized(marker: CategorizedMarker): Point {
     name: content.name ?? '',
     description: content.description?.trim() ?? '',
     link: content.link?.trim() ?? '',
+    googleLink: content.google_link?.trim() ?? '',
     pictures: asStringArray(content.picture),
     displayPicture: null,
     categories: [...safeCategories],
@@ -127,20 +137,40 @@ function normalizeCategorized(marker: CategorizedMarker): Point {
     isCollapsible: false,
     hasPopup: true,
     priority: typeof content.priority === 'number' ? content.priority : 0,
+    pinnedSize: getPinnedSize(),
     source: marker,
   }
 }
 
+/**
+ * Custom/categorized expect `point_content` as a root sibling of `point`.
+ * Lift it out when authors nest it under `point` by mistake.
+ */
+function liftPointContent(
+  marker: Record<string, unknown>,
+  point: Record<string, unknown>,
+): Record<string, unknown> | undefined {
+  const root = marker.point_content
+  if (root && typeof root === 'object') {
+    return stripCommentKeys(root as Record<string, unknown>)
+  }
+  const nested = point.point_content
+  if (nested && typeof nested === 'object') {
+    delete point.point_content
+    return stripCommentKeys(nested as Record<string, unknown>)
+  }
+  return undefined
+}
+
 export function normalizeMarker(raw: unknown): Point | null {
   if (!isMarker(raw)) return null
-  const cleaned = stripCommentKeys(raw as unknown as Record<string, unknown>) as unknown as Marker
+  const cleaned = stripCommentKeys(raw as unknown as Record<string, unknown>)
   const point = stripCommentKeys(
-    (cleaned as Marker).point as unknown as Record<string, unknown>,
+    (cleaned.point as Record<string, unknown>) ?? {},
   )
-  const marker = { ...cleaned, point } as Marker
 
-  if (marker.type === 'pinned') {
-    const pinned = marker as PinnedMarker
+  if (cleaned.type === 'pinned') {
+    const pinned = { ...cleaned, point } as unknown as PinnedMarker
     if (pinned.point.point_content && typeof pinned.point.point_content === 'object') {
       pinned.point.point_content = stripCommentKeys(
         pinned.point.point_content as unknown as Record<string, unknown>,
@@ -149,22 +179,22 @@ export function normalizeMarker(raw: unknown): Point | null {
     return normalizePinned(pinned)
   }
 
-  if (marker.type === 'custom') {
-    const custom = marker as CustomMarker
-    if (custom.point_content && typeof custom.point_content === 'object') {
-      custom.point_content = stripCommentKeys(
-        custom.point_content as unknown as Record<string, unknown>,
-      ) as CustomMarker['point_content']
-    }
+  const pointContent = liftPointContent(cleaned, point)
+
+  if (cleaned.type === 'custom') {
+    const custom = {
+      ...cleaned,
+      point,
+      point_content: pointContent,
+    } as unknown as CustomMarker
     return normalizeCustom(custom)
   }
 
-  const categorized = marker as CategorizedMarker
-  if (categorized.point_content && typeof categorized.point_content === 'object') {
-    categorized.point_content = stripCommentKeys(
-      categorized.point_content as unknown as Record<string, unknown>,
-    ) as CategorizedMarker['point_content']
-  }
+  const categorized = {
+    ...cleaned,
+    point,
+    point_content: pointContent,
+  } as unknown as CategorizedMarker
   return normalizeCategorized(categorized)
 }
 
@@ -183,6 +213,7 @@ export function applyPointEdits(point: Point, edits: Partial<Point>): Point {
     coordinates: edits.coordinates
       ? { ...edits.coordinates }
       : { ...point.coordinates },
+    pinnedSize: edits.pinnedSize ?? point.pinnedSize,
   }
 
   next.source = pointToMarker(next)
@@ -207,6 +238,7 @@ export function pointToMarker(point: Point): Marker {
               pictures: [...point.pictures],
               description: point.description || null,
               link: point.link || null,
+              google_link: point.googleLink || null,
               includeInCategorySearch:
                 point.categories[0] ?? false,
               isCollapsible: point.isCollapsible,
@@ -233,6 +265,7 @@ export function pointToMarker(point: Point): Marker {
         pictures: [...point.pictures],
         description: point.description || null,
         link: point.link || null,
+        google_link: point.googleLink || null,
         includeInCategorySearch: point.categories[0] ?? false,
         isCollapsible: point.isCollapsible,
         priority: point.priority,
@@ -259,6 +292,7 @@ export function pointToMarker(point: Point): Marker {
       picture: [...point.pictures],
       description: point.description,
       link: point.link,
+      google_link: point.googleLink || null,
       priority: point.priority,
     },
   }

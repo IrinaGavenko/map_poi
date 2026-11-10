@@ -6,6 +6,7 @@
     "description": "Small test dataset"
   },
   "categories": "categories.json",
+  "pinned_size": 3,
   "points": [
     {
       "type": "pinned",

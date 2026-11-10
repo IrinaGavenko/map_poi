@@ -36,6 +36,11 @@ export type CustomPointContent = {
   /** Default `null`. Null → link section not displayed. */
   link?: string | null
   /**
+   * Optional. If non-empty, used for “Open in Google Maps”.
+   * If empty/null/omitted, the link is built from `coordinates`.
+   */
+  google_link?: string | null
+  /**
    * Default same as `hasCategory`. When enabled, needs a category id
    * from categories.json.
    */

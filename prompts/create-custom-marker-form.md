@@ -59,6 +59,9 @@ Taken from `src/data/example_custom.json` (without `//` comment keys):
     // Optional, default null; null → link section hidden
     link?: string | null
 
+    // Optional. If non-empty → Open in Google Maps; else build from coordinates.
+    google_link?: string | null
+
     // Optional, default = same as hasCategory.
     // If true — needs a category id from categories.json for search.
     includeInCategorySearch?: boolean | string
@@ -94,6 +97,7 @@ Reference: `src/data/example_custom.json` only for field meaning and nesting.
 | `point_content.name` | text input | required |
 | `point_content.description` | textarea | optional; empty → null |
 | `point_content.link` | text input | optional; empty → null |
+| `point_content.google_link` | text input | optional; empty → null (fallback: coords) |
 | `point_content.pictures` | one or more URL inputs | optional; default `[]` |
 | `point_content.includeInCategorySearch` | checkbox (and category id if needed) | default follows `hasCategory` |
 | `point_content.isCollapsible` | checkbox | default false |

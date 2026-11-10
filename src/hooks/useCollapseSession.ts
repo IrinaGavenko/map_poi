@@ -32,6 +32,7 @@ export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs
   const clearSession = () => {
     setSession(null)
     setExpanded(true)
+    setMapFocus(null)
   }
 
   const exit = () => {

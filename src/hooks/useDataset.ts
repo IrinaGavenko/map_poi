@@ -9,9 +9,13 @@ export function useDataset() {
   useEffect(() => {
     let cancelled = false
 
-    void loadDataset(datasetId).then((next) => {
-      if (!cancelled) setPoints(next.points)
-    })
+    void loadDataset(datasetId)
+      .then((next) => {
+        if (!cancelled) setPoints(next.points)
+      })
+      .catch(() => {
+        if (!cancelled) setPoints([])
+      })
 
     return () => {
       cancelled = true

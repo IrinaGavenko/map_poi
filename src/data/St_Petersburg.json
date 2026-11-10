@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "meta": {
+    "id": "SPB",
+    "title": "St. Petersburg",
+    "description": ""
+  },
+  "categories": "categories_SPB.json",
+  "pinned_size": 4,
+  "points": [
+    {
+      "type": "pinned",
+      "point": {
+        "id": "PIN-SPB-KAZANSKY)",
+        "type": "pinned",
+        "display_picture": "https://res.cloudinary.com/tfhb2uad/image/upload/v1794231764/SPB_KAZAN_PINNED.png",
+        "coordinates": {
+          "lat": 59.934464,
+          "lng": 30.324639
+        },
+        "point_content": {
+          "name": "Kazansky Cathedral",
+          "pictures": ["https://res.cloudinary.com/tfhb2uad/image/upload/v1794332260/S93-R-Final.jpg"],
+          "description": "",
+          "link": "https://kazansky-spb.ru/",
+          "includeInCategorySearch": false,
+          "isCollapsible": false,
+          "isNested": null
+        }
+      }
+    }, 
+    {
+      "type": "categorized",
+      "point": {
+        "id": "CAT-SPB-CAFE_CIVIL",
+        "categories": ["coffee"],
+        "type": "categorized",
+        "coordinates": {
+          "lat": 59.937858,
+          "lng": 30.324606
+        }
+      },
+      "point_content": {
+        "name": "Civil Cafe",
+        "picture": ["https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"],
+        "description": "Perfect coffee by The Welder Catherine",
+        "link": "https://cvlcoffee.ru/",
+        "google_link": null,
+        "priority": 10
+      }
+    }
+  ]
+}

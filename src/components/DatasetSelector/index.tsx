@@ -1,4 +1,4 @@
-import { DATASET_IDS } from '@utils/datasets'
+import { DATASET_OPTIONS } from '@utils/datasets'
 import './DatasetSelector.css'
 
 type DatasetSelectorProps = {
@@ -17,11 +17,11 @@ export default function DatasetSelector({ value, onChange }: DatasetSelectorProp
         className="dataset-selector-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        aria-label="Select data file"
+        aria-label="Select map"
       >
-        {DATASET_IDS.map((id) => (
+        {DATASET_OPTIONS.map(({ id, title }) => (
           <option key={id} value={id}>
-            {id.charAt(0).toUpperCase() + id.slice(1)}
+            {title}
           </option>
         ))}
       </select>

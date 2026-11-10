@@ -156,6 +156,20 @@ npm run deploy   # build + publish to GitHub Pages (gh-pages)
 
 ---
 
+## Cloudinary images
+
+Image delivery/upload helpers live in `src/utils/cloudinary.ts`.
+
+1. Copy `.env.example` → `.env.local`
+2. Set `VITE_CLOUDINARY_CLOUD_NAME` and an **unsigned** `VITE_CLOUDINARY_UPLOAD_PRESET`
+3. Restart `npm run dev`
+
+Do **not** put `CLOUDINARY_API_SECRET` (or the API key) in any `VITE_` variable — this app is a static frontend and those values would be public in the bundle. Use an unsigned upload preset for browser uploads; keep API key/secret for a future backend only.
+
+For GitHub Pages / CI, add the same `VITE_CLOUDINARY_*` values as repository secrets / env vars used by the build step.
+
+---
+
 ## Notes
 
 - Edit-mode changes are not persisted to disk

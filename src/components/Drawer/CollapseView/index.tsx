@@ -3,6 +3,7 @@ import PointIcon from '@components/PointIcon'
 import { getCategoryTitle } from '@type/categories'
 import { getPointIconConfig } from '@utils/pointIcons'
 import { filterPoints } from '@utils/filterPoints'
+import { resolveGoogleMapsUrl } from '@utils/googleMapsLink'
 import { resolvePublicUrl } from '@utils/publicUrl'
 import type { Point } from '@type'
 import DrawerShell from '../DrawerShell'
@@ -38,7 +39,12 @@ export default function CollapseView({
   onExpand,
 }: CollapseViewProps) {
   const accent = parent ? getPointIconConfig(parent).color : '#6b7280'
-  const { lat, lng } = parent?.coordinates ?? { lat: 0, lng: 0 }
+  const googleMapsHref = parent
+    ? resolveGoogleMapsUrl({
+        googleLink: parent.googleLink,
+        coordinates: parent.coordinates,
+      })
+    : ''
   const minimized = open && !expanded
   const parentImage = parent?.pictures[0] ? resolvePublicUrl(parent.pictures[0]) : ''
 
@@ -116,7 +122,7 @@ export default function CollapseView({
         >
           {parentImage ? (
             <div className="places-collapse-parent-media">
-              <img src={parentImage} alt="" />
+              <img src={parentImage} alt="" draggable={false} />
             </div>
           ) : null}
           <div className="places-collapse-parent-body">
@@ -150,7 +156,7 @@ export default function CollapseView({
               ) : null}
               <a
                 className="places-collapse-parent-link places-collapse-parent-link--secondary"
-                href={`https://www.google.com/maps?q=${lat},${lng}`}
+                href={googleMapsHref}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -16,6 +16,7 @@ export type {
   CategoryType,
   CategoryTypeConfig,
   CategoriesDocument,
+  MarkerVisualMode,
 } from './categories'
 
 import type { PinnedMarker } from './pinned'
@@ -48,6 +49,11 @@ export type Point = {
   name: string
   description: string
   link: string
+  /**
+   * Optional Google Maps URL. When non-empty, used for “Open in Google Maps”;
+   * otherwise the href is built from `coordinates`.
+   */
+  googleLink: string
   /** Gallery images for popup / detail UI. */
   pictures: string[]
   /** Own map art for pinned/custom; null when art comes from the category. */
@@ -67,6 +73,11 @@ export type Point = {
   /** False when pinned `point_content` is null. */
   hasPopup: boolean
   priority: number
+  /**
+   * Dataset-level pinned marker scale (1–5, 5 = largest).
+   * Copied from root `pinned_size` onto every point at load; only used for pinned.
+   */
+  pinnedSize: 1 | 2 | 3 | 4 | 5
   /** Original marker wrapper (for round-trip edits). */
   source: Marker
 }
@@ -88,6 +99,8 @@ export type MapDataset = {
   version: number
   meta?: MapDatasetMeta
   categories: CategoriesDocument | string
+  /** Scale for all pinned markers on this map (1–5, 5 = largest). Default 3. */
+  pinned_size?: 1 | 2 | 3 | 4 | 5
   points: Point[]
   collapses?: Record<string, CollapseDataset>
 }

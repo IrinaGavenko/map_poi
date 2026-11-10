@@ -7,6 +7,11 @@ import type {
 } from '@type'
 import { setCategoriesRegistry } from '@type/categories'
 import { normalizeMarkers } from '@utils/normalizeMarker'
+import {
+  clampPinnedSize,
+  DEFAULT_PINNED_SIZE,
+  setPinnedSize,
+} from '@utils/pinnedSize'
 
 const modules = import.meta.glob('../data/*.json', {
   import: 'default',
@@ -22,7 +27,8 @@ function isHiddenDatasetId(id: string): boolean {
     id.startsWith('_') ||
     id.startsWith('collapse-') ||
     id.startsWith('example_') ||
-    id === 'categories'
+    id === 'categories' ||
+    id.startsWith('categories_')
   )
 }
 
@@ -61,7 +67,10 @@ function normalizePolygon(value: unknown): CollapsePolygon | null {
 function isCategoriesDocument(value: unknown): value is CategoriesDocument {
   if (!value || typeof value !== 'object') return false
   const record = value as Record<string, unknown>
-  return typeof record.version === 'number' && !!record.categories && typeof record.categories === 'object'
+  if (typeof record.version !== 'number') return false
+  const hasCategories = !!record.categories && typeof record.categories === 'object'
+  const hasCategoryTypes = !!record.categoryTypes && typeof record.categoryTypes === 'object'
+  return hasCategories || hasCategoryTypes
 }
 
 async function loadCategoriesRef(ref: unknown): Promise<CategoriesDocument | null> {
@@ -86,7 +95,36 @@ const loadersById = Object.fromEntries(
   Object.entries(allLoadersById).filter(([id]) => !isHiddenDatasetId(id)),
 ) as Record<string, () => Promise<unknown>>
 
+const eagerModules = import.meta.glob('../data/*.json', {
+  eager: true,
+  import: 'default',
+}) as Record<string, unknown>
+
+const eagerById = Object.fromEntries(
+  Object.entries(eagerModules).map(([path, data]) => [datasetIdFromPath(path), data]),
+) as Record<string, unknown>
+
+function datasetTitleFromData(data: unknown, fallbackId: string): string {
+  if (!data || typeof data !== 'object') return fallbackId
+  const meta = (data as Record<string, unknown>).meta
+  if (!meta || typeof meta !== 'object') return fallbackId
+  const title = (meta as Record<string, unknown>).title
+  if (typeof title === 'string' && title.trim()) return title.trim()
+  return fallbackId
+}
+
 export const DATASET_IDS = Object.keys(loadersById).sort()
+
+export type DatasetOption = {
+  id: string
+  title: string
+}
+
+/** Visible maps for the selector: id + `meta.title` (falls back to id). */
+export const DATASET_OPTIONS: DatasetOption[] = DATASET_IDS.map((id) => ({
+  id,
+  title: datasetTitleFromData(eagerById[id], id),
+}))
 
 export const DEFAULT_DATASET_ID = DATASET_IDS.includes('miami')
   ? 'miami'
@@ -154,11 +192,13 @@ export async function loadDataset(id: string): Promise<LoadedDataset> {
   if (Array.isArray(data)) {
     const categories = fallbackCategories
     setCategoriesRegistry(categories)
+    setPinnedSize(DEFAULT_PINNED_SIZE)
     return { points: normalizeMarkers(data), categories }
   }
 
   if (!data || typeof data !== 'object') {
     setCategoriesRegistry(fallbackCategories)
+    setPinnedSize(DEFAULT_PINNED_SIZE)
     return { points: [], categories: fallbackCategories }
   }
 
@@ -166,6 +206,7 @@ export async function loadDataset(id: string): Promise<LoadedDataset> {
   const categories =
     (await loadCategoriesRef(record.categories)) ?? fallbackCategories
   setCategoriesRegistry(categories)
+  setPinnedSize(clampPinnedSize(record.pinned_size))
 
   const points = normalizeMarkers(record.points)
   return { points, categories }

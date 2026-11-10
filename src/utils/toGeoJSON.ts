@@ -1,4 +1,5 @@
 import { getPointIconKey, getPointVisualMode, isUnclusteredPoint } from '@utils/pointIcons'
+import { pinnedSizeToIconScale } from '@utils/pinnedSize'
 import type { Point } from '@type'
 
 type PointFeature = {
@@ -15,6 +16,7 @@ type PointFeature = {
     markerType: string
     iconKey: string
     iconAnchor: 'center' | 'bottom'
+    iconSize: number
     priority: number
   }
   geometry: {
@@ -44,6 +46,8 @@ function pointToFeature(p: Point): PointFeature {
       markerType: p.markerType,
       iconKey: getPointIconKey(p),
       iconAnchor: visualMode === 'pin' ? 'bottom' : 'center',
+      iconSize:
+        p.markerType === 'pinned' ? pinnedSizeToIconScale(p.pinnedSize) : 1,
       priority: p.priority,
     },
     geometry: {

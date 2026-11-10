@@ -13,6 +13,8 @@
   },
   "//categories": "Either a path string to a categories file, OR an inline categories object (same shape as example_categories.json).",
   "categories": "./example_categories.json",
+  "//pinned_size": "Optional. Scale for ALL pinned markers on this map. Integer 1–5 (5 = largest). Default 3.",
+  "pinned_size": 3,
   "//points": "Array of mixed-kind marker wrappers (pinned | custom | categorized).",
   "points": [
     {
@@ -27,6 +29,7 @@
           "pictures": ["https://example.com/images/demo-center.png"],
           "description": "Pinned: never clusters, excluded from category search.",
           "link": "https://example.com/places/demo-center",
+          "google_link": "https://maps.google.com/?q=Demo+Map+Center",
           "includeInCategorySearch": false,
           "isCollapsible": false,
           "isNested": "zone-a.json"

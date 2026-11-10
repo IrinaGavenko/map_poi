@@ -48,6 +48,13 @@
         { "$ref": "#/$defs/categoriesDocument" }
       ]
     },
+    "pinned_size": {
+      "description": "Optional. Scale for ALL pinned markers on this map. Integer 1–5 (5 = largest). Default 3.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "examples": [3]
+    },
     "points": {
       "description": "Top-level markers. Mixed kinds allowed. Each item must match pinned | custom | categorized rules.",
       "type": "array",
@@ -277,10 +284,81 @@
         }
       }
     },
-    "categoriesDocument": {
-      "description": "Categories document. Same shape as example_categories.json / CategoryTypeConfig (without // comment keys).",
+    "categoryTypeConfig": {
+      "description": "One category or subcategory entry (CategoryTypeConfig).",
       "type": "object",
-      "required": ["version", "categories"],
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "description": "Stable category id (same as the object key).",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["food", "coffee"]
+        },
+        "name": {
+          "description": "Human-readable label. Optional on lean subcategories.",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["Place to eat", "Coffee"]
+        },
+        "type": {
+          "description": "Marker family. Roots usually set this; subcategories inherit.",
+          "enum": ["pinned", "custom", "categorized"]
+        },
+        "rootCategoryId": {
+          "description": "When set, this is a subcategory of that root (categorized markers only).",
+          "type": ["string", "null"],
+          "examples": ["food", null]
+        },
+        "priority": {
+          "description": "Optional. Integer >= 0. Default 0.",
+          "type": "integer",
+          "minimum": 0,
+          "examples": [0, 10]
+        },
+        "size": {
+          "description": "Optional. Marker display size hint (px).",
+          "type": "number",
+          "examples": [28, 48]
+        },
+        "viewColor": {
+          "description": "Optional. Map/view color (CSS hex), or null.",
+          "type": ["string", "null"],
+          "examples": ["#f59e0b", null]
+        },
+        "viewIcon": {
+          "description": "Optional. Emoji/short icon for map/view, or null.",
+          "type": ["string", "null"],
+          "examples": ["☕", null]
+        },
+        "viewPicture": {
+          "description": "Optional. Image URL/path for map/view art, or null.",
+          "type": ["string", "null"],
+          "examples": ["https://example.com/a.jpg", null]
+        },
+        "viewPriority": {
+          "description": "Optional. Draw/stack priority on the map view.",
+          "type": "integer",
+          "minimum": 0,
+          "examples": [0, 100]
+        },
+        "categoryListIcon": {
+          "description": "Optional. Icon for legend / category list UI, or null.",
+          "type": ["string", "null"],
+          "examples": ["🍽️", null]
+        },
+        "categoryListPicture": {
+          "description": "Optional. Image for legend / category list UI, or null.",
+          "type": ["string", "null"],
+          "examples": ["/assets/example-museum.png", null]
+        }
+      },
+      "additionalProperties": false
+    },
+    "categoriesDocument": {
+      "description": "Categories document. Prefer categoryTypes (categories_SPB.json). Legacy key categories is also accepted.",
+      "type": "object",
+      "required": ["version"],
       "properties": {
         "version": {
           "description": "Categories document format version. Integer >= 1.",
@@ -288,74 +366,24 @@
           "minimum": 1,
           "examples": [1]
         },
-        "categories": {
-          "description": "Concrete categories keyed by id. Each value matches CategoryTypeConfig.",
+        "defaults": {
           "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "required": ["id", "name", "type"],
-            "properties": {
-              "id": {
-                "description": "Stable category id (same as the object key).",
-                "type": "string",
-                "minLength": 1,
-                "examples": ["cafe"]
-              },
-              "name": {
-                "description": "Human-readable label in legend, filters, and popups.",
-                "type": "string",
-                "minLength": 1,
-                "examples": ["Cafe"]
-              },
-              "type": {
-                "description": "Marker family this category styles.",
-                "enum": ["pinned", "custom", "categorized"]
-              },
-              "priority": {
-                "description": "Optional. Integer >= 0. Default 0.",
-                "type": "integer",
-                "minimum": 0,
-                "examples": [0, 10]
-              },
-              "size": {
-                "description": "Optional. Marker display size hint (px).",
-                "type": "number",
-                "examples": [28, 48]
-              },
-              "viewColor": {
-                "description": "Optional. Map/view color (CSS hex), or null.",
-                "type": ["string", "null"],
-                "examples": ["#3366ff", null]
-              },
-              "viewIcon": {
-                "description": "Optional. Emoji/short icon for map/view, or null.",
-                "type": ["string", "null"],
-                "examples": ["☕", null]
-              },
-              "viewPicture": {
-                "description": "Optional. Image URL/path for map/view art, or null.",
-                "type": ["string", "null"],
-                "examples": ["https://example.com/a.jpg", null]
-              },
-              "viewPriority": {
-                "description": "Optional. Draw/stack priority on the map view.",
-                "type": "integer",
-                "minimum": 0,
-                "examples": [0, 100]
-              },
-              "categoryListIcon": {
-                "description": "Optional. Icon for legend / category list UI, or null.",
-                "type": ["string", "null"],
-                "examples": ["☕", null]
-              },
-              "categoryListPicture": {
-                "description": "Optional. Image for legend / category list UI, or null.",
-                "type": ["string", "null"],
-                "examples": ["/assets/example-museum.png", null]
-              }
-            },
-            "additionalProperties": false
-          }
+          "properties": {
+            "color": { "type": "string" },
+            "picture": { "type": "string" },
+            "fallbackCategoryId": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "categoryTypes": {
+          "description": "Preferred map of category id → CategoryTypeConfig.",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/categoryTypeConfig" }
+        },
+        "categories": {
+          "description": "Legacy alias of categoryTypes (Miami).",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/categoryTypeConfig" }
         }
       },
       "additionalProperties": false

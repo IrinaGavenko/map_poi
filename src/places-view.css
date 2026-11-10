@@ -7,6 +7,12 @@ body,
   overflow: hidden;
 }
 
+/* Prevent native browser image drag across the app (popups, legend, lists). */
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .app-shell {
   position: relative;
   width: 100%;

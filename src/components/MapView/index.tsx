@@ -8,8 +8,10 @@ import {
 } from '@utils/pointIcons'
 import { CLUSTER_RADIUS_PX, flyToUnclusteredPoints } from '@utils/mapFocus'
 import { collapseMaskToGeoJSON, collapsePolygonToGeoJSON } from '@utils/collapsePolygon'
+import { PINNED_ICON_SIZE_BY_ZOOM } from '@utils/pinnedSize'
 import { splitPointsGeoJSON } from '@utils/toGeoJSON'
-import { getCategoryTitle } from '@type/categories'
+import { getCategoryTitle, getRootCategoryId, isRootCategory } from '@type/categories'
+import { resolveGoogleMapsUrl } from '@utils/googleMapsLink'
 import { resolvePublicUrl } from '@utils/publicUrl'
 import type { CollapsePolygon, Point } from '@type'
 import './MapView.css'
@@ -48,9 +50,18 @@ function escapeHtml(value: string): string {
 function buildPopupContent(point: Point): string {
   const config = getPointIconConfig(point)
   const visualMode = getPointVisualMode(point)
-  const { lat, lng } = point.coordinates
   const color = config.color
-  const categories = point.categories
+  const googleMapsHref = resolveGoogleMapsUrl({
+    googleLink: point.googleLink,
+    coordinates: point.coordinates,
+  })
+  const categoryTags = new Set<string>()
+  for (const id of point.categories) {
+    const rootId = getRootCategoryId(id)
+    categoryTags.add(rootId)
+    if (!isRootCategory(id)) categoryTags.add(id)
+  }
+  const categories = [...categoryTags]
     .map(
       (type) =>
         `<span class="map-popup-tag" style="--popup-accent:${color}">${escapeHtml(getCategoryTitle(type))}</span>`,
@@ -58,12 +69,12 @@ function buildPopupContent(point: Point): string {
     .join('')
   const galleryUrl = point.pictures[0] ? resolvePublicUrl(point.pictures[0]) : ''
   const image = galleryUrl
-    ? `<div class="map-popup-media"><img class="map-popup-image" src="${escapeHtml(galleryUrl)}" alt="" /></div>`
+    ? `<div class="map-popup-media"><img class="map-popup-image" src="${escapeHtml(galleryUrl)}" alt="" draggable="false" /></div>`
     : `<div class="map-popup-media map-popup-media--empty" style="--popup-accent:${color}"></div>`
   const logo =
     (visualMode === 'icon' || visualMode === 'picture') && config.imageUrl
-      ? `<span class="map-popup-icon map-popup-icon--image" aria-hidden style="border-color:${color}">
-          <img src="${escapeHtml(config.imageUrl)}" alt="" />
+      ? `<span class="map-popup-icon map-popup-icon--image${point.markerType === 'pinned' ? ' map-popup-icon--image-only' : ''}" aria-hidden style="border-color:${color}">
+          <img src="${escapeHtml(config.imageUrl)}" alt="" draggable="false" />
         </span>`
       : `<span class="map-popup-icon" aria-hidden style="background:${color}">${escapeHtml(config.emoji)}</span>`
   const moreInfo = point.link
@@ -75,7 +86,7 @@ function buildPopupContent(point: Point): string {
   const description = point.description
     ? `<p class="map-popup-description">${escapeHtml(point.description)}</p>`
     : ''
-  const googleMaps = `<a class="map-popup-link map-popup-link--secondary" href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener noreferrer">
+  const googleMaps = `<a class="map-popup-link map-popup-link--secondary" href="${escapeHtml(googleMapsHref)}" target="_blank" rel="noopener noreferrer">
         <span class="map-popup-link-icon" aria-hidden>📍</span>
         Open in Google Maps
       </a>`
@@ -161,18 +172,34 @@ export default function MapView({
   }, [clearSelected])
 
   useEffect(() => {
-    if (!focusRequest || !mapRef.current) return
+    const request = focusRequest
+    if (!request || request.points.length === 0 || !mapRef.current) return
     const map = mapRef.current
+    let frame = 0
+    let cancelled = false
 
-    const frame = window.requestAnimationFrame(() => {
-      map.resize()
-      flyToUnclusteredPoints(map, focusRequest.points, {
-        animate: focusRequest.animate !== false,
+    const applyFocus = () => {
+      if (cancelled) return
+      frame = window.requestAnimationFrame(() => {
+        if (cancelled || !mapRef.current) return
+        map.resize()
+        flyToUnclusteredPoints(map, request.points, {
+          animate: request.animate !== false,
+        })
       })
-    })
+    }
 
-    return () => window.cancelAnimationFrame(frame)
-  }, [focusRequest])
+    // Dataset can finish loading before the map style is ready; wait for load.
+    if (map.loaded()) applyFocus()
+    else map.once('load', applyFocus)
+
+    return () => {
+      cancelled = true
+      window.cancelAnimationFrame(frame)
+      map.off('load', applyFocus)
+    }
+    // Re-apply whenever the focus request identity changes (dataset switch / collapse).
+  }, [focusRequest?.key])
 
   useEffect(() => {
     const map = new maplibregl.Map({
@@ -345,7 +372,8 @@ export default function MapView({
         source: 'picture-points',
         layout: {
           'icon-image': ['get', 'iconKey'],
-          'icon-size': 1,
+          // pinned_size (feature iconSize) × larger scale when zoomed in close.
+          'icon-size': PINNED_ICON_SIZE_BY_ZOOM as maplibregl.ExpressionSpecification,
           'icon-allow-overlap': true,
           'icon-ignore-placement': true,
           'icon-anchor': 'center',

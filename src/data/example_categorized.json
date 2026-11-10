@@ -29,6 +29,9 @@
     "//link": "URL string, or \"\" if none.",
     "link": "",
 
+    "//google_link": "Optional, by default - null/\"\". If non-empty, used for Open in Google Maps; if empty/null, the link is built from coordinates.",
+    "google_link": null,
+
     "//priority": "Integer >= 0. Default is 0. Higher priority wins when two markers are close.",
     "priority": 10
   }

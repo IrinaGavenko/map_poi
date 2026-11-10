@@ -12,13 +12,14 @@
     "predeploy": "npm run build"
   },
   "dependencies": {
+    "@cloudinary/url-gen": "^1.22.0",
     "maplibre-gl": "^4.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "terra-draw": "^1.0.0"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
+    "@types/node": "^26.6.6",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@vitejs/plugin-react": "^4.7.0",

@@ -33,6 +33,9 @@
       "//link": "Optional, by default - null link in the description section, if null -- the section is not displayd",
       "link": "https://example.com/places/demo-center",
 
+      "//google_link": "Optional, by default - null. If non-empty, used for Open in Google Maps; if empty/null, the link is built from coordinates.",
+      "google_link": null,
+
       "//includeInCategorySearch": "Optional, by default - the same as hasCategory. Includes the marker in the category search, if true -- needs to be a category id from the categories.json",
       "includeInCategorySearch": false,
 

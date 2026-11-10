@@ -62,15 +62,17 @@ export function useMapApp() {
     },
   })
 
+  // On map switch: drop stale camera target and allow a fresh recenter.
   useEffect(() => {
     collapse.clearSession()
     selection.setSelected(null)
     drawers.setAddingPoint(false)
     drawers.setDrawerMode(null)
     focusedDatasetIdRef.current = null
+    setDatasetFocus(null)
   }, [dataset.datasetId])
 
-  // Center the map on the loaded dataset once per dataset id (open + switch).
+  // Center the map when points finish loading for the current dataset.
   useEffect(() => {
     if (collapse.isActive) return
     if (dataset.points.length === 0) return
@@ -80,7 +82,10 @@ export function useMapApp() {
     datasetFocusKey.current += 1
     setDatasetFocus({
       key: datasetFocusKey.current,
-      points: dataset.points.map((point) => point.coordinates),
+      points: dataset.points.map((point) => ({
+        lat: point.coordinates.lat,
+        lng: point.coordinates.lng,
+      })),
       animate: false,
     })
   }, [collapse.isActive, dataset.datasetId, dataset.points])
@@ -131,12 +136,15 @@ export function useMapApp() {
   }
 
   const handleDatasetChange = (nextId: string) => {
+    if (nextId === dataset.datasetId) return
     clearMinimizeTimer()
-    dataset.changeDataset(nextId)
+    focusedDatasetIdRef.current = null
+    setDatasetFocus(null)
     selection.setSelected(null)
     filters.resetFilters()
     drawers.setAddingPoint(false)
     collapse.clearSession()
+    dataset.changeDataset(nextId)
   }
 
   const selectPointFromDrawer = (point: Point) => {

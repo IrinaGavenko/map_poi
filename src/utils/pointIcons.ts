@@ -10,6 +10,8 @@ import {
   getCategoryImageUrl,
   getCategoryListIcon,
   getCategoryVisualMode,
+  getRootCategoryId,
+  isRootCategory,
   type MarkerVisualMode,
 } from '@type/categories'
 import { resolvePublicUrl } from '@utils/publicUrl'
@@ -20,6 +22,10 @@ export type PointIconConfig = {
   visualMode: MarkerVisualMode
   imageUrl?: string
   emoji: string
+  /** Present when a categorized marker uses a subcategory badge. */
+  subcategoryId?: string | null
+  subcategoryColor?: string
+  subcategoryEmoji?: string
 }
 
 export const CLUSTER_ICON_ID = 'cluster-button'
@@ -30,6 +36,27 @@ export function getPointCategoryId(point: Point): string {
   }
   const fromList = point.categories.find((id) => id in getCategoriesRegistry())
   return fromList ?? FALLBACK_CATEGORY.id
+}
+
+/**
+ * Leaf category for categorized markers (may be a subcategory).
+ * Pinned/custom ignore subcategory hierarchy for styling.
+ */
+export function getPointLeafCategoryId(point: Point): string {
+  return getPointCategoryId(point)
+}
+
+/** Root category used for the main categorized marker look. */
+export function getPointRootCategoryId(point: Point): string {
+  return getRootCategoryId(getPointLeafCategoryId(point))
+}
+
+/** Subcategory id when categorized leaf ≠ root; otherwise null. */
+export function getPointSubcategoryId(point: Point): string | null {
+  if (point.markerType !== 'categorized') return null
+  const leaf = getPointLeafCategoryId(point)
+  if (isRootCategory(leaf)) return null
+  return leaf
 }
 
 /** MapLibre image id for this point (category id, or unique point art). */
@@ -47,28 +74,40 @@ export function getPointIconKey(point: Point): string {
     }
     return getPointCategoryId(point)
   }
-  return getPointCategoryId(point)
+
+  // Categorized: composite root+sub badge needs its own image key.
+  const leaf = getPointLeafCategoryId(point)
+  const root = getRootCategoryId(leaf)
+  if (leaf !== root) return `${root}__${leaf}`
+  return root
 }
 
 export function getPointVisualMode(point: Point): MarkerVisualMode {
   if (point.markerType === 'pinned') return 'picture'
   if (point.markerType === 'custom') return 'icon'
-  return getCategoryVisualMode(getPointCategoryId(point))
+  // Main marker look comes from the root category.
+  return getCategoryVisualMode(getPointRootCategoryId(point))
 }
 
 export function getPointIconConfig(point: Point): PointIconConfig {
-  const categoryId = getPointCategoryId(point)
+  const leafId = getPointLeafCategoryId(point)
+  const rootId =
+    point.markerType === 'categorized' ? getRootCategoryId(leafId) : leafId
+  const subcategoryId = getPointSubcategoryId(point)
   const visualMode = getPointVisualMode(point)
   const imageUrl =
     point.displayPicture ||
-    getCategoryImageUrl(categoryId) ||
+    getCategoryImageUrl(rootId) ||
     undefined
   return {
-    id: categoryId,
-    color: getCategoryColor(categoryId),
+    id: rootId,
+    color: getCategoryColor(rootId),
     visualMode,
     imageUrl: imageUrl ? resolvePublicUrl(imageUrl) : undefined,
-    emoji: getCategoryListIcon(categoryId),
+    emoji: getCategoryListIcon(rootId),
+    subcategoryId,
+    subcategoryColor: subcategoryId ? getCategoryColor(subcategoryId) : undefined,
+    subcategoryEmoji: subcategoryId ? getCategoryListIcon(subcategoryId) : undefined,
   }
 }
 
@@ -102,20 +141,35 @@ function roundRect(
   ctx.closePath()
 }
 
-function createPinImageData(color: string, icon: string): ImageData {
-  const width = 48
-  const height = 64
+type SubcategoryBadge = {
+  color: string
+  emoji: string
+}
+
+function createPinImageData(
+  color: string,
+  icon: string,
+  subcategory?: SubcategoryBadge | null,
+): ImageData {
+  // Extra right/top room when a subcategory badge is drawn.
+  const padRight = subcategory ? 14 : 0
+  const padTop = subcategory ? 6 : 0
+  const width = 48 + padRight
+  const height = 64 + padTop
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) return new ImageData(width, height)
 
+  const pinW = 48
+  const pinH = 64
   const path = new Path2D(
     'M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z',
   )
   ctx.save()
-  ctx.scale(width / 24, height / 32)
+  ctx.translate(0, padTop)
+  ctx.scale(pinW / 24, pinH / 32)
   ctx.fillStyle = color
   ctx.fill(path)
   ctx.restore()
@@ -123,7 +177,25 @@ function createPinImageData(color: string, icon: string): ImageData {
   ctx.font = '18px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(icon, width / 2, (12 / 32) * height)
+  ctx.fillText(icon, pinW / 2, padTop + (12 / 32) * pinH)
+
+  if (subcategory) {
+    const badgeR = 11
+    const badgeX = width - badgeR - 1
+    const badgeY = badgeR + 1
+    ctx.beginPath()
+    ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2)
+    ctx.fillStyle = '#ffffff'
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(badgeX, badgeY, badgeR - 1.5, 0, Math.PI * 2)
+    ctx.fillStyle = subcategory.color
+    ctx.fill()
+    ctx.font = '11px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(subcategory.emoji, badgeX, badgeY + 0.5)
+  }
 
   return ctx.getImageData(0, 0, width, height)
 }
@@ -158,16 +230,23 @@ async function loadImage(url: string): Promise<HTMLImageElement> {
   return loadImageElement(url)
 }
 
+type RectMarkerStyle = 'framed' | 'image'
+
 function createRectPlaceholderImageData(
   width: number,
   height: number,
   borderColor: string,
+  style: RectMarkerStyle = 'framed',
 ): ImageData {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) return new ImageData(width, height)
+
+  if (style === 'image') {
+    return ctx.getImageData(0, 0, width, height)
+  }
 
   const radius = Math.max(4, Math.round(Math.min(width, height) * 0.12))
   const border = Math.max(2, Math.round(Math.min(width, height) * 0.04))
@@ -189,12 +268,55 @@ function createRectImageData(
   width: number,
   height: number,
   borderColor: string,
+  style: RectMarkerStyle = 'framed',
 ): ImageData {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) return new ImageData(width, height)
+
+  if (style === 'image') {
+    // Leave room so soft shadow / oval aren't clipped at the canvas edge.
+    const pad = Math.max(8, Math.round(Math.min(width, height) * 0.1))
+    const maxW = width - pad * 2
+    const maxH = height - pad * 2
+    const scale = Math.min(maxW / image.width, maxH / image.height)
+    const drawW = image.width * scale
+    const drawH = image.height * scale
+    const drawX = (width - drawW) / 2
+    const drawY = (height - drawH) / 2 - Math.round(pad * 0.15)
+    const cx = drawX + drawW / 2
+    const cy = drawY + drawH / 2
+
+    // Soft dark oval behind the image for contrast on light map tiles.
+    const ovalRx = drawW * 0.58
+    const ovalRy = drawH * 0.52
+    ctx.save()
+    ctx.translate(cx, cy)
+    ctx.scale(ovalRx, ovalRy)
+    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1)
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.55)')
+    gradient.addColorStop(0.65, 'rgba(255, 255, 255, 0.28)')
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = gradient
+    ctx.beginPath()
+    ctx.arc(0, 0, 1, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+
+    ctx.save()
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'
+    ctx.shadowBlur = Math.max(10, Math.round(Math.min(width, height) * 0.14))
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = Math.max(4, Math.round(Math.min(width, height) * 0.05))
+    ctx.drawImage(image, drawX, drawY, drawW, drawH)
+    ctx.restore()
+
+    // Crisp image on top; shadow stays underneath.
+    ctx.drawImage(image, drawX, drawY, drawW, drawH)
+    return ctx.getImageData(0, 0, width, height)
+  }
 
   const radius = Math.max(4, Math.round(Math.min(width, height) * 0.12))
   const border = Math.max(2, Math.round(Math.min(width, height) * 0.04))
@@ -232,6 +354,7 @@ async function createRectMarkerImageData(
   borderColor: string,
   width: number,
   height: number,
+  style: RectMarkerStyle = 'framed',
 ): Promise<ImageData> {
   const resolved = resolvePublicUrl(pictureUrl)
   const urls =
@@ -242,13 +365,13 @@ async function createRectMarkerImageData(
   for (const url of urls) {
     try {
       const img = await loadImage(url)
-      return createRectImageData(img, width, height, borderColor)
+      return createRectImageData(img, width, height, borderColor, style)
     } catch {
       // Try next URL.
     }
   }
 
-  return createRectPlaceholderImageData(width, height, borderColor)
+  return createRectPlaceholderImageData(width, height, borderColor, style)
 }
 
 /** Matches `.drawer-control-button` look: 40×40, white, border, shadow, radius 8. */
@@ -328,6 +451,13 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
     const visualMode = getPointVisualMode(point)
     const color = config.color || DEFAULT_CATEGORY_COLOR
     const pictureUrl = config.imageUrl || DEFAULT_CATEGORY_PICTURE
+    const subcategoryBadge =
+      config.subcategoryId && config.subcategoryColor && config.subcategoryEmoji
+        ? { color: config.subcategoryColor, emoji: config.subcategoryEmoji }
+        : null
+
+    const markerStyle: RectMarkerStyle =
+      point.markerType === 'pinned' ? 'image' : 'framed'
 
     let imageData: ImageData
     if (visualMode === 'picture') {
@@ -336,6 +466,7 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
         color,
         PICTURE_MARKER_WIDTH,
         PICTURE_MARKER_HEIGHT,
+        markerStyle,
       )
     } else if (visualMode === 'icon') {
       imageData = await createRectMarkerImageData(
@@ -343,9 +474,10 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
         color,
         ICON_MARKER_WIDTH,
         ICON_MARKER_HEIGHT,
+        markerStyle,
       )
     } else {
-      imageData = createPinImageData(color, config.emoji)
+      imageData = createPinImageData(color, config.emoji, subcategoryBadge)
     }
 
     await addOrReplaceImage(map, key, imageData)

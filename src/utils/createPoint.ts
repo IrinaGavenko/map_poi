@@ -1,6 +1,7 @@
 import { FALLBACK_CATEGORY } from '@type/categories'
 import type { Point } from '@type'
 import { pointToMarker } from '@utils/normalizeMarker'
+import { getPinnedSize } from '@utils/pinnedSize'
 
 export function createPoint(coordinates: { lat: number; lng: number }): Point {
   const categoryId = FALLBACK_CATEGORY.id
@@ -11,6 +12,7 @@ export function createPoint(coordinates: { lat: number; lng: number }): Point {
     name: 'New place',
     description: '',
     link: '',
+    googleLink: '',
     pictures: [],
     displayPicture: null,
     categories: [categoryId],
@@ -20,6 +22,7 @@ export function createPoint(coordinates: { lat: number; lng: number }): Point {
     isCollapsible: false,
     hasPopup: true,
     priority: 0,
+    pinnedSize: getPinnedSize(),
     source: {
       type: 'categorized',
       point: {

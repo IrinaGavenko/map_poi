@@ -23,6 +23,11 @@ export type PinnedPointContent = {
   /** Default `null`. Null → link section not displayed. */
   link?: string | null
   /**
+   * Optional. If non-empty, used for “Open in Google Maps”.
+   * If empty/null/omitted, the link is built from `coordinates`.
+   */
+  google_link?: string | null
+  /**
    * Default `false`. When enabled, use a category id from categories.json
    * (`true` alone is incomplete — prefer `false | string`).
    */

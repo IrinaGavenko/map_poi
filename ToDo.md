@@ -6,6 +6,8 @@
 - [ ] Map moves too fast after a marker click
 - [ ] Double-click behavior
 - [ ] Exit from the nested area
+- [ ] Rerendering and map movements
+- [ ] Camera focus updates after reload only
 
 ## Requirements (`_README.md`)
 
@@ -58,6 +60,7 @@
 ### Test list (do later)
 
 - [ ] Keep synced: `prompts/create-*-marker-form.md`, `src/data/example_<>.json` (pinned / custom / categorized), and `src/types/{pinned,custom,categorized}.ts` — example JSONs are source of truth; prompts + types must match (see `prompts/README.md`)
+- [ ] Keep synced: `categories_SPB.json` / `example_categories.json` hierarchy (`rootCategoryId`) with `src/types/categories.ts` — legend shows roots only; subcategory badge on categorized markers only
 
 ## Phase 3 — portfolio / docs (`_README.md` polish)
 
@@ -74,4 +77,6 @@
 - [ ] PostgreSQL data model + API
 - [ ] Saved maps + read-only sharing
 - [ ] Auth / authorization + API tests
-- [] Add different shapes or frames for custom markers
+- [ ] Add different shapes or frames for custom markers
+- [ ] Component library for the different marker options
+- [ ] Animations for nested locations
