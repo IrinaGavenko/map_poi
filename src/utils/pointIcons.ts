@@ -14,6 +14,10 @@ import {
   isRootCategory,
   type MarkerVisualMode,
 } from '@type/categories'
+import {
+  createRootCategorizedPinImageData,
+  createSubcategoryCategorizedPinImageData,
+} from '@utils/categorizedPinIcon'
 import { resolvePublicUrl } from '@utils/publicUrl'
 
 export type PointIconConfig = {
@@ -141,35 +145,21 @@ function roundRect(
   ctx.closePath()
 }
 
-type SubcategoryBadge = {
-  color: string
-  emoji: string
-}
-
-function createPinImageData(
-  color: string,
-  icon: string,
-  subcategory?: SubcategoryBadge | null,
-): ImageData {
-  // Extra right/top room when a subcategory badge is drawn.
-  const padRight = subcategory ? 14 : 0
-  const padTop = subcategory ? 6 : 0
-  const width = 48 + padRight
-  const height = 64 + padTop
+/** Legacy canvas pin (non-categorized fallbacks). */
+function createPinImageData(color: string, icon: string): ImageData {
+  const width = 48
+  const height = 64
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
   const ctx = canvas.getContext('2d')
   if (!ctx) return new ImageData(width, height)
 
-  const pinW = 48
-  const pinH = 64
   const path = new Path2D(
     'M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0z',
   )
   ctx.save()
-  ctx.translate(0, padTop)
-  ctx.scale(pinW / 24, pinH / 32)
+  ctx.scale(width / 24, height / 32)
   ctx.fillStyle = color
   ctx.fill(path)
   ctx.restore()
@@ -177,27 +167,28 @@ function createPinImageData(
   ctx.font = '18px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText(icon, pinW / 2, padTop + (12 / 32) * pinH)
-
-  if (subcategory) {
-    const badgeR = 11
-    const badgeX = width - badgeR - 1
-    const badgeY = badgeR + 1
-    ctx.beginPath()
-    ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2)
-    ctx.fillStyle = '#ffffff'
-    ctx.fill()
-    ctx.beginPath()
-    ctx.arc(badgeX, badgeY, badgeR - 1.5, 0, Math.PI * 2)
-    ctx.fillStyle = subcategory.color
-    ctx.fill()
-    ctx.font = '11px system-ui, "Apple Color Emoji", "Segoe UI Emoji", sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(subcategory.emoji, badgeX, badgeY + 0.5)
-  }
+  ctx.fillText(icon, width / 2, (12 / 32) * height)
 
   return ctx.getImageData(0, 0, width, height)
+}
+
+async function createCategorizedPinImageData(options: {
+  pinColor: string
+  emoji: string
+  subcategoryId?: string | null
+  subcategoryColor?: string
+  subcategoryEmoji?: string
+}): Promise<ImageData> {
+  const { pinColor, emoji, subcategoryId, subcategoryColor, subcategoryEmoji } = options
+  if (subcategoryId && subcategoryColor) {
+    return createSubcategoryCategorizedPinImageData({
+      pinColor,
+      badgeColor: subcategoryColor,
+      badgeEmoji: subcategoryEmoji || emoji,
+      subcategoryId,
+    })
+  }
+  return createRootCategorizedPinImageData(pinColor, emoji)
 }
 
 function loadImageElement(src: string): Promise<HTMLImageElement> {
@@ -277,44 +268,42 @@ function createRectImageData(
   if (!ctx) return new ImageData(width, height)
 
   if (style === 'image') {
-    // Leave room so soft shadow / oval aren't clipped at the canvas edge.
-    const pad = Math.max(8, Math.round(Math.min(width, height) * 0.1))
+    // Extra pad so stronger halo / stroke aren't clipped at the canvas edge.
+    const pad = Math.max(14, Math.round(Math.min(width, height) * 0.14))
     const maxW = width - pad * 2
     const maxH = height - pad * 2
     const scale = Math.min(maxW / image.width, maxH / image.height)
     const drawW = image.width * scale
     const drawH = image.height * scale
     const drawX = (width - drawW) / 2
-    const drawY = (height - drawH) / 2 - Math.round(pad * 0.15)
+    const drawY = (height - drawH) / 2 - Math.round(pad * 0.1)
     const cx = drawX + drawW / 2
     const cy = drawY + drawH / 2
+    const radius = Math.max(6, Math.round(Math.min(drawW, drawH) * 0.1))
 
-    // Soft dark oval behind the image for contrast on light map tiles.
-    const ovalRx = drawW * 0.58
-    const ovalRy = drawH * 0.52
+    // Dark contrast halo behind the photo (reads on light map tiles).
+    const ovalRx = drawW * 0.72
+    const ovalRy = drawH * 0.62
     ctx.save()
-    ctx.translate(cx, cy)
+    ctx.translate(cx, cy + Math.round(drawH * 0.04))
     ctx.scale(ovalRx, ovalRy)
     const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1)
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.55)')
-    gradient.addColorStop(0.65, 'rgba(255, 255, 255, 0.28)')
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    gradient.addColorStop(0, 'rgba(15, 23, 42, 0.55)')
+    gradient.addColorStop(0.45, 'rgba(15, 23, 42, 0.28)')
+    gradient.addColorStop(1, 'rgba(15, 23, 42, 0)')
     ctx.fillStyle = gradient
     ctx.beginPath()
     ctx.arc(0, 0, 1, 0, Math.PI * 2)
     ctx.fill()
     ctx.restore()
 
+    // Photo clipped to rounded corners.
     ctx.save()
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)'
-    ctx.shadowBlur = Math.max(10, Math.round(Math.min(width, height) * 0.14))
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = Math.max(4, Math.round(Math.min(width, height) * 0.05))
+    roundRect(ctx, drawX, drawY, drawW, drawH, radius)
+    ctx.clip()
     ctx.drawImage(image, drawX, drawY, drawW, drawH)
     ctx.restore()
 
-    // Crisp image on top; shadow stays underneath.
-    ctx.drawImage(image, drawX, drawY, drawW, drawH)
     return ctx.getImageData(0, 0, width, height)
   }
 
@@ -416,6 +405,7 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
   const iconKeys = new Set<string>()
 
   for (const categoryId of Object.keys(getCategoriesRegistry())) {
+    const config = getCategoryConfig(categoryId)
     const visualMode = getCategoryVisualMode(categoryId)
     const color = getCategoryColor(categoryId)
     let imageData: ImageData
@@ -436,6 +426,12 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
         ICON_MARKER_WIDTH,
         ICON_MARKER_HEIGHT,
       )
+    } else if (config.type === 'categorized' || !config.type) {
+      // Root categorized pin from Icons/01-pin.svg
+      imageData = await createCategorizedPinImageData({
+        pinColor: color,
+        emoji: getCategoryListIcon(categoryId),
+      })
     } else {
       imageData = createPinImageData(color, getCategoryListIcon(categoryId))
     }
@@ -451,10 +447,6 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
     const visualMode = getPointVisualMode(point)
     const color = config.color || DEFAULT_CATEGORY_COLOR
     const pictureUrl = config.imageUrl || DEFAULT_CATEGORY_PICTURE
-    const subcategoryBadge =
-      config.subcategoryId && config.subcategoryColor && config.subcategoryEmoji
-        ? { color: config.subcategoryColor, emoji: config.subcategoryEmoji }
-        : null
 
     const markerStyle: RectMarkerStyle =
       point.markerType === 'pinned' ? 'image' : 'framed'
@@ -476,8 +468,16 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
         ICON_MARKER_HEIGHT,
         markerStyle,
       )
+    } else if (point.markerType === 'categorized') {
+      imageData = await createCategorizedPinImageData({
+        pinColor: color,
+        emoji: config.emoji,
+        subcategoryId: config.subcategoryId,
+        subcategoryColor: config.subcategoryColor,
+        subcategoryEmoji: config.subcategoryEmoji,
+      })
     } else {
-      imageData = createPinImageData(color, config.emoji, subcategoryBadge)
+      imageData = createPinImageData(color, config.emoji)
     }
 
     await addOrReplaceImage(map, key, imageData)

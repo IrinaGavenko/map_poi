@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="pinBlue" x1="12" y1="8" x2="105" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1685FF"/>
+      <stop offset="1" stop-color="#0646C8"/>
+    </linearGradient>
+    <linearGradient id="coffeeOrange" x1="94" y1="86" x2="145" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF8A00"/>
+      <stop offset="1" stop-color="#E94A00"/>
+    </linearGradient>
+  </defs>
+  <!-- Pin is intentionally left of the combined icon's visual midpoint:
+       its tip (64, 145) is the geographic anchor for MapLibre. -->
+  <path d="M64 5
+           C32 5 6 31 6 63
+           C6 105 64 145 64 145
+           C64 145 122 105 122 63
+           C122 31 96 5 64 5Z"
+        fill="url(#pinBlue)" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>
+  <circle cx="64" cy="60" r="33" fill="#FFFFFF"/>
+
+  <!-- Category badge overlaps the lower-right edge; no external shadow. -->
+  <circle cx="119" cy="115" r="31" fill="url(#coffeeOrange)" stroke="#FFFFFF" stroke-width="5"/>
+  <g transform="translate(94 90) scale(.40)">
+    <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round">
+      <path d="M48 43c-8-9 8-12 3-23"/>
+      <path d="M69 43c-8-9 8-12 3-23"/>
+    </g>
+    <path d="M31 57h58v18c0 17-11 27-29 27S31 92 31 75V57Z" fill="#FFFFFF"/>
+    <path d="M89 62h8c10 0 14 7 12 15-2 8-8 12-19 12" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M27 108c8 8 66 8 74 0H27Z" fill="#FFFFFF"/>
+  </g>
+</svg>

@@ -1,4 +1,9 @@
 import { getPointIconConfig, getPointVisualMode } from '@utils/pointIcons'
+import {
+  CATEGORIZED_PIN_SVG_URL,
+  CATEGORIZED_PIN_WITH_CATEGORY_SVG_URL,
+  getCategoryBadgeSvgUrl,
+} from '@utils/categorizedPinIcon'
 import { pinnedSizeToIconScale } from '@utils/pinnedSize'
 import type { Point } from '@type'
 
@@ -42,56 +47,80 @@ export default function PointIcon({ point, size = 22 }: PointIconProps) {
     )
   }
 
-  const subSize = Math.round(size * 0.55)
+  // Categorized pins: Icons/01-pin.svg, or pin + category badge / pin-with-category.
+  if (point.markerType === 'categorized' || visualMode === 'pin') {
+    const hasSub = Boolean(config.subcategoryId)
+    const badgeSrc = getCategoryBadgeSvgUrl(config.subcategoryId)
+    const height = Math.round(size * 1.15)
+    const width = Math.round(size * (hasSub ? 1.2 : 1))
+
+    // Prefer composing pin + badge asset; fall back to combined SVG template.
+    if (hasSub && !badgeSrc) {
+      return (
+        <span aria-hidden style={{ width, height, flexShrink: 0, display: 'inline-block' }}>
+          <img
+            src={CATEGORIZED_PIN_WITH_CATEGORY_SVG_URL}
+            alt=""
+            draggable={false}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+          />
+        </span>
+      )
+    }
+
+    return (
+      <span
+        aria-hidden
+        style={{
+          position: 'relative',
+          width,
+          height,
+          flexShrink: 0,
+          display: 'inline-block',
+        }}
+      >
+        <img
+          src={CATEGORIZED_PIN_SVG_URL}
+          alt=""
+          draggable={false}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+        />
+        {hasSub && badgeSrc ? (
+          <img
+            src={badgeSrc}
+            alt=""
+            draggable={false}
+            style={{
+              position: 'absolute',
+              right: -Math.round(size * 0.05),
+              bottom: Math.round(size * 0.02),
+              width: Math.round(size * 0.72),
+              height: Math.round(size * 0.72),
+              objectFit: 'contain',
+            }}
+          />
+        ) : null}
+      </span>
+    )
+  }
 
   return (
     <span
       aria-hidden
       style={{
-        position: 'relative',
         width: size,
         height: size,
+        borderRadius: '50%',
+        background: config.color,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: Math.round(size * 0.55),
         flexShrink: 0,
-        display: 'inline-block',
+        lineHeight: 1,
       }}
     >
-      <span
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          background: config.color,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: Math.round(size * 0.55),
-          lineHeight: 1,
-        }}
-      >
-        {config.emoji}
-      </span>
-      {config.subcategoryId && config.subcategoryColor && config.subcategoryEmoji ? (
-        <span
-          style={{
-            position: 'absolute',
-            top: -Math.round(subSize * 0.15),
-            right: -Math.round(subSize * 0.25),
-            width: subSize,
-            height: subSize,
-            borderRadius: '50%',
-            background: config.subcategoryColor,
-            border: '2px solid #ffffff',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: Math.round(subSize * 0.55),
-            lineHeight: 1,
-            boxSizing: 'border-box',
-          }}
-        >
-          {config.subcategoryEmoji}
-        </span>
-      ) : null}
+      {config.emoji}
     </span>
   )
 }

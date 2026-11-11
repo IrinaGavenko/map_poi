@@ -41,19 +41,22 @@ const baseIconSize = ['coalesce', ['get', 'iconSize'], 1]
 /**
  * MapLibre expression: base `iconSize` × zoom factor.
  * `zoom` must be the input of a top-level interpolate/step (MapLibre rule).
+ * Mid zooms (city / district) stay larger so pinned landmarks remain readable.
  */
 export const PINNED_ICON_SIZE_BY_ZOOM: unknown[] = [
   'interpolate',
-  ['exponential', 1.6],
+  ['exponential', 1.45],
   ['zoom'],
-  11,
-  ['*', baseIconSize, 1.05],
-  13,
-  ['*', baseIconSize, 1.5],
-  15,
-  ['*', baseIconSize, 2.7],
-  17,
-  ['*', baseIconSize, 4.8],
-  19,
-  ['*', baseIconSize, 6.75],
+  10,
+  ['*', baseIconSize, 1.45],
+  12,
+  ['*', baseIconSize, 2.05],
+  14,
+  ['*', baseIconSize, 3.15],
+  16,
+  ['*', baseIconSize, 4.6],
+  18,
+  ['*', baseIconSize, 6.2],
+  20,
+  ['*', baseIconSize, 7.4],
 ]

@@ -48,6 +48,28 @@
         "google_link": null,
         "priority": 10
       }
+    },
+    {
+      "type": "custom",
+      "point": {
+        "id": "CUSTOM-SPB-PALACE",  
+        "type": "custom",
+        "coordinates": {
+          "lat": 59.9398879,
+          "lng": 30.3119616
+        },
+        "point_content": {
+          "name": "Main square of the city",
+          "pictures": ["https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"],
+          "description": null,
+          "link": null,
+          "google_link": "https://maps.app.goo.gl/oPjLZXcPSpz4MvXW6",
+          "priority": 10,
+          "includeInCategorySearch": false,
+          "isCollapsible": false,
+          "isNested": null
+        }
+      }
     }
   ]
 }

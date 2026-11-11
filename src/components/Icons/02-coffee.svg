@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="coffeeBrown" x1="18" y1="8" x2="108" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9A4B20"/>
+      <stop offset="1" stop-color="#55270F"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="59" fill="url(#coffeeBrown)" stroke="#FFFFFF" stroke-width="5"/>
+  <!-- Cup-and-steam silhouette optically centered within the badge. -->
+  <g transform="translate(-3 -2)">
+    <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round">
+      <path d="M48 43c-8-9 8-12 3-23"/>
+      <path d="M69 43c-8-9 8-12 3-23"/>
+    </g>
+    <path d="M31 57h58v18c0 17-11 27-29 27S31 92 31 75V57Z" fill="#FFFFFF"/>
+    <path d="M89 62h8c10 0 14 7 12 15-2 8-8 12-19 12" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M27 108c8 8 66 8 74 0H27Z" fill="#FFFFFF"/>
+  </g>
+</svg>

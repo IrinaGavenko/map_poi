@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 144" width="128" height="144">
+  <defs>
+    <linearGradient id="pinBlue" x1="18" y1="8" x2="104" y2="132" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1685FF"/>
+      <stop offset="1" stop-color="#0646C8"/>
+    </linearGradient>
+  </defs>
+  <!-- The pin's geographic anchor is the bottom tip at (64, 139). -->
+  <path d="M64 5
+           C31.4 5 5 31.4 5 64
+           C5 107 64 139 64 139
+           C64 139 123 107 123 64
+           C123 31.4 96.6 5 64 5Z"
+        fill="url(#pinBlue)" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>
+  <circle cx="64" cy="61" r="34" fill="#FFFFFF"/>
+</svg>
