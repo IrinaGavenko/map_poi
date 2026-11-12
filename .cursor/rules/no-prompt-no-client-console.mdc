@@ -1,0 +1,30 @@
+---
+description: Never use browser prompt()/alert()/confirm() or client console output
+alwaysApply: true
+---
+
+# No browser dialogs, no client console
+
+For **all** app code changes in this project:
+
+## Never use browser dialogs
+
+Do not call `prompt()`, `window.prompt()`, `alert()`, `window.alert()`, `confirm()`, or `window.confirm()`.
+
+Use in-app UI instead: forms, drawers, modals, inline panels, cancel/back actions.
+
+```tsx
+// ❌ BAD
+const name = window.prompt('New category name')
+
+// ✅ GOOD
+// Open NewCategoryForm (or similar) in the drawer; Cancel exits creation
+```
+
+## Never write to the client console
+
+Do not add `console.log`, `console.debug`, `console.info`, `console.warn`, `console.error`, `console.table`, or similar in application/runtime code.
+
+- Prefer UI error/empty states for user-facing failures.
+- Do not leave debug logging in committed code.
+- Docs/README examples that show console usage for local debugging are fine only in markdown, not in `src/`.

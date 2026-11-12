@@ -1,0 +1,64 @@
+---
+description: New UI goes in feature folders; reusable pieces live in shared and must be reused
+alwaysApply: true
+---
+
+# Component organization
+
+For **all** UI work in this project:
+
+## 1. New feature UI → new folder + new components
+
+When adding a new section, flow, form, or feature surface:
+
+- Create a **dedicated folder** for it (do not dump new files into an unrelated flat folder).
+- Put that feature’s components, hooks, and styles **inside that folder**.
+- Prefer `index.tsx` as the public entry; keep internals private to the folder.
+
+```text
+✅ GOOD
+components/Drawer/EditMode/CreateMarkerFlow/
+  index.tsx
+  CreateMarkerForm.tsx
+  MarkerTypeSelector.tsx
+
+❌ BAD
+components/Drawer/EditMode/
+  CreateMarkerFlow.tsx
+  CreateMarkerForm.tsx
+  MarkerTypeSelector.tsx
+  (and more unrelated files mixed at the same level)
+```
+
+Examples of feature folders: `EditMode/`, `ViewMode/`, `CollapseView/`, or a subfolder under them for a flow (`NewCategory/`, `CreateMarkerFlow/`).
+
+## 2. Reusable UI → shared folder; always reuse
+
+If a component is (or becomes) reusable across sections/features:
+
+- Move it to a **shared** location and import it from there.
+- **Do not** copy-paste markup or parallel “almost the same” components.
+
+Shared locations (pick the narrowest that fits):
+
+| Scope | Location |
+|-------|----------|
+| Drawer-wide | `src/components/Drawer/shared/` |
+| App-wide | `src/components/shared/` (or an existing top-level shared component folder) |
+
+Already-shared drawer primitives (buttons, fields, chips, headers, form shell, etc.) must be **reused**, not reimplemented.
+
+```tsx
+// ❌ BAD — duplicate action button styles/markup in a new form
+<button className="places-edit-action is-cancel">Cancel</button>
+
+// ✅ GOOD — reuse shared primitive
+import { DrawerActionButton } from '../shared/DrawerActionButton'
+<DrawerActionButton variant="cancel">Cancel</DrawerActionButton>
+```
+
+## 3. When touching existing code
+
+- If you introduce a second copy of the same UI pattern, **extract to shared** and update call sites in the same change.
+- If a file grows into a multi-piece feature, **split it into its own folder** rather than leaving siblings scattered.
+- Prefer extending an existing shared component over adding a one-off class that duplicates it.

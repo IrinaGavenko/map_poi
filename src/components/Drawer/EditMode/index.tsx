@@ -1,28 +1,28 @@
-import PointFilter from '../PointFilter'
-import PointIcon from '@components/PointIcon'
-import type { Point } from '@type'
-import SearchInput from '../SearchInput'
+import { useState } from 'react'
+import type { MarkerKind, Point } from '@type'
 import DrawerShell from '../DrawerShell'
 import '../drawer.css'
 import './EditMode.css'
-import EditPointForm from './EditPointForm'
+import CategoryFilter, { useRootCategoryFilter } from './CategoryFilter'
+import CreateMarkerFlow from './CreateMarkerFlow/index'
+import EditMarkerFlow from './EditMarkerFlow/index'
+import EditModeSection from './EditModeSection'
+import NewCategoryForm from './NewCategoryForm'
+import PlacesSection from './PlacesSection'
 
 type EditModeProps = {
   open: boolean
   expanded: boolean
   onMinimize: () => void
   onExpand: () => void
-  query: string
-  onQueryChange: (value: string) => void
   points: Point[]
-  filtered: Point[]
-  selectedTypes: string[]
-  onTypesChange: (types: string[]) => void
   availableTypes: string[]
   selected: Point | null
   onSelect: (point: Point) => void
-  addingPoint: boolean
-  onToggleAdding: () => void
+  onClearSelected: () => void
+  onStartMapPlace: (type: MarkerKind) => void
+  onStopMapPlace: () => void
+  onPlaceAtCoordinates: (coordinates: { lat: number; lng: number }) => void
   onChangePoint: (point: Point) => void
   onDeletePoint: () => void
 }
@@ -32,21 +32,64 @@ export default function EditMode({
   expanded,
   onMinimize,
   onExpand,
-  query,
-  onQueryChange,
   points,
-  filtered,
-  selectedTypes,
-  onTypesChange,
   availableTypes,
   selected,
   onSelect,
-  addingPoint,
-  onToggleAdding,
+  onClearSelected,
+  onStartMapPlace,
+  onStopMapPlace,
+  onPlaceAtCoordinates,
   onChangePoint,
   onDeletePoint,
 }: EditModeProps) {
   const minimized = open && !expanded
+  const [creatingCategory, setCreatingCategory] = useState(false)
+  const [creatingMarker, setCreatingMarker] = useState(false)
+  const [editingMarker, setEditingMarker] = useState(false)
+  const {
+    availableRoots,
+    selectedRootIds,
+    toggleRoot,
+    createCategory,
+    filtered,
+  } = useRootCategoryFilter(points)
+
+  const startCreatingCategory = () => {
+    onStopMapPlace()
+    setCreatingMarker(false)
+    setEditingMarker(false)
+    setCreatingCategory(true)
+  }
+
+  const exitCreatingCategory = () => {
+    setCreatingCategory(false)
+  }
+
+  const startCreatingMarker = () => {
+    setCreatingCategory(false)
+    setEditingMarker(false)
+    setCreatingMarker(true)
+  }
+
+  const exitCreatingMarker = () => {
+    onStopMapPlace()
+    setCreatingMarker(false)
+  }
+
+  const startEditingMarker = (point: Point) => {
+    onStopMapPlace()
+    setCreatingCategory(false)
+    setCreatingMarker(false)
+    onSelect(point)
+    setEditingMarker(true)
+  }
+
+  const exitEditingMarker = () => {
+    setEditingMarker(false)
+  }
+
+  const showMarkerFlow = creatingMarker || (editingMarker && selected)
 
   return (
     <DrawerShell
@@ -61,60 +104,65 @@ export default function EditMode({
         aria-label={minimized ? 'Open edit panel' : undefined}
         onClick={minimized ? onExpand : undefined}
       />
-      <SearchInput query={query} onQueryChange={onQueryChange} />
-      <PointFilter
-        points={points}
-        query={query}
-        selectedTypes={selectedTypes}
-        onTypesChange={onTypesChange}
-      />
 
-      <div className="places-drawer-body">
-        <div className="places-edit-header">
-          <div className="places-edit-title">Edit mode</div>
-          <div className="places-edit-hint">
-            {addingPoint
-              ? 'Tap the map to place a new point.'
-              : 'Select a place to edit, or add a new one on the map.'}
-          </div>
-          <button
-            type="button"
-            className={`places-edit-action${addingPoint ? ' is-cancel' : ''}`}
-            onClick={onToggleAdding}
-          >
-            {addingPoint ? 'Cancel adding' : '+ Add place on map'}
-          </button>
+      {showMarkerFlow ? (
+        <div className="places-drawer-body">
+          {creatingMarker ? (
+            <CreateMarkerFlow
+              availableTypes={availableTypes}
+              selected={selected}
+              onChangePoint={onChangePoint}
+              onDeletePoint={onDeletePoint}
+              onClearSelected={onClearSelected}
+              onEnableMapPlace={onStartMapPlace}
+              onDisableMapPlace={onStopMapPlace}
+              onPlaceAtCoordinates={onPlaceAtCoordinates}
+              onExit={exitCreatingMarker}
+            />
+          ) : selected ? (
+            <EditMarkerFlow
+              point={selected}
+              availableTypes={availableTypes}
+              onChangePoint={onChangePoint}
+              onDeletePoint={onDeletePoint}
+              onExit={exitEditingMarker}
+            />
+          ) : null}
         </div>
-
-        {selected ? (
-          <EditPointForm
-            key={selected.id}
-            point={selected}
-            availableTypes={availableTypes}
-            onChange={onChangePoint}
-            onDelete={onDeletePoint}
+      ) : (
+        <>
+          <CategoryFilter
+            availableRoots={availableRoots}
+            selectedRootIds={selectedRootIds}
+            onToggle={toggleRoot}
+            onNewCategory={startCreatingCategory}
+            creating={creatingCategory}
+            filteredCount={filtered.length}
+            totalCount={points.length}
           />
-        ) : (
-          <div className="places-edit-empty">No place selected.</div>
-        )}
 
-        <div className="places-edit-section-label">Places</div>
-        <div className="places-list">
-          {filtered.map((p) => (
-            <div
-              key={p.id}
-              className={`places-list-item${selected?.id === p.id ? ' is-selected' : ''}`}
-              onClick={() => onSelect(p)}
-            >
-              <PointIcon point={p} size={28} />
-              <span className="places-list-name">{p.name}</span>
-              <span className="places-list-chevron" aria-hidden>
-                ›
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+          <div className="places-drawer-body">
+            {creatingCategory ? (
+              <NewCategoryForm
+                onCancel={exitCreatingCategory}
+                onCreate={(draft) => {
+                  createCategory(draft)
+                  exitCreatingCategory()
+                }}
+              />
+            ) : (
+              <>
+                <EditModeSection onStartCreate={startCreatingMarker} />
+                <PlacesSection
+                  points={filtered}
+                  selected={selected}
+                  onSelect={startEditingMarker}
+                />
+              </>
+            )}
+          </div>
+        </>
+      )}
     </DrawerShell>
   )
 }
