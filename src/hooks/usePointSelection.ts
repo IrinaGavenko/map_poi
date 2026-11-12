@@ -1,7 +1,7 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
 import { createPoint } from '@utils/createPoint'
 import { applyPointEdits } from '@utils/normalizeMarker'
-import type { Point } from '@type'
+import type { MarkerKind, Point } from '@type'
 
 type UsePointSelectionArgs = {
   setPoints: Dispatch<SetStateAction<Point[]>>
@@ -42,8 +42,11 @@ export function usePointSelection({
     setSelected(null)
   }
 
-  const addPoint = (coordinates: { lat: number; lng: number }) => {
-    const point = createPoint(coordinates)
+  const addPoint = (
+    coordinates: { lat: number; lng: number },
+    markerType: MarkerKind = 'categorized',
+  ) => {
+    const point = createPoint(coordinates, markerType)
     setPoints((points) => [point, ...points])
     setSelected(point)
     return point

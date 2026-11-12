@@ -83,20 +83,20 @@ export default function App() {
           expanded={app.drawerExpanded}
           onMinimize={app.minimizeDrawer}
           onExpand={app.expandDrawer}
-          query={app.query}
-          onQueryChange={app.setQuery}
           points={app.points}
-          filtered={app.filtered}
-          selectedTypes={app.selectedTypes}
-          onTypesChange={app.setSelectedTypes}
           availableTypes={app.availableTypes}
           selected={app.selected}
           onSelect={(point) => {
-            app.setAddingPoint(false)
+            app.stopAddingPoint()
             app.selectPointFromDrawer(point)
           }}
-          addingPoint={app.addingPoint}
-          onToggleAdding={() => app.setAddingPoint((active) => !active)}
+          onClearSelected={app.clearSelected}
+          onStartMapPlace={(type) => {
+            app.setPendingMarkerType(type)
+            app.setAddingPoint(true)
+          }}
+          onStopMapPlace={app.stopAddingPoint}
+          onPlaceAtCoordinates={app.addPoint}
           onChangePoint={app.updateSelectedPoint}
           onDeletePoint={app.deleteSelectedPoint}
         />

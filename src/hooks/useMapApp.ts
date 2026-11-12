@@ -53,6 +53,7 @@ export function useMapApp() {
     onBeforeCollapse: () => {
       clearMinimizeTimer()
       drawers.setAddingPoint(false)
+      drawers.setPendingMarkerType(null)
       filters.resetFilters()
       drawers.setDrawerMode(null)
     },
@@ -62,11 +63,16 @@ export function useMapApp() {
     },
   })
 
+  const stopAddingPoint = () => {
+    drawers.setAddingPoint(false)
+    drawers.setPendingMarkerType(null)
+  }
+
   // On map switch: drop stale camera target and allow a fresh recenter.
   useEffect(() => {
     collapse.clearSession()
     selection.setSelected(null)
-    drawers.setAddingPoint(false)
+    stopAddingPoint()
     drawers.setDrawerMode(null)
     focusedDatasetIdRef.current = null
     setDatasetFocus(null)
@@ -99,7 +105,7 @@ export function useMapApp() {
     clearMinimizeTimer()
     collapse.exit()
     selection.setSelected(null)
-    drawers.setAddingPoint(false)
+    stopAddingPoint()
     filters.resetFilters()
     // Never open edit from collapse exit — only places or nothing.
     drawers.setDrawerMode(openPlaces ? 'places' : null)
@@ -125,14 +131,14 @@ export function useMapApp() {
         return
       }
       drawers.setDrawerMode(null)
-      if (mode === 'edit') drawers.setAddingPoint(false)
+      if (mode === 'edit') stopAddingPoint()
       return
     }
 
     // Switching places ↔ edit replaces the other (single drawerMode).
     drawers.setDrawerMode(mode)
     drawers.expand()
-    if (mode !== 'edit') drawers.setAddingPoint(false)
+    if (mode !== 'edit') stopAddingPoint()
   }
 
   const handleDatasetChange = (nextId: string) => {
@@ -142,7 +148,7 @@ export function useMapApp() {
     setDatasetFocus(null)
     selection.setSelected(null)
     filters.resetFilters()
-    drawers.setAddingPoint(false)
+    stopAddingPoint()
     collapse.clearSession()
     dataset.changeDataset(nextId)
   }
@@ -218,14 +224,20 @@ export function useMapApp() {
     updateSelectedPoint: selection.updateSelectedPoint,
     deleteSelectedPoint: selection.deleteSelectedPoint,
     addPoint: (coordinates: { lat: number; lng: number }) => {
-      selection.addPoint(coordinates)
-      drawers.setAddingPoint(false)
+      selection.addPoint(
+        coordinates,
+        drawers.pendingMarkerType ?? 'categorized',
+      )
+      stopAddingPoint()
     },
     drawerMode: drawers.drawerMode,
     drawerExpanded: drawers.expanded,
     setDrawerMode: drawers.setDrawerMode,
     addingPoint: drawers.addingPoint,
     setAddingPoint: drawers.setAddingPoint,
+    pendingMarkerType: drawers.pendingMarkerType,
+    setPendingMarkerType: drawers.setPendingMarkerType,
+    stopAddingPoint,
     toggleDrawer,
     closeEditDrawer: drawers.closeDrawer,
     minimizeDrawer,

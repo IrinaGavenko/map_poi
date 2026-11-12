@@ -104,6 +104,16 @@ export function setCategoriesRegistry(doc: CategoriesDocument | null | undefined
   registry = next
 }
 
+/** Add or replace a single category entry without resetting the registry. */
+export function upsertCategory(config: CategoryTypeConfig): void {
+  const id = (config.id || '').trim()
+  if (!id || id.startsWith('//')) return
+  registry = {
+    ...registry,
+    [id]: { ...config, id },
+  }
+}
+
 /** True when the category has no `rootCategoryId` (legend / filter list item). */
 export function isRootCategory(categoryId: string | null | undefined): boolean {
   if (!categoryId) return false
