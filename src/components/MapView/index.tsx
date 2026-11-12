@@ -214,7 +214,19 @@ export default function MapView({
             tileSize: 256,
           },
         },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+        layers: [
+          {
+            id: 'osm',
+            type: 'raster',
+            source: 'osm',
+            paint: {
+              // Soften default OSM color so markers read more clearly.
+              'raster-saturation': -0.85,
+              'raster-contrast': 0.1,
+              'raster-brightness-min': 0.05,
+            },
+          },
+        ],
       },
       center: [-80.2, 25.77],
       zoom: 11,

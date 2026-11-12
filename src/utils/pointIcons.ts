@@ -268,39 +268,24 @@ function createRectImageData(
   if (!ctx) return new ImageData(width, height)
 
   if (style === 'image') {
-    // Extra pad so stronger halo / stroke aren't clipped at the canvas edge.
-    const pad = Math.max(14, Math.round(Math.min(width, height) * 0.14))
+    // Minimal pad — photo fills more of the marker for stronger map contrast.
+    const pad = Math.max(2, Math.round(Math.min(width, height) * 0.02))
     const maxW = width - pad * 2
     const maxH = height - pad * 2
     const scale = Math.min(maxW / image.width, maxH / image.height)
     const drawW = image.width * scale
     const drawH = image.height * scale
     const drawX = (width - drawW) / 2
-    const drawY = (height - drawH) / 2 - Math.round(pad * 0.1)
-    const cx = drawX + drawW / 2
-    const cy = drawY + drawH / 2
-    const radius = Math.max(6, Math.round(Math.min(drawW, drawH) * 0.1))
+    const drawY = (height - drawH) / 2
+    const radius = Math.max(4, Math.round(Math.min(drawW, drawH) * 0.06))
 
-    // Dark contrast halo behind the photo (reads on light map tiles).
-    const ovalRx = drawW * 0.72
-    const ovalRy = drawH * 0.62
-    ctx.save()
-    ctx.translate(cx, cy + Math.round(drawH * 0.04))
-    ctx.scale(ovalRx, ovalRy)
-    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1)
-    gradient.addColorStop(0, 'rgba(15, 23, 42, 0.55)')
-    gradient.addColorStop(0.45, 'rgba(15, 23, 42, 0.28)')
-    gradient.addColorStop(1, 'rgba(15, 23, 42, 0)')
-    ctx.fillStyle = gradient
-    ctx.beginPath()
-    ctx.arc(0, 0, 1, 0, Math.PI * 2)
-    ctx.fill()
-    ctx.restore()
-
-    // Photo clipped to rounded corners.
+    // Photo only — no halo / shadow; slight contrast boost vs soft basemap.
     ctx.save()
     roundRect(ctx, drawX, drawY, drawW, drawH, radius)
     ctx.clip()
+    ctx.filter = 'contrast(1.2) saturate(1.08) brightness(1.02)'
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
     ctx.drawImage(image, drawX, drawY, drawW, drawH)
     ctx.restore()
 
