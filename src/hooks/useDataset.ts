@@ -1,37 +1,100 @@
 import { useEffect, useState } from 'react'
-import { getStoredDatasetId, loadDataset, setStoredDatasetId } from '@utils/datasets'
-import type { Point } from '@type'
+import type {
+  CategoriesDocument,
+  CollapseDataset,
+  MapDatasetMeta,
+  Point,
+} from '@type'
+import { setCategoriesRegistry } from '@type/categories'
+import {
+  categoriesForWorkingDataset,
+  emptyWorkingDataset,
+  loadWorkingDataset,
+  type WorkingMapDataset,
+} from '@utils/datasetIo'
+import {
+  DEFAULT_PINNED_SIZE,
+  setPinnedSize,
+  type PinnedSize,
+} from '@utils/pinnedSize'
+
+function applyCategories(doc: CategoriesDocument) {
+  setCategoriesRegistry(doc)
+}
 
 export function useDataset() {
-  const [datasetId, setDatasetId] = useState(getStoredDatasetId)
+  const [ready, setReady] = useState(false)
+  const [version, setVersion] = useState(1)
+  const [meta, setMeta] = useState<MapDatasetMeta>({})
+  const [pinnedSize, setPinnedSizeState] = useState<PinnedSize>(DEFAULT_PINNED_SIZE)
   const [points, setPoints] = useState<Point[]>([])
+  const [collapses, setCollapses] = useState<Record<string, CollapseDataset>>({})
+  const [categoriesRevision, setCategoriesRevision] = useState(0)
+  const [mapRevision, setMapRevision] = useState(0)
 
   useEffect(() => {
-    let cancelled = false
+    const saved = loadWorkingDataset()
+    const next = saved ?? emptyWorkingDataset()
+    applyCategories(next.categories)
+    setPinnedSize(next.pinnedSize)
+    setPinnedSizeState(next.pinnedSize)
+    setVersion(next.version)
+    setMeta(next.meta)
+    setPoints(next.points)
+    setCollapses(next.collapses)
+    setCategoriesRevision((n) => n + 1)
+    setMapRevision((n) => n + 1)
+    setReady(true)
+  }, [])
 
-    void loadDataset(datasetId)
-      .then((next) => {
-        if (!cancelled) setPoints(next.points)
-      })
-      .catch(() => {
-        if (!cancelled) setPoints([])
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [datasetId])
-
-  const changeDataset = (nextId: string) => {
-    setDatasetId(nextId)
-    setPoints([])
-    setStoredDatasetId(nextId)
+  const bumpCategoriesRevision = () => {
+    setCategoriesRevision((n) => n + 1)
   }
 
+  const replaceCategories = (doc: CategoriesDocument) => {
+    applyCategories(doc)
+    bumpCategoriesRevision()
+  }
+
+  const replacePoints = (next: Point[]) => {
+    setPoints(next)
+  }
+
+  const applyWorkingDataset = (next: WorkingMapDataset) => {
+    applyCategories(next.categories)
+    setPinnedSize(next.pinnedSize)
+    setPinnedSizeState(next.pinnedSize)
+    setVersion(next.version)
+    setMeta(next.meta)
+    setPoints(next.points)
+    setCollapses(next.collapses)
+    setCategoriesRevision((n) => n + 1)
+    setMapRevision((n) => n + 1)
+  }
+
+  const getWorkingSnapshot = (rootPoints: Point[]): WorkingMapDataset => ({
+    version,
+    meta,
+    pinnedSize,
+    categories: categoriesForWorkingDataset(),
+    points: rootPoints,
+    collapses,
+  })
+
   return {
-    datasetId,
+    ready,
+    version,
+    meta,
+    pinnedSize,
     points,
     setPoints,
-    changeDataset,
+    collapses,
+    categoriesRevision,
+    mapRevision,
+    bumpCategoriesRevision,
+    replacePoints,
+    replaceCategories,
+    applyWorkingDataset,
+    getWorkingSnapshot,
   }
 }

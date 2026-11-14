@@ -1,6 +1,6 @@
 import './ControlButtons.css'
 
-export type DrawerMode = 'places' | 'edit' | null
+export type DrawerMode = 'places' | 'edit' | 'files' | null
 
 type ControlButtonsProps = {
   drawerMode: DrawerMode
@@ -29,6 +29,17 @@ export default function ControlButtons({ drawerMode, onToggle }: ControlButtonsP
         onClick={() => onToggle('edit')}
       >
         ✎
+      </button>
+      <button
+        type="button"
+        className={`drawer-control-button${drawerMode === 'files' ? ' is-active' : ''}`}
+        aria-label={
+          drawerMode === 'files' ? 'Close dataset files panel' : 'Open dataset files panel'
+        }
+        aria-expanded={drawerMode === 'files'}
+        onClick={() => onToggle('files')}
+      >
+        ⇄
       </button>
     </div>
   )

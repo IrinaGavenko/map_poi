@@ -95,62 +95,15 @@ const loadersById = Object.fromEntries(
   Object.entries(allLoadersById).filter(([id]) => !isHiddenDatasetId(id)),
 ) as Record<string, () => Promise<unknown>>
 
-const eagerModules = import.meta.glob('../data/*.json', {
-  eager: true,
-  import: 'default',
-}) as Record<string, unknown>
-
-const eagerById = Object.fromEntries(
-  Object.entries(eagerModules).map(([path, data]) => [datasetIdFromPath(path), data]),
-) as Record<string, unknown>
-
-function datasetTitleFromData(data: unknown, fallbackId: string): string {
-  if (!data || typeof data !== 'object') return fallbackId
-  const meta = (data as Record<string, unknown>).meta
-  if (!meta || typeof meta !== 'object') return fallbackId
-  const title = (meta as Record<string, unknown>).title
-  if (typeof title === 'string' && title.trim()) return title.trim()
-  return fallbackId
-}
-
 export const DATASET_IDS = Object.keys(loadersById).sort()
-
-export type DatasetOption = {
-  id: string
-  title: string
-}
-
-/** Visible maps for the selector: id + `meta.title` (falls back to id). */
-export const DATASET_OPTIONS: DatasetOption[] = DATASET_IDS.map((id) => ({
-  id,
-  title: datasetTitleFromData(eagerById[id], id),
-}))
 
 export const DEFAULT_DATASET_ID = DATASET_IDS.includes('miami')
   ? 'miami'
   : (DATASET_IDS[0] ?? 'miami')
 
-const STORAGE_KEY = 'miami-map-dataset'
-
 export function resolveDatasetId(id: string | null | undefined): string {
   if (id && DATASET_IDS.includes(id)) return id
   return DEFAULT_DATASET_ID
-}
-
-export function getStoredDatasetId(): string {
-  try {
-    return resolveDatasetId(localStorage.getItem(STORAGE_KEY))
-  } catch {
-    return DEFAULT_DATASET_ID
-  }
-}
-
-export function setStoredDatasetId(id: string): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, resolveDatasetId(id))
-  } catch {
-    // ignore quota / private mode
-  }
 }
 
 async function loadRaw(id: string): Promise<unknown> {

@@ -228,8 +228,9 @@ export default function MapView({
           },
         ],
       },
-      center: [-80.2, 25.77],
-      zoom: 11,
+      // Empty / cold-start camera: world view (focused when points load).
+      center: [0, 20],
+      zoom: 1.5,
     })
 
     mapRef.current = map

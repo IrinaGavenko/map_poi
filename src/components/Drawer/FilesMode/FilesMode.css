@@ -1,0 +1,14 @@
+.places-drawer .places-dataset-io-status {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.places-drawer .places-dataset-io-status.is-error {
+  color: #b91c1c;
+}
+
+.places-drawer .places-dataset-io-status.is-success {
+  color: #047857;
+}

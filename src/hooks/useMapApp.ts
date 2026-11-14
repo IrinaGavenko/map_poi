@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DrawerMode } from '@components/Drawer/ControlButtons'
 import type { Point } from '@type'
+import {
+  categoriesForWorkingDataset,
+  downloadDatasetZip,
+  readImportFile,
+  saveWorkingDataset,
+  type ImportResult,
+} from '@utils/datasetIo'
 import { filterPoints, getPointTypes } from '@utils/filterPoints'
 import { isMobileViewport } from '@utils/isMobile'
 import { useDataset } from './useDataset'
@@ -11,13 +18,18 @@ import { usePointSelection } from './usePointSelection'
 
 /** Ignore control-button clicks that were meant for a list item under a collapsing drawer. */
 const CLICK_GUARD_MS = 450
+const PERSIST_DEBOUNCE_MS = 300
 
 export function useMapApp() {
   const dataset = useDataset()
+  const collapsesRef = useRef(dataset.collapses)
+  collapsesRef.current = dataset.collapses
+
   const filters = usePointFilters(dataset.points)
   const collapse = useCollapseSession({
     points: dataset.points,
     setPoints: dataset.setPoints,
+    getCollapses: () => collapsesRef.current,
   })
   const drawers = useDrawerMode()
   const ignoreToggleUntil = useRef(0)
@@ -25,7 +37,8 @@ export function useMapApp() {
   const collapseActiveRef = useRef(collapse.isActive)
   const drawerModeRef = useRef(drawers.drawerMode)
   const datasetFocusKey = useRef(0)
-  const focusedDatasetIdRef = useRef<string | null>(null)
+  const focusedMapRevisionRef = useRef<number | null>(null)
+  const initialDrawerAppliedRef = useRef(false)
   const [datasetFocus, setDatasetFocus] = useState<MapFocusRequest | null>(null)
   collapseActiveRef.current = collapse.isActive
   drawerModeRef.current = drawers.drawerMode
@@ -59,7 +72,7 @@ export function useMapApp() {
     },
     onCollapsibleSelect: (point, collapseFile) => {
       clearMinimizeTimer()
-      void collapse.enter(point, collapseFile)
+      collapse.enter(point, collapseFile)
     },
   })
 
@@ -68,23 +81,33 @@ export function useMapApp() {
     drawers.setPendingMarkerType(null)
   }
 
-  // On map switch: drop stale camera target and allow a fresh recenter.
+  // Empty cold start → open load/download (files) drawer once.
   useEffect(() => {
+    if (!dataset.ready || initialDrawerAppliedRef.current) return
+    initialDrawerAppliedRef.current = true
+    if (dataset.points.length === 0) {
+      drawers.setDrawerMode('files')
+      drawers.expand()
+    }
+  }, [dataset.ready, dataset.points.length])
+
+  // Recenter when a new map snapshot is applied (boot / import).
+  useEffect(() => {
+    if (!dataset.ready) return
     collapse.clearSession()
     selection.setSelected(null)
     stopAddingPoint()
-    drawers.setDrawerMode(null)
-    focusedDatasetIdRef.current = null
+    focusedMapRevisionRef.current = null
     setDatasetFocus(null)
-  }, [dataset.datasetId])
+  }, [dataset.mapRevision])
 
-  // Center the map when points finish loading for the current dataset.
   useEffect(() => {
+    if (!dataset.ready) return
     if (collapse.isActive) return
     if (dataset.points.length === 0) return
-    if (focusedDatasetIdRef.current === dataset.datasetId) return
+    if (focusedMapRevisionRef.current === dataset.mapRevision) return
 
-    focusedDatasetIdRef.current = dataset.datasetId
+    focusedMapRevisionRef.current = dataset.mapRevision
     datasetFocusKey.current += 1
     setDatasetFocus({
       key: datasetFocusKey.current,
@@ -94,7 +117,35 @@ export function useMapApp() {
       })),
       animate: false,
     })
-  }, [collapse.isActive, dataset.datasetId, dataset.points])
+  }, [collapse.isActive, dataset.ready, dataset.mapRevision, dataset.points])
+
+  // Auto-save full working map (skip while nested zone is open).
+  useEffect(() => {
+    if (!dataset.ready) return
+    if (collapse.isActive) return
+
+    const timer = window.setTimeout(() => {
+      saveWorkingDataset({
+        version: dataset.version,
+        meta: dataset.meta,
+        pinnedSize: dataset.pinnedSize,
+        categories: categoriesForWorkingDataset(),
+        points: dataset.points,
+        collapses: dataset.collapses,
+      })
+    }, PERSIST_DEBOUNCE_MS)
+
+    return () => window.clearTimeout(timer)
+  }, [
+    dataset.ready,
+    dataset.points,
+    dataset.categoriesRevision,
+    dataset.meta,
+    dataset.pinnedSize,
+    dataset.collapses,
+    dataset.version,
+    collapse.isActive,
+  ])
 
   useEffect(() => () => clearMinimizeTimer(), [])
 
@@ -107,11 +158,10 @@ export function useMapApp() {
     selection.setSelected(null)
     stopAddingPoint()
     filters.resetFilters()
-    // Never open edit from collapse exit — only places or nothing.
     drawers.setDrawerMode(openPlaces ? 'places' : null)
   }
 
-  const toggleDrawer = (mode: 'places' | 'edit') => {
+  const toggleDrawer = (mode: Exclude<DrawerMode, null>) => {
     if (Date.now() < ignoreToggleUntil.current) return
     clearMinimizeTimer()
 
@@ -120,7 +170,6 @@ export function useMapApp() {
         collapse.toggleExpanded()
         return
       }
-      // Exit nested view only — edit requires another explicit ✎ tap.
       exitCollapse(false)
       return
     }
@@ -135,22 +184,42 @@ export function useMapApp() {
       return
     }
 
-    // Switching places ↔ edit replaces the other (single drawerMode).
     drawers.setDrawerMode(mode)
     drawers.expand()
     if (mode !== 'edit') stopAddingPoint()
   }
 
-  const handleDatasetChange = (nextId: string) => {
-    if (nextId === dataset.datasetId) return
+  const resetAfterMarkerReplace = () => {
     clearMinimizeTimer()
-    focusedDatasetIdRef.current = null
+    focusedMapRevisionRef.current = null
     setDatasetFocus(null)
     selection.setSelected(null)
     filters.resetFilters()
     stopAddingPoint()
     collapse.clearSession()
-    dataset.changeDataset(nextId)
+  }
+
+  const rootPointsForExport = (): Point[] => {
+    if (collapse.isActive && collapse.session) {
+      return collapse.session.previousPoints
+    }
+    return dataset.points
+  }
+
+  const downloadDataset = () => {
+    downloadDatasetZip(
+      dataset.getWorkingSnapshot(rootPointsForExport()),
+      'map-dataset.zip',
+    )
+  }
+
+  const importDatasetFile = async (file: File): Promise<ImportResult> => {
+    const result = await readImportFile(file)
+    if (result.ok === false) return result
+
+    resetAfterMarkerReplace()
+    dataset.applyWorkingDataset(result.payload.dataset)
+    return result
   }
 
   const selectPointFromDrawer = (point: Point) => {
@@ -171,14 +240,15 @@ export function useMapApp() {
     else drawers.expand()
   }
 
-  // Exactly one panel can be "primary" for controls.
   const activePanel = collapse.isActive
     ? 'collapse'
     : drawers.drawerMode === 'edit'
       ? 'edit'
-      : drawers.drawerMode === 'places'
-        ? 'places'
-        : null
+      : drawers.drawerMode === 'files'
+        ? 'files'
+        : drawers.drawerMode === 'places'
+          ? 'places'
+          : null
 
   const controlDrawerMode: DrawerMode =
     activePanel === 'collapse'
@@ -189,7 +259,9 @@ export function useMapApp() {
         ? 'places'
         : activePanel === 'edit' && drawers.expanded
           ? 'edit'
-          : null
+          : activePanel === 'files' && drawers.expanded
+            ? 'files'
+            : null
 
   const legendTypes = useMemo(
     () =>
@@ -207,7 +279,6 @@ export function useMapApp() {
   }, [collapse.isActive, collapse.session?.nested, filters.selectedTypes, filters.filtered])
 
   return {
-    datasetId: dataset.datasetId,
     points: dataset.points,
     mapPoints,
     filtered: filters.filtered,
@@ -252,10 +323,14 @@ export function useMapApp() {
     minimizeCollapse: collapse.minimize,
     expandCollapse: collapse.expand,
     exitCollapse,
-    handleDatasetChange,
+    categoriesRevision: dataset.categoriesRevision,
+    bumpCategoriesRevision: dataset.bumpCategoriesRevision,
+    downloadDataset,
+    importDatasetFile,
     drawerOpen:
       (activePanel === 'places' && drawers.expanded) ||
       (activePanel === 'edit' && drawers.expanded) ||
+      (activePanel === 'files' && drawers.expanded) ||
       (activePanel === 'collapse' && collapse.isDrawerExpanded),
   }
 }

@@ -25,6 +25,7 @@ type EditModeProps = {
   onPlaceAtCoordinates: (coordinates: { lat: number; lng: number }) => void
   onChangePoint: (point: Point) => void
   onDeletePoint: () => void
+  onCategoriesChanged?: () => void
 }
 
 export default function EditMode({
@@ -42,6 +43,7 @@ export default function EditMode({
   onPlaceAtCoordinates,
   onChangePoint,
   onDeletePoint,
+  onCategoriesChanged,
 }: EditModeProps) {
   const minimized = open && !expanded
   const [creatingCategory, setCreatingCategory] = useState(false)
@@ -147,6 +149,7 @@ export default function EditMode({
                 onCancel={exitCreatingCategory}
                 onCreate={(draft) => {
                   createCategory(draft)
+                  onCategoriesChanged?.()
                   exitCreatingCategory()
                 }}
               />

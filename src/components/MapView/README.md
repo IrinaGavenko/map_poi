@@ -32,11 +32,11 @@ Elsewhere in the project:
 3. Register click / hover handlers on those layers.
 4. **Cleanup** with `map.remove()` and `popup.remove()` on unmount.
 
-Initial center / zoom for Miami:
+Initial center / zoom (empty map — world view; recenters when points load):
 
 ```ts
-center: [-80.2, 25.77], // [lng, lat]
-zoom: 11,
+center: [0, 20], // [lng, lat]
+zoom: 1.5,
 ```
 
 Basemap is OSM raster tiles; glyphs URL is required for cluster count text.
