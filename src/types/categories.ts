@@ -26,6 +26,10 @@ export type CategoryTypeConfig = {
 
   viewColor?: string | null
   viewIcon?: string | null
+  /**
+   * Image for map/view art. Used by **custom** (and pinned) categories only.
+   * Categorized categories are pin + `viewIcon` — do not set this for them.
+   */
   viewPicture?: string | null
   viewPriority?: number
 
@@ -181,18 +185,56 @@ export function getCategoryTitle(categoryId: string): string {
 }
 
 export function getCategoryColor(categoryId: string | null | undefined): string {
-  const color = getCategoryConfig(categoryId).viewColor
-  return color && color.trim() ? color.trim() : DEFAULT_CATEGORY_COLOR
+  const color = getCategoryDeclaredColor(categoryId)
+  return color ?? DEFAULT_CATEGORY_COLOR
+}
+
+/** Declared `viewColor` only — null when unset (callers may fall back to root). */
+export function getCategoryDeclaredColor(
+  categoryId: string | null | undefined,
+): string | null {
+  const color = getCategoryConfig(categoryId).viewColor?.trim()
+  return color || null
+}
+
+/** Declared `viewIcon` only — null when unset (no subcategory badge without this). */
+export function getCategoryDeclaredViewIcon(
+  categoryId: string | null | undefined,
+): string | null {
+  const icon = getCategoryConfig(categoryId).viewIcon?.trim()
+  return icon || null
+}
+
+export function isSvgIconRef(icon: string): boolean {
+  const value = icon.trim()
+  if (!value || /^https?:\/\//i.test(value)) return false
+  if (/\.svg$/i.test(value)) return true
+  if (/icons\//i.test(value)) return true
+  return false
 }
 
 export function isPictureIcon(icon: string): boolean {
   const value = icon.trim()
+  if (isSvgIconRef(value)) return false
   return /^https?:\/\//i.test(value) || value.startsWith('/') || value.startsWith('assets/')
 }
 
-/** Map/list image from category config, if any. */
+function resolveCategoryRenderType(
+  categoryId: string | null | undefined,
+): CategoryRenderType | undefined {
+  const config = getCategoryConfig(categoryId)
+  if (config.type) return config.type
+  if (config.rootCategoryId) {
+    return getCategoryConfig(config.rootCategoryId).type
+  }
+  return undefined
+}
+
+/** Map/list image from category config (custom/pinned only — not categorized). */
 export function getCategoryImageUrl(categoryId: string | null | undefined): string | undefined {
   const config = getCategoryConfig(categoryId)
+  // Categorized markers are pin + viewIcon; category+image is the custom type.
+  if (resolveCategoryRenderType(categoryId) === 'categorized') return undefined
   const picture = config.viewPicture?.trim() || config.categoryListPicture?.trim()
   if (picture) return picture
   const icon = config.viewIcon?.trim() || config.categoryListIcon?.trim()
@@ -200,24 +242,26 @@ export function getCategoryImageUrl(categoryId: string | null | undefined): stri
   return undefined
 }
 
+/** Emoji (or short text) for list/legend — skips SVG path refs. */
 export function getCategoryListIcon(categoryId: string | null | undefined): string {
   const config = getCategoryConfig(categoryId)
-  const icon = config.categoryListIcon?.trim() || config.viewIcon?.trim()
-  if (icon && !isPictureIcon(icon)) return icon
+  for (const candidate of [config.categoryListIcon, config.viewIcon]) {
+    const icon = candidate?.trim()
+    if (icon && !isPictureIcon(icon) && !isSvgIconRef(icon)) return icon
+  }
   return '📍'
 }
 
 /**
  * Visual mode for a category family:
  * - pinned → large picture marker
- * - custom → rectangular picture/icon marker
- * - categorized → pin (or small icon rect when viewPicture is set)
+ * - custom → rectangular picture/icon marker (uses viewPicture)
+ * - categorized → pin + viewIcon only (never an image marker)
  */
 export function getCategoryVisualMode(categoryId: string | null | undefined): MarkerVisualMode {
-  const config = getCategoryConfig(categoryId)
-  if (config.type === 'pinned') return 'picture'
-  if (config.type === 'custom') return 'icon'
-  if (config.viewPicture?.trim()) return 'icon'
+  const type = resolveCategoryRenderType(categoryId)
+  if (type === 'pinned') return 'picture'
+  if (type === 'custom') return 'icon'
   return 'pin'
 }
 

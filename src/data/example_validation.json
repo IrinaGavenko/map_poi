@@ -322,19 +322,19 @@
           "examples": [28, 48]
         },
         "viewColor": {
-          "description": "Optional. Map/view color (CSS hex), or null.",
+          "description": "Optional. Map/view color (CSS hex), or null. For subcategories: missing color inherits the root category viewColor.",
           "type": ["string", "null"],
-          "examples": ["#f59e0b", null]
+          "examples": ["#EAB308", "#1685FF", null]
         },
         "viewIcon": {
-          "description": "Optional. Emoji/short icon for map/view, or null.",
+          "description": "Optional. Emoji/short icon, or path to an SVG under components/Icons (e.g. components/Icons/02-coffee.svg). For subcategories: missing icon hides the badge circle. Or null.",
           "type": ["string", "null"],
-          "examples": ["☕", null]
+          "examples": ["☕", "components/Icons/02-coffee.svg", "components/Icons/03-restaurant.svg", null]
         },
         "viewPicture": {
-          "description": "Optional. Image URL/path for map/view art, or null.",
+          "description": "Optional. Image URL/path for map/view art. For custom (and pinned) categories only — categorized categories use pin + viewIcon and must not set this. Or null.",
           "type": ["string", "null"],
-          "examples": ["https://example.com/a.jpg", null]
+          "examples": ["https://example.com/a.jpg", "assets/fifaStore.jpg", null]
         },
         "viewPriority": {
           "description": "Optional. Draw/stack priority on the map view.",

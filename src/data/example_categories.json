@@ -16,26 +16,23 @@
       "type": "categorized",
       "priority": 0,
       "size": 28,
-      "viewColor": "#f59e0b",
-      "viewIcon": "🍽️",
-      "viewPicture": null,
-      "categoryListIcon": "🍽️",
-      "categoryListPicture": null
+      "viewColor": "#EAB308",
+      "viewIcon": "components/Icons/03-restaurant.svg",
+      "categoryListIcon": "🍽️"
     },
-    "//coffee": "Subcategory of food. Lean entry: rootCategoryId + view overrides.",
+    "//coffee": "Subcategory of food. Lean entry: rootCategoryId + view overrides. Missing viewIcon hides the badge; missing viewColor inherits root color.",
     "coffee": {
       "id": "coffee",
       "name": "Coffee",
       "rootCategoryId": "food",
-      "viewColor": "#92400e",
-      "viewIcon": "☕",
-      "viewPicture": null
+      "viewColor": "#1685FF",
+      "viewIcon": "components/Icons/02-coffee.svg"
     },
-    "//museum": "Root categorized category with list/view image.",
+    "//museum": "Custom category: category + image (viewPicture). Not categorized.",
     "museum": {
       "id": "museum",
       "name": "Museum",
-      "type": "categorized",
+      "type": "custom",
       "priority": 5,
       "size": 40,
       "viewColor": "#64748b",
@@ -81,9 +78,7 @@
       "priority": 0,
       "viewColor": "#999999",
       "viewIcon": "📍",
-      "viewPicture": null,
-      "categoryListIcon": "📍",
-      "categoryListPicture": null
+      "categoryListIcon": "📍"
     }
   }
 }

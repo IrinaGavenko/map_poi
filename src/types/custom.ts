@@ -14,13 +14,19 @@ export type CustomPoint = {
   id: string
   type: 'custom'
   /**
-   * Default `false`. When set, must be a category id from categories.json;
-   * marker uses that category’s display properties.
+   * Default `false`. When `true`, marker can be filtered/searched by category
+   * and `category` must be set to a category id from categories.json.
    */
-  hasCategory?: boolean | string
+  hasCategory?: boolean
+  /**
+   * Required when `hasCategory` is true. Category id from categories.json;
+   * marker may use that category’s display properties.
+   * Omit / null when `hasCategory` is false.
+   */
+  category?: string | null
   /**
    * Default `null`. Null only when `hasCategory` is false,
-   * or the referenced category has no display_picture.
+   * or the referenced category has no display picture.
    */
   display_picture?: string | null
   coordinates: CustomCoordinates
@@ -40,11 +46,6 @@ export type CustomPointContent = {
    * If empty/null/omitted, the link is built from `coordinates`.
    */
   google_link?: string | null
-  /**
-   * Default same as `hasCategory`. When enabled, needs a category id
-   * from categories.json.
-   */
-  includeInCategorySearch?: boolean | string
   /** Default `false`. Collapsed with other markers in the same zone. */
   isCollapsible?: boolean
   /** Integer >= 0. Default `0`. Higher wins when markers are close. */

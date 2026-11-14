@@ -41,7 +41,8 @@
       "point": {
         "id": "CUS-DEMO-01",
         "type": "custom",
-        "hasCategory": "photo_stop",
+        "hasCategory": true,
+        "category": "photo_stop",
         "display_picture": "https://example.com/images/stop-main.jpg",
         "coordinates": { "lat": 1.5, "lng": -1.5 }
       },
@@ -50,7 +51,6 @@
         "pictures": ["https://example.com/images/stop-main.jpg"],
         "description": "Custom: large photo rectangle with priority.",
         "link": "https://example.com/photos/demo-stop",
-        "includeInCategorySearch": "photo_stop",
         "isCollapsible": false,
         "priority": 10
       }

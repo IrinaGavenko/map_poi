@@ -6,10 +6,13 @@
     "id": "CUS-DEMO-01",
     "type": "custom",
 
-    "//hasCategory": "Optional, by default - false. If true -- needs to be a category id from the categories.json and use display properties from its category",
+    "//hasCategory": "Optional, by default - false. When true, marker can be filtered/searched by category and must set point.category.",
     "hasCategory": false,
 
-    "//display_picture": "Optional, by default - null. Null is available only if hasCategory is false or category doesn't have display_picture",
+    "//category": "Required when hasCategory is true. Category id from categories.json (uses that category’s display properties). Omit or null when hasCategory is false.",
+    "category": null,
+
+    "//display_picture": "Optional, by default - null. Null is available only if hasCategory is false or category doesn't have a picture.",
     "display_picture": "https://example.com/images/demo-center.png",
 
     "coordinates": {
@@ -35,9 +38,6 @@
 
       "//google_link": "Optional, by default - null. If non-empty, used for Open in Google Maps; if empty/null, the link is built from coordinates.",
       "google_link": null,
-
-      "//includeInCategorySearch": "Optional, by default - the same as hasCategory. Includes the marker in the category search, if true -- needs to be a category id from the categories.json",
-      "includeInCategorySearch": false,
 
       "//isCollapsible": "Optional, by default - false. Collapsed with other markers in the same zone",
       "isCollapsible": false,

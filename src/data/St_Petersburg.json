@@ -20,7 +20,9 @@
         },
         "point_content": {
           "name": "Kazansky Cathedral",
-          "pictures": ["https://res.cloudinary.com/tfhb2uad/image/upload/v1794332260/S93-R-Final.jpg"],
+          "pictures": [
+            "https://res.cloudinary.com/tfhb2uad/image/upload/v1794332260/S93-R-Final.jpg"
+          ],
           "description": "",
           "link": "https://kazansky-spb.ru/",
           "includeInCategorySearch": false,
@@ -28,12 +30,14 @@
           "isNested": null
         }
       }
-    }, 
+    },
     {
       "type": "categorized",
       "point": {
         "id": "CAT-SPB-CAFE_CIVIL",
-        "categories": ["coffee"],
+        "categories": [
+          "coffee"
+        ],
         "type": "categorized",
         "coordinates": {
           "lat": 59.937858,
@@ -42,7 +46,9 @@
       },
       "point_content": {
         "name": "Civil Cafe",
-        "picture": ["https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"],
+        "picture": [
+          "https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"
+        ],
         "description": "Perfect coffee by The Welder Catherine",
         "link": "https://cvlcoffee.ru/",
         "google_link": null,
@@ -50,25 +56,48 @@
       }
     },
     {
-      "type": "custom",
+      "type": "categorized",
       "point": {
-        "id": "CUSTOM-SPB-PALACE",  
-        "type": "custom",
+        "id": "CAT-SPB-PALACE_SQUARE",
+        "categories": [
+          "photo"
+        ],
+        "type": "categorized",
         "coordinates": {
           "lat": 59.9398879,
           "lng": 30.3119616
-        },
-        "point_content": {
-          "name": "Main square of the city",
-          "pictures": ["https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"],
-          "description": null,
-          "link": null,
-          "google_link": "https://maps.app.goo.gl/oPjLZXcPSpz4MvXW6",
-          "priority": 10,
-          "includeInCategorySearch": false,
-          "isCollapsible": false,
-          "isNested": null
         }
+      },
+      "point_content": {
+        "name": "Main square of the city",
+        "picture": [
+          "https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"
+        ],
+        "description": "Didn't work lights at night, but still perfect place for calm walk",
+        "google_link": null,
+        "priority": 10
+      }
+    },
+    {
+      "type": "custom",
+      "point": {
+        "id": "CUSTOM-SPB-PALACE_SQUARE",
+        "type": "custom",
+        "hasCategory": true,
+        "display_picture": "components/Icons/camera.svg",
+        "coordinates": {
+          "lat": 59.93894,
+          "lng": 30.31631
+        },
+        "category": "photo"
+      },
+      "point_content": {
+        "name": "First photo place",
+        "pictures": [
+          "https://res.cloudinary.com/tfhb2uad/image/upload/v1794332508/photo_2026-11-10_20-41-12.jpg"
+        ],
+        "isCollapsible": false,
+        "priority": 10
       }
     }
   ]

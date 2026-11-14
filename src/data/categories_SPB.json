@@ -1,45 +1,38 @@
 {
-    "version": 1,
-    "defaults": {
-      "color": "#999999",
-      "picture": "https://example.com/fallback.png",
-      "fallbackCategoryId": "other"
+  "version": 1,
+  "defaults": {
+    "color": "#999999",
+    "picture": "https://example.com/fallback.png",
+    "fallbackCategoryId": "other"
+  },
+  "categoryTypes": {
+    "food": {
+      "id": "food",
+      "isRoot": true,
+      "name": "Place to eat",
+      "type": "categorized",
+      "priority": 0,
+      "size": 28,
+      "viewColor": "#EAB308",
+      "viewIcon": "components/Icons/03-restaurant.svg",
+      "categoryListIcon": "🍽️"
     },
-
-    "categoryTypes": {
-        "food": {
-            "id": "food",
-            "isRoot": true,
-            "name": "Place to eat",
-            "type": "categorized",
-            "priority": 0,
-            "size": 28,
-            "viewColor": "#8b5cf6",
-            "viewIcon": "\ud83d\ude97",
-            "viewPicture": null,
-            "categoryListIcon": "\ud83d\ude97"
-        },
-      "coffee": {
-        "id": "coffee",
-        "rootCategoryId": "food",
-        "viewColor": "#8b5cf6",
-        "viewIcon": "\ud83d\ude97",
-        "viewPicture": null
-      },
-      "photo": {
-        "id": "photo",
-        "isRoot": true,
-        "name": "Photo",
-        "type": "categorized",
-        "priority": 0,
-        "size": 28,
-        "viewColor": "#8b5cf6",
-        "viewIcon": "\ud83d\ude97",
-        "viewPicture": null,
-        "categoryListIcon": "\ud83d\ude97"
-      }
+    "coffee": {
+      "id": "coffee",
+      "rootCategoryId": "food",
+      "viewColor": "#1685FF",
+      "viewIcon": "components/Icons/02-coffee.svg"
+    },
+    "photo": {
+      "id": "photo",
+      "isRoot": true,
+      "name": "Photo",
+      "type": "categorized",
+      "priority": 0,
+      "size": 28,
+      "viewColor": "#8b5cf6",
+      "viewIcon": "components/Icons/camera.svg",
+      "categoryListIcon": "📷"
     }
-  
-  
   }
-  
+}
