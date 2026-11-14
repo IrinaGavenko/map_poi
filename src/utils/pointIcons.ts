@@ -7,13 +7,20 @@ import {
   getCategoriesRegistry,
   getCategoryColor,
   getCategoryConfig,
+  getCategoryDeclaredColor,
+  getCategoryDeclaredViewIcon,
   getCategoryImageUrl,
   getCategoryListIcon,
   getCategoryVisualMode,
   getRootCategoryId,
   isRootCategory,
+  isSvgIconRef,
   type MarkerVisualMode,
 } from '@type/categories'
+import {
+  resolveCategoryIconSvg,
+  resolveDisplayPictureUrl,
+} from '@utils/categoryIconAssets'
 import {
   createRootCategorizedPinImageData,
   createSubcategoryCategorizedPinImageData,
@@ -26,10 +33,16 @@ export type PointIconConfig = {
   visualMode: MarkerVisualMode
   imageUrl?: string
   emoji: string
-  /** Present when a categorized marker uses a subcategory badge. */
+  /** Raw SVG for root pin head icon when `viewIcon` is an SVG path. */
+  iconSvg?: string | null
+  /**
+   * Subcategory id when a badge should be shown.
+   * Null if the subcategory has no `viewIcon` (badge hidden).
+   */
   subcategoryId?: string | null
   subcategoryColor?: string
   subcategoryEmoji?: string
+  subcategoryIconSvg?: string | null
 }
 
 export const CLUSTER_ICON_ID = 'cluster-button'
@@ -63,26 +76,44 @@ export function getPointSubcategoryId(point: Point): string | null {
   return leaf
 }
 
+/**
+ * Subcategory id only when a badge should render.
+ * No subcategory `viewIcon` → no circle (treat as root pin).
+ */
+export function getPointSubcategoryBadgeId(point: Point): string | null {
+  const subcategoryId = getPointSubcategoryId(point)
+  if (!subcategoryId) return null
+  if (!getCategoryDeclaredViewIcon(subcategoryId)) return null
+  return subcategoryId
+}
+
+function resolveViewIconSvg(categoryId: string | null | undefined): string | null {
+  const declared = getCategoryDeclaredViewIcon(categoryId)
+  if (!declared || !isSvgIconRef(declared)) return null
+  return resolveCategoryIconSvg(declared)
+}
+
+function resolveViewIconEmoji(categoryId: string | null | undefined): string | undefined {
+  const declared = getCategoryDeclaredViewIcon(categoryId)
+  if (!declared || isSvgIconRef(declared)) return undefined
+  return declared
+}
+
 /** MapLibre image id for this point (category id, or unique point art). */
 export function getPointIconKey(point: Point): string {
   if (point.markerType === 'pinned') {
     return point.displayPicture ? `point:${point.id}` : getPointCategoryId(point)
   }
   if (point.markerType === 'custom') {
-    if (point.displayPicture && !point.primaryCategoryId) return `point:${point.id}`
-    if (point.displayPicture) {
-      const categoryImage = getCategoryImageUrl(point.primaryCategoryId)
-      const resolvedDisplay = resolvePublicUrl(point.displayPicture)
-      const resolvedCategory = categoryImage ? resolvePublicUrl(categoryImage) : ''
-      if (resolvedDisplay && resolvedDisplay !== resolvedCategory) return `point:${point.id}`
-    }
+    // Unique art per custom point (display_picture / category icon — not categorized pin).
+    if (point.displayPicture || point.primaryCategoryId) return `point:${point.id}`
     return getPointCategoryId(point)
   }
 
-  // Categorized: composite root+sub badge needs its own image key.
-  const leaf = getPointLeafCategoryId(point)
-  const root = getRootCategoryId(leaf)
-  if (leaf !== root) return `${root}__${leaf}`
+  // Categorized: composite key only when a subcategory badge is shown.
+  const root = getPointRootCategoryId(point)
+  const badgeId = getPointSubcategoryBadgeId(point)
+  if (badgeId) return `${root}__${badgeId}`
   return root
 }
 
@@ -97,21 +128,36 @@ export function getPointIconConfig(point: Point): PointIconConfig {
   const leafId = getPointLeafCategoryId(point)
   const rootId =
     point.markerType === 'categorized' ? getRootCategoryId(leafId) : leafId
-  const subcategoryId = getPointSubcategoryId(point)
+  const badgeId =
+    point.markerType === 'categorized' ? getPointSubcategoryBadgeId(point) : null
+  const rootColor = getCategoryColor(rootId)
   const visualMode = getPointVisualMode(point)
   const imageUrl =
-    point.displayPicture ||
-    getCategoryImageUrl(rootId) ||
+    resolveDisplayPictureUrl(point.displayPicture) ||
+    (point.markerType === 'custom'
+      ? resolveDisplayPictureUrl(getCategoryDeclaredViewIcon(rootId))
+      : undefined) ||
+    (point.markerType !== 'custom' ? getCategoryImageUrl(rootId) : undefined) ||
     undefined
+  const rootIconSvg = resolveViewIconSvg(rootId)
+  const rootEmoji = resolveViewIconEmoji(rootId) || getCategoryListIcon(rootId)
+
+  // Sub without color → use root color; sub without icon → badge omitted above.
+  const subcategoryColor = badgeId
+    ? getCategoryDeclaredColor(badgeId) || rootColor
+    : undefined
+
   return {
     id: rootId,
-    color: getCategoryColor(rootId),
+    color: rootColor,
     visualMode,
-    imageUrl: imageUrl ? resolvePublicUrl(imageUrl) : undefined,
-    emoji: getCategoryListIcon(rootId),
-    subcategoryId,
-    subcategoryColor: subcategoryId ? getCategoryColor(subcategoryId) : undefined,
-    subcategoryEmoji: subcategoryId ? getCategoryListIcon(subcategoryId) : undefined,
+    imageUrl,
+    emoji: rootEmoji,
+    iconSvg: rootIconSvg,
+    subcategoryId: badgeId,
+    subcategoryColor,
+    subcategoryEmoji: badgeId ? resolveViewIconEmoji(badgeId) : undefined,
+    subcategoryIconSvg: badgeId ? resolveViewIconSvg(badgeId) : undefined,
   }
 }
 
@@ -123,6 +169,9 @@ export function isUnclusteredPoint(point: Point): boolean {
 /** Small rectangle for `icon` / custom markers. */
 export const ICON_MARKER_WIDTH = 56
 export const ICON_MARKER_HEIGHT = 40
+
+/** Square artboard for custom markers that show `display_picture` (SVG or photo). */
+export const CUSTOM_MARKER_SIZE = 72
 
 /** Large rectangle for `picture` / pinned markers. */
 export const PICTURE_MARKER_WIDTH = 140
@@ -175,20 +224,32 @@ function createPinImageData(color: string, icon: string): ImageData {
 async function createCategorizedPinImageData(options: {
   pinColor: string
   emoji: string
+  iconSvg?: string | null
   subcategoryId?: string | null
   subcategoryColor?: string
   subcategoryEmoji?: string
+  subcategoryIconSvg?: string | null
 }): Promise<ImageData> {
-  const { pinColor, emoji, subcategoryId, subcategoryColor, subcategoryEmoji } = options
+  const {
+    pinColor,
+    emoji,
+    iconSvg,
+    subcategoryId,
+    subcategoryColor,
+    subcategoryEmoji,
+    subcategoryIconSvg,
+  } = options
   if (subcategoryId && subcategoryColor) {
     return createSubcategoryCategorizedPinImageData({
       pinColor,
+      emoji,
+      iconSvg,
       badgeColor: subcategoryColor,
-      badgeEmoji: subcategoryEmoji || emoji,
-      subcategoryId,
+      badgeEmoji: subcategoryEmoji,
+      badgeIconSvg: subcategoryIconSvg,
     })
   }
-  return createRootCategorizedPinImageData(pinColor, emoji)
+  return createRootCategorizedPinImageData({ pinColor, emoji, iconSvg })
 }
 
 function loadImageElement(src: string): Promise<HTMLImageElement> {
@@ -279,11 +340,16 @@ function createRectImageData(
     const drawY = (height - drawH) / 2
     const radius = Math.max(4, Math.round(Math.min(drawW, drawH) * 0.06))
 
-    // Photo only — no halo / shadow; slight contrast boost vs soft basemap.
+    // Picture / SVG only — no white frame. Light contrast for photos (skip for SVG).
+    const isSvgSource =
+      typeof image.src === 'string' &&
+      (/\.svg(?:[?#]|$)/i.test(image.src) || image.src.startsWith('data:image/svg'))
     ctx.save()
     roundRect(ctx, drawX, drawY, drawW, drawH, radius)
     ctx.clip()
-    ctx.filter = 'contrast(1.2) saturate(1.08) brightness(1.02)'
+    if (!isSvgSource) {
+      ctx.filter = 'contrast(1.2) saturate(1.08) brightness(1.02)'
+    }
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
     ctx.drawImage(image, drawX, drawY, drawW, drawH)
@@ -412,10 +478,10 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
         ICON_MARKER_HEIGHT,
       )
     } else if (config.type === 'categorized' || !config.type) {
-      // Root categorized pin from Icons/01-pin.svg
       imageData = await createCategorizedPinImageData({
         pinColor: color,
-        emoji: getCategoryListIcon(categoryId),
+        emoji: resolveViewIconEmoji(categoryId) || getCategoryListIcon(categoryId),
+        iconSvg: resolveViewIconSvg(categoryId),
       })
     } else {
       imageData = createPinImageData(color, getCategoryListIcon(categoryId))
@@ -433,8 +499,11 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
     const color = config.color || DEFAULT_CATEGORY_COLOR
     const pictureUrl = config.imageUrl || DEFAULT_CATEGORY_PICTURE
 
+    // Custom + pinned: draw the picture/SVG itself (no white framed matte).
     const markerStyle: RectMarkerStyle =
-      point.markerType === 'pinned' ? 'image' : 'framed'
+      point.markerType === 'pinned' || point.markerType === 'custom'
+        ? 'image'
+        : 'framed'
 
     let imageData: ImageData
     if (visualMode === 'picture') {
@@ -446,20 +515,26 @@ export async function loadMapIcons(map: MapLibreMap, points: Point[] = []): Prom
         markerStyle,
       )
     } else if (visualMode === 'icon') {
+      const width =
+        point.markerType === 'custom' ? CUSTOM_MARKER_SIZE : ICON_MARKER_WIDTH
+      const height =
+        point.markerType === 'custom' ? CUSTOM_MARKER_SIZE : ICON_MARKER_HEIGHT
       imageData = await createRectMarkerImageData(
         pictureUrl,
         color,
-        ICON_MARKER_WIDTH,
-        ICON_MARKER_HEIGHT,
+        width,
+        height,
         markerStyle,
       )
     } else if (point.markerType === 'categorized') {
       imageData = await createCategorizedPinImageData({
         pinColor: color,
         emoji: config.emoji,
+        iconSvg: config.iconSvg,
         subcategoryId: config.subcategoryId,
         subcategoryColor: config.subcategoryColor,
         subcategoryEmoji: config.subcategoryEmoji,
+        subcategoryIconSvg: config.subcategoryIconSvg,
       })
     } else {
       imageData = createPinImageData(color, config.emoji)

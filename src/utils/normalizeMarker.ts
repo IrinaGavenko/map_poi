@@ -81,16 +81,29 @@ function normalizeCustom(marker: CustomMarker): Point | null {
   const content = marker.point_content
   if (!content || typeof content !== 'object') return null
 
-  const hasCategory = marker.point.hasCategory
-  const include =
-    content.includeInCategorySearch !== undefined
-      ? content.includeInCategorySearch
-      : hasCategory
-  const fromInclude = categorySearchIds(include)
-  const fromHas = categorySearchIds(hasCategory)
-  const categories = fromInclude.length > 0 ? fromInclude : fromHas
-  const primary =
-    (typeof hasCategory === 'string' && hasCategory.trim()) || categories[0] || null
+  const pointRecord = marker.point as CustomMarker['point'] & {
+    /** Legacy: category id was sometimes stored in hasCategory. */
+    hasCategory?: boolean | string
+    /** Legacy field removed from schema; still accepted when reading old JSON. */
+    includeInCategorySearch?: boolean | string
+  }
+  const contentRecord = content as CustomMarker['point_content'] & {
+    includeInCategorySearch?: boolean | string
+  }
+
+  // hasCategory defaults false. Legacy string form = true + that category id.
+  const rawHas = pointRecord.hasCategory
+  const legacyHasId = typeof rawHas === 'string' ? asString(rawHas) : null
+  const hasCategory = rawHas === true || Boolean(legacyHasId)
+  const categoryId =
+    (hasCategory && asString(pointRecord.category)) ||
+    legacyHasId ||
+    (hasCategory
+      ? asString(contentRecord.includeInCategorySearch) ||
+        categorySearchIds(contentRecord.includeInCategorySearch)[0] ||
+        null
+      : null)
+  const categories = hasCategory && categoryId ? [categoryId] : []
 
   return {
     id: marker.point.id,
@@ -102,7 +115,7 @@ function normalizeCustom(marker: CustomMarker): Point | null {
     pictures: asStringArray(content.pictures),
     displayPicture: asString(marker.point.display_picture ?? null),
     categories,
-    primaryCategoryId: primary,
+    primaryCategoryId: categoryId,
     coordinates: { ...marker.point.coordinates },
     isNested: null,
     isCollapsible: Boolean(content.isCollapsible),
@@ -251,12 +264,14 @@ export function pointToMarker(point: Point): Marker {
   }
 
   if (kind === 'custom') {
+    const hasCategory = Boolean(point.primaryCategoryId)
     const marker: CustomMarker = {
       type: 'custom',
       point: {
         id: point.id,
         type: 'custom',
-        hasCategory: point.primaryCategoryId ?? false,
+        hasCategory,
+        category: hasCategory ? point.primaryCategoryId : null,
         display_picture: point.displayPicture,
         coordinates,
       },
@@ -266,7 +281,6 @@ export function pointToMarker(point: Point): Marker {
         description: point.description || null,
         link: point.link || null,
         google_link: point.googleLink || null,
-        includeInCategorySearch: point.categories[0] ?? false,
         isCollapsible: point.isCollapsible,
         priority: point.priority,
       },

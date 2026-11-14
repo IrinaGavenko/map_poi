@@ -76,6 +76,7 @@ export function createPoint(
           id,
           type: 'custom',
           hasCategory: false,
+          category: null,
           display_picture: null,
           coordinates,
         },

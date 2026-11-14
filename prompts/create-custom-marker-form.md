@@ -31,9 +31,13 @@ Taken from `src/data/example_custom.json` (without `//` comment keys):
     type: "custom"                  // fixed on point
 
     // Optional, default false.
-    // If true — must be a category id from categories.json;
-    // marker uses display properties from that category.
-    hasCategory?: boolean | string
+    // When true, marker can be filtered/searched by category
+    // and must set point.category.
+    hasCategory?: boolean
+
+    // Required when hasCategory is true: category id from categories.json.
+    // Omit / null when hasCategory is false.
+    category?: string | null
 
     // Optional, default null.
     // Null only allowed when hasCategory is false,
@@ -62,10 +66,6 @@ Taken from `src/data/example_custom.json` (without `//` comment keys):
     // Optional. If non-empty → Open in Google Maps; else build from coordinates.
     google_link?: string | null
 
-    // Optional, default = same as hasCategory.
-    // If true — needs a category id from categories.json for search.
-    includeInCategorySearch?: boolean | string
-
     // Optional, default false. Collapsed with other markers in the same zone
     isCollapsible?: boolean
 
@@ -91,7 +91,8 @@ Reference: `src/data/example_custom.json` only for field meaning and nesting.
 | Path | UI | Notes |
 |------|-----|--------|
 | `point.id` | text (or auto-generated, editable) | required |
-| `point.hasCategory` | checkbox + category select when on | default false; when true, require category id from categories |
+| `point.hasCategory` | checkbox | default false; when true, marker is filterable/searchable by category |
+| `point.category` | category select | required when `hasCategory` is true; omit/null otherwise |
 | `point.display_picture` | URL input (nullable) | default null; required unless `hasCategory` supplies display art |
 | `point.coordinates.lat` / `lng` | display and/or number inputs | required; range-check |
 | `point_content.name` | text input | required |
@@ -99,7 +100,6 @@ Reference: `src/data/example_custom.json` only for field meaning and nesting.
 | `point_content.link` | text input | optional; empty → null |
 | `point_content.google_link` | text input | optional; empty → null (fallback: coords) |
 | `point_content.pictures` | one or more URL inputs | optional; default `[]` |
-| `point_content.includeInCategorySearch` | checkbox (and category id if needed) | default follows `hasCategory` |
 | `point_content.isCollapsible` | checkbox | default false |
 | `point_content.priority` | number input (integer ≥ 0) | optional; default `0` |
 | `type`, `point.type` | hidden / read-only | always `"custom"` |
@@ -110,10 +110,9 @@ Do **not** add fields that are not in `example_custom.json` (e.g. flat `kind`, `
 
 - Enforce the structure and rules documented in `example_custom.json` (required nesting, lat/lng ranges, defaults).
 - `point.id`, `point.coordinates`, and `point_content.name` required.
-- Apply defaults for omitted optionals (`hasCategory: false`, `display_picture: null`, `pictures: []`, `description: null`, `link: null`, `includeInCategorySearch` same as `hasCategory`, `isCollapsible: false`, `priority: 0`).
-- If `hasCategory` is true / a category id: value must exist in categories; display may come from that category.
+- Apply defaults for omitted optionals (`hasCategory: false`, `category: null`, `display_picture: null`, `pictures: []`, `description: null`, `link: null`, `isCollapsible: false`, `priority: 0`).
+- If `hasCategory` is true: require `point.category` (valid id in categories); marker is included in category filter/search. Do not use `includeInCategorySearch`.
 - `display_picture` may be null only when allowed by the `hasCategory` / category rule above.
-- If `includeInCategorySearch` is true, require a valid category id per the file comment.
 - `priority` must be an integer ≥ 0 when set.
 - Block save while invalid; keep draft local until valid commit.
 - Update `example_validation.json` so `$defs` for custom matches this shape; validate against that once aligned.

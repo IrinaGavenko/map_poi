@@ -1,20 +1,15 @@
 /**
  * Rasterize categorized map pins from `src/components/Icons` SVGs.
- * - Root: `01-pin.svg`
- * - With subcategory: `04-pin-with-category.svg` layout (pin + badge)
+ * - Root: tinted `01-pin.svg` + root `viewIcon` (SVG or emoji) in the head
+ * - With subcategory badge: same pin + small circle from subcategory `viewIcon`
  */
 
 import pinSvg from '@components/Icons/01-pin.svg?raw'
-import coffeeBadgeSvg from '@components/Icons/02-coffee.svg?raw'
-import restaurantBadgeSvg from '@components/Icons/03-restaurant.svg?raw'
-import pinWithCategorySvg from '@components/Icons/04-pin-with-category.svg?raw'
-
-/** Known subcategory → dedicated badge SVG. */
-const BADGE_SVG_BY_ID: Record<string, string> = {
-  coffee: coffeeBadgeSvg,
-  restaurants: restaurantBadgeSvg,
-  restaurant: restaurantBadgeSvg,
-}
+import {
+  resolveCategoryIconSvg,
+  resolveCategoryIconUrl,
+  svgToDataUrl,
+} from '@utils/categoryIconAssets'
 
 function clampByte(n: number): number {
   return Math.max(0, Math.min(255, Math.round(n)))
@@ -57,7 +52,7 @@ function uniqueId(prefix: string): string {
 }
 
 /** Recolor the blue pin gradient stops. */
-function tintPinGradient(svg: string, pinColor: string): string {
+export function tintPinGradient(svg: string, pinColor: string): string {
   const light = mix(pinColor, 255, 0.35)
   const dark = mix(pinColor, 0, 0.25)
   const id = uniqueId('pinGrad')
@@ -68,30 +63,17 @@ function tintPinGradient(svg: string, pinColor: string): string {
     .replaceAll('stop-color="#0646C8"', `stop-color="${dark}"`)
 }
 
-/** Recolor the orange category badge gradient on pin-with-category. */
-function tintBadgeGradient(svg: string, badgeColor: string): string {
-  const light = mix(badgeColor, 255, 0.25)
-  const dark = mix(badgeColor, 0, 0.15)
-  const id = uniqueId('badgeGrad')
-  return svg
-    .replaceAll('id="coffeeOrange"', `id="${id}"`)
-    .replaceAll('url(#coffeeOrange)', `url(#${id})`)
-    .replaceAll('stop-color="#FF8A00"', `stop-color="${light}"`)
-    .replaceAll('stop-color="#E94A00"', `stop-color="${dark}"`)
-}
-
-function tintBadgeAsset(svg: string, badgeColor: string): string {
+/** Recolor known circular badge gradients to the category color. */
+export function tintBadgeAsset(svg: string, badgeColor: string): string {
   const light = mix(badgeColor, 255, 0.2)
   const dark = mix(badgeColor, 0, 0.2)
   let next = svg
-  // Coffee brown gradient
   const coffeeId = uniqueId('coffeeGrad')
   next = next
     .replaceAll('id="coffeeBrown"', `id="${coffeeId}"`)
     .replaceAll('url(#coffeeBrown)', `url(#${coffeeId})`)
     .replaceAll('stop-color="#9A4B20"', `stop-color="${light}"`)
     .replaceAll('stop-color="#55270F"', `stop-color="${dark}"`)
-  // Restaurant orange gradient
   const restId = uniqueId('restGrad')
   next = next
     .replaceAll('id="restaurantOrange"', `id="${restId}"`)
@@ -136,11 +118,26 @@ function drawEmoji(
 /** Map display scale vs native SVG artboard (keeps pins closer to legacy size). */
 const PIN_DISPLAY_SCALE = 0.5
 
+export type CategorizedPinIconOptions = {
+  pinColor: string
+  /** Emoji fallback when no SVG icon is available. */
+  emoji?: string
+  /** Raw SVG for the icon drawn in the pin head (from category `viewIcon`). */
+  iconSvg?: string | null
+}
+
+export type CategorizedSubPinIconOptions = CategorizedPinIconOptions & {
+  badgeColor: string
+  badgeEmoji?: string
+  /** Raw SVG for the subcategory badge (required to show a badge). */
+  badgeIconSvg?: string | null
+}
+
 /** Root categorized pin from `01-pin.svg` (tip at bottom center). */
 export async function createRootCategorizedPinImageData(
-  pinColor: string,
-  emoji: string,
+  options: CategorizedPinIconOptions,
 ): Promise<ImageData> {
+  const { pinColor, emoji, iconSvg } = options
   const width = Math.round(128 * PIN_DISPLAY_SCALE)
   const height = Math.round(144 * PIN_DISPLAY_SCALE)
   const canvas = document.createElement('canvas')
@@ -152,33 +149,32 @@ export async function createRootCategorizedPinImageData(
   const tinted = tintPinGradient(pinSvg, pinColor)
   const img = await svgStringToImage(tinted)
   ctx.drawImage(img, 0, 0, width, height)
-  // White circle in pin.svg is roughly centered in the head.
-  drawEmoji(
-    ctx,
-    emoji,
-    64 * PIN_DISPLAY_SCALE,
-    61 * PIN_DISPLAY_SCALE,
-    Math.round(36 * PIN_DISPLAY_SCALE),
-  )
+
+  const cx = 64 * PIN_DISPLAY_SCALE
+  const cy = 61 * PIN_DISPLAY_SCALE
+  if (iconSvg) {
+    const iconSize = 56 * PIN_DISPLAY_SCALE
+    const tintedIcon = tintBadgeAsset(iconSvg, pinColor)
+    const iconImg = await svgStringToImage(tintedIcon)
+    ctx.drawImage(iconImg, cx - iconSize / 2, cy - iconSize / 2, iconSize, iconSize)
+  } else if (emoji) {
+    drawEmoji(ctx, emoji, cx, cy, Math.round(36 * PIN_DISPLAY_SCALE))
+  }
 
   return ctx.getImageData(0, 0, width, height)
 }
 
 /**
- * Subcategory pin from `04-pin-with-category.svg` layout.
- * Tip stays at geographic anchor; badge uses category SVG when available.
+ * Subcategory pin: root pin + badge circle.
+ * Tip stays at geographic anchor; badge uses subcategory SVG (or emoji).
  */
-export async function createSubcategoryCategorizedPinImageData(options: {
-  pinColor: string
-  badgeColor: string
-  badgeEmoji: string
-  subcategoryId: string
-}): Promise<ImageData> {
-  const { pinColor, badgeColor, badgeEmoji, subcategoryId } = options
+export async function createSubcategoryCategorizedPinImageData(
+  options: CategorizedSubPinIconOptions,
+): Promise<ImageData> {
+  const { pinColor, emoji, iconSvg, badgeColor, badgeEmoji, badgeIconSvg } = options
   const s = PIN_DISPLAY_SCALE
 
   // Layout from 04-pin-with-category.svg (tip at 64,145 in 160×160).
-  // Larger subcategory badge; pad canvas so tip stays bottom-center for MapLibre.
   const tipX = 64 * s
   const tipY = 145 * s
   const badgeCxLocal = 124 * s
@@ -200,34 +196,31 @@ export async function createSubcategoryCategorizedPinImageData(options: {
   const badgeCx = padLeft + badgeCxLocal
   const badgeCy = badgeCyLocal
 
-  const badgeAsset = BADGE_SVG_BY_ID[subcategoryId]
-  if (badgeAsset) {
-    // Draw pin body only (01-pin), then dedicated badge asset.
-    const pinTinted = tintPinGradient(pinSvg, pinColor)
-    const pinImg = await svgStringToImage(pinTinted)
-    // 01-pin is 128×144; place so tip (~y 139 of 144) aligns near tipY.
-    const pinDrawW = 128 * s
-    const pinDrawH = 144 * s
-    const pinX = padLeft + tipX - pinDrawW / 2
-    const pinY = tipY - (139 / 144) * pinDrawH
-    ctx.drawImage(pinImg, pinX, pinY, pinDrawW, pinDrawH)
+  // Root pin body + root icon/emoji in the head.
+  const pinTinted = tintPinGradient(pinSvg, pinColor)
+  const pinImg = await svgStringToImage(pinTinted)
+  const pinDrawW = 128 * s
+  const pinDrawH = 144 * s
+  const pinX = padLeft + tipX - pinDrawW / 2
+  const pinY = tipY - (139 / 144) * pinDrawH
+  ctx.drawImage(pinImg, pinX, pinY, pinDrawW, pinDrawH)
 
-    const badgeTinted = tintBadgeAsset(badgeAsset, badgeColor)
+  const headCx = padLeft + tipX
+  const headCy = pinY + (61 / 144) * pinDrawH
+  if (iconSvg) {
+    const iconSize = 56 * s
+    const tintedIcon = tintBadgeAsset(iconSvg, pinColor)
+    const iconImg = await svgStringToImage(tintedIcon)
+    ctx.drawImage(iconImg, headCx - iconSize / 2, headCy - iconSize / 2, iconSize, iconSize)
+  } else if (emoji) {
+    drawEmoji(ctx, emoji, headCx, headCy, Math.round(36 * s))
+  }
+
+  if (badgeIconSvg) {
+    const badgeTinted = tintBadgeAsset(badgeIconSvg, badgeColor)
     const badgeImg = await svgStringToImage(badgeTinted)
-    ctx.drawImage(
-      badgeImg,
-      badgeCx - badgeR,
-      badgeCy - badgeR,
-      badgeSize,
-      badgeSize,
-    )
-  } else {
-    // Full pin-with-category template, recolored; emoji on badge if no asset.
-    let svg = tintPinGradient(pinWithCategorySvg, pinColor)
-    svg = tintBadgeGradient(svg, badgeColor)
-    const img = await svgStringToImage(svg)
-    ctx.drawImage(img, padLeft, tipY - 145 * s, 160 * s, 160 * s)
-    // Cover baked-in coffee art with a larger solid badge + emoji.
+    ctx.drawImage(badgeImg, badgeCx - badgeR, badgeCy - badgeR, badgeSize, badgeSize)
+  } else if (badgeEmoji) {
     ctx.beginPath()
     ctx.arc(badgeCx, badgeCy, badgeR, 0, Math.PI * 2)
     ctx.fillStyle = '#ffffff'
@@ -242,24 +235,32 @@ export async function createSubcategoryCategorizedPinImageData(options: {
   return ctx.getImageData(0, 0, outW, outH)
 }
 
-/** Public URL helpers for list UI (`PointIcon`). */
+/** Untinted pin body URL for list UI fallbacks. */
 export const CATEGORIZED_PIN_SVG_URL = new URL(
   '../components/Icons/01-pin.svg',
   import.meta.url,
 ).href
 
-export const CATEGORIZED_PIN_WITH_CATEGORY_SVG_URL = new URL(
-  '../components/Icons/04-pin-with-category.svg',
-  import.meta.url,
-).href
+/** Tinted pin data-URL for drawer/list previews. */
+export function getTintedPinDataUrl(pinColor: string): string {
+  return svgToDataUrl(tintPinGradient(pinSvg, pinColor))
+}
 
-export function getCategoryBadgeSvgUrl(subcategoryId: string | null | undefined): string | null {
-  if (!subcategoryId) return null
-  if (subcategoryId === 'coffee') {
-    return new URL('../components/Icons/02-coffee.svg', import.meta.url).href
-  }
-  if (subcategoryId === 'restaurants' || subcategoryId === 'restaurant') {
-    return new URL('../components/Icons/03-restaurant.svg', import.meta.url).href
-  }
-  return null
+/** Data URL for an already-resolved icon SVG, optionally tinted. */
+export function getTintedIconDataUrl(
+  iconSvg: string,
+  tintColor?: string,
+): string {
+  const tinted = tintColor ? tintBadgeAsset(iconSvg, tintColor) : iconSvg
+  return svgToDataUrl(tinted)
+}
+
+/** Resolve a category `viewIcon` path to a displayable image URL. */
+export function getViewIconDisplayUrl(
+  viewIcon: string | null | undefined,
+  tintColor?: string,
+): string | null {
+  const raw = resolveCategoryIconSvg(viewIcon)
+  if (raw) return getTintedIconDataUrl(raw, tintColor)
+  return resolveCategoryIconUrl(viewIcon)
 }

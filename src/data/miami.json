@@ -97,19 +97,19 @@
       "point": {
         "id": "FRM-MIA-FM1",
         "type": "custom",
-        "hasCategory": "fifa_museum",
+        "hasCategory": true,
         "display_picture": "/assets/fifaMuseum.png",
         "coordinates": {
           "lat": 25.7798327,
           "lng": -80.1900789
-        }
+        },
+        "category": "fifa_museum"
       },
       "point_content": {
         "name": "FIFA Rewards -  FIFA Museum - Miami",
         "pictures": [],
         "description": "Step inside the FIFA Museum in Miami and collect your exclusive Stamp on the FIFA Rewards Map.",
         "link": "https://www.fifa.com/rewards/map?lat=25.780537&lon=-80.189863",
-        "includeInCategorySearch": "fifa_museum",
         "isCollapsible": false,
         "priority": 10
       }
@@ -119,19 +119,19 @@
       "point": {
         "id": "FMU-MIA-FRE",
         "type": "custom",
-        "hasCategory": "fifa_museum",
+        "hasCategory": true,
         "display_picture": "/assets/fifaMuseum.png",
         "coordinates": {
           "lat": 25.7803136446086,
           "lng": -80.1895384457001
-        }
+        },
+        "category": "fifa_museum"
       },
       "point_content": {
         "name": "FIFA Museum (\"Unidad - The World's Game\" in Miami)",
         "pictures": [],
-        "description": "\u201cUnidad - The World's Game\u201d in Miami. Freedom Tower. \nThe FIFA Museum in Miami is open from Wednesday to Sunday, 10AM - 6PM. \nClosed on Mondays &Tuesdays",
+        "description": "“Unidad - The World's Game” in Miami. Freedom Tower. \nThe FIFA Museum in Miami is open from Wednesday to Sunday, 10AM - 6PM. \nClosed on Mondays &Tuesdays",
         "link": "https://www.fifamuseum.com/en/miami/unidad-the-worlds-game",
-        "includeInCategorySearch": "fifa_museum",
         "isCollapsible": false,
         "priority": 10
       }
@@ -248,19 +248,19 @@
       "point": {
         "id": "MIA-FSTORE1",
         "type": "custom",
-        "hasCategory": "fifa_store",
+        "hasCategory": true,
         "display_picture": "/assets/fifaStore.jpg",
         "coordinates": {
           "lat": 25.9579560590685,
           "lng": -80.145232778598
-        }
+        },
+        "category": "fifa_store"
       },
       "point_content": {
         "name": "FIFA Store (Aventura Mall)",
         "pictures": [],
         "description": "19501 Biscayne Blvd, Aventura, FL 33180",
         "link": null,
-        "includeInCategorySearch": "fifa_store",
         "isCollapsible": false,
         "priority": 10
       }
@@ -270,19 +270,19 @@
       "point": {
         "id": "MIA-FSTORE2",
         "type": "custom",
-        "hasCategory": "fifa_store",
+        "hasCategory": true,
         "display_picture": "/assets/fifaStore.jpg",
         "coordinates": {
           "lat": 25.7887126920175,
           "lng": -80.3811752942945
-        }
+        },
+        "category": "fifa_store"
       },
       "point_content": {
         "name": "FIFA Store (Dolphin Mall)",
         "pictures": [],
         "description": "Pop-Up and In Line. 11401 NW 12th St, Miami, FL 33172",
         "link": null,
-        "includeInCategorySearch": "fifa_store",
         "isCollapsible": false,
         "priority": 10
       }
@@ -292,19 +292,19 @@
       "point": {
         "id": "MIA-FSTORE3",
         "type": "custom",
-        "hasCategory": "fifa_store",
+        "hasCategory": true,
         "display_picture": "/assets/fifaStore.jpg",
         "coordinates": {
           "lat": 25.7902699078193,
           "lng": -80.1390786424047
-        }
+        },
+        "category": "fifa_store"
       },
       "point_content": {
         "name": "FIFA Store (Lincoln Road)",
         "pictures": [],
         "description": "1006 Lincoln Road, Miami Beach, Florida 33139",
         "link": null,
-        "includeInCategorySearch": "fifa_store",
         "isCollapsible": false,
         "priority": 10
       }
@@ -314,19 +314,19 @@
       "point": {
         "id": "MIA-FSTORE4",
         "type": "custom",
-        "hasCategory": "fifa_store",
+        "hasCategory": true,
         "display_picture": "/assets/fifaStore.jpg",
         "coordinates": {
           "lat": 25.6902311811234,
           "lng": -80.3135981467848
-        }
+        },
+        "category": "fifa_store"
       },
       "point_content": {
         "name": "FIFA Store (Dadeland)",
         "pictures": [],
         "description": "7535 N Kendall Dr, Miami, FL 33156",
         "link": null,
-        "includeInCategorySearch": "fifa_store",
         "isCollapsible": false,
         "priority": 10
       }
@@ -336,19 +336,19 @@
       "point": {
         "id": "MIA-FSTORE5",
         "type": "custom",
-        "hasCategory": "fifa_store",
+        "hasCategory": true,
         "display_picture": "/assets/fifaStore.jpg",
         "coordinates": {
           "lat": 26.150453237141,
           "lng": -80.3199193683642
-        }
+        },
+        "category": "fifa_store"
       },
       "point_content": {
         "name": "FIFA Store (Sawgrass)",
         "pictures": [],
         "description": "12801 W Sunrise Blvd, Sunrise, FL 33323",
         "link": null,
-        "includeInCategorySearch": "fifa_store",
         "isCollapsible": false,
         "priority": 10
       }
@@ -379,19 +379,19 @@
       "point": {
         "id": "LAN-MIA-BAM",
         "type": "custom",
-        "hasCategory": "fifa_reward",
+        "hasCategory": true,
         "display_picture": "/assets/fifaReward.png",
         "coordinates": {
           "lat": 25.77702,
           "lng": -80.184939
-        }
+        },
+        "category": "fifa_reward"
       },
       "point_content": {
         "name": "FIFA Rewards -  Bayside Marketplace",
         "pictures": [],
         "description": "Large waterside shopping center with many familiar stores, plus take-out & sit-down restaurants.",
         "link": "https://www.fifa.com/rewards/map?lat=25.777020&lon=-80.184939",
-        "includeInCategorySearch": "fifa_reward",
         "isCollapsible": false,
         "priority": 10
       }
@@ -401,19 +401,19 @@
       "point": {
         "id": "LAN-MIA-HAV",
         "type": "custom",
-        "hasCategory": "fifa_reward",
+        "hasCategory": true,
         "display_picture": "/assets/fifaReward.png",
         "coordinates": {
           "lat": 25.765591,
           "lng": -80.219368
-        }
+        },
+        "category": "fifa_reward"
       },
       "point_content": {
         "name": "FIFA Rewards -  Little Havana",
         "pictures": [],
-        "description": "Little Havana is Miami\u2019s vibrant Cuban heart, with Latin American art galleries and busy restaurants. Cafes with walk-up windows sell Cuban coffee to cigar-smoking patrons. On Calle Ocho (SW 8th Street), locals discuss politics over dominoes at Maximo Gomez Park, dubbed Domino Park by locals. The historic Tower Theater screens independent and revival films, while the area's clubs host live Latin music.",
+        "description": "Little Havana is Miami’s vibrant Cuban heart, with Latin American art galleries and busy restaurants. Cafes with walk-up windows sell Cuban coffee to cigar-smoking patrons. On Calle Ocho (SW 8th Street), locals discuss politics over dominoes at Maximo Gomez Park, dubbed Domino Park by locals. The historic Tower Theater screens independent and revival films, while the area's clubs host live Latin music.",
         "link": "https://www.fifa.com/rewards/map?lat=25.765591&lon=-80.219368",
-        "includeInCategorySearch": "fifa_reward",
         "isCollapsible": false,
         "priority": 10
       }
@@ -423,19 +423,19 @@
       "point": {
         "id": "LAN-MIA-MBB",
         "type": "custom",
-        "hasCategory": "fifa_reward",
+        "hasCategory": true,
         "display_picture": "/assets/fifaReward.png",
         "coordinates": {
           "lat": 25.799457,
           "lng": -80.125549
-        }
+        },
+        "category": "fifa_reward"
       },
       "point_content": {
         "name": "FIFA Rewards -  Miami Beach Boardwalk",
         "pictures": [],
         "description": "Palm-shaded lawns, paths & a playground mark this park that begins the Miami Beach boardwalk.",
         "link": "https://www.fifa.com/rewards/map?lat=25.799457&lon=-80.125549",
-        "includeInCategorySearch": "fifa_reward",
         "isCollapsible": false,
         "priority": 10
       }
@@ -445,19 +445,19 @@
       "point": {
         "id": "LAN-MIA-VIZ",
         "type": "custom",
-        "hasCategory": "fifa_reward",
+        "hasCategory": true,
         "display_picture": "/assets/fifaReward.png",
         "coordinates": {
           "lat": 25.744114,
           "lng": -80.210313
-        }
+        },
+        "category": "fifa_reward"
       },
       "point_content": {
         "name": "FIFA Rewards -  Vizcaya Museum and Gardens",
         "pictures": [],
         "description": "Historic estate with formal gardens & sculptures, grottos & circa-1914 mansion turned museum.",
         "link": "https://www.fifa.com/rewards/map?lat=25.744114&lon=-80.210313",
-        "includeInCategorySearch": "fifa_reward",
         "isCollapsible": false,
         "priority": 10
       }
@@ -467,19 +467,19 @@
       "point": {
         "id": "LAN-MIA-WYN",
         "type": "custom",
-        "hasCategory": "fifa_reward",
+        "hasCategory": true,
         "display_picture": "/assets/fifaReward.png",
         "coordinates": {
           "lat": 25.801094,
           "lng": -80.199702
-        }
+        },
+        "category": "fifa_reward"
       },
       "point_content": {
         "name": "FIFA Rewards -  Wynwood Walls",
         "pictures": [],
         "description": "Unique outdoor destination featuring huge, colorful street murals by artists from around the globe.",
         "link": "https://www.fifa.com/rewards/map?lat=25.801094&lon=-80.199702",
-        "includeInCategorySearch": "fifa_reward",
         "isCollapsible": false,
         "priority": 10
       }
