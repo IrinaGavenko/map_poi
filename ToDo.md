@@ -20,18 +20,18 @@
 
 ## Phase 0 - finalize the JSON structure
 1. Move categories settings to the json and make it customizable
-- [] Categories: "categories.json"
+- [x] Categories: "categories.json"
 2. Approve JSON structure for each type of markers
-- [] Pinned
-- [] Custom
-- [] Categorized
+- [x] Pinned
+- [x] Custom
+- [x] Categorized
 3. Approve the general JSON structure
-- [] The general JSON structure
+- [x] The general JSON structure
 4. JSON validation
 - [] JSON validation
 
 ### Phase 0.1 -- infrustructure settings
-- [] Add the place to save pictures and read them by url
+- [x] Add the place to save pictures and read them by url
 
 
 ## Phase 1 — product completeness
