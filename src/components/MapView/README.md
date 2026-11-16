@@ -1,16 +1,21 @@
 # MapView
 
-`index.tsx` renders the interactive MapLibre GL map: markers, clusters, popups, selection, and “add point” clicks.
+`index.tsx` composes MapLibre map hooks: markers, clusters, popups, selection, and “add point” clicks.
 
 Related files in this folder:
 
+- `index.tsx` — thin shell: refs + hook wiring
+- `mapSetup.ts` — create map/popup, sources/layers, click/hover binding
+- `popupContent.ts` — HTML for place popups
+- `constants.ts` — source/layer ids
+- `useMapInstance.ts` / `useMapFocusRequest.ts` / `useMapDataSync.ts` / `useMapSelection.ts`
 - `MapView.css` — popup card styles (class `place-popup`)
 - `README.md` — this guide
 
 Elsewhere in the project:
 
 - `../../utils/toGeoJSON.ts` — converts `Point[]` to GeoJSON for the map source
-- `../../utils/pointIcons.ts` — pin images + icon style expression
+- `../../utils/pointIcons/` — pin images + MapLibre `loadMapIcons`
 
 ## Props
 
@@ -129,11 +134,11 @@ Store the map, popup, and latest props in refs. Re-creating the map on every Rea
 
 **Change default view**
 
-Edit `center` / `zoom` in the `new maplibregl.Map({ ... })` call.
+Edit `center` / `zoom` in `createMapInstance` (`mapSetup.ts`).
 
 **Change cluster look**
 
-Edit `createClusterButtonImageData` in `pointIcons.ts` (matches ControlButtons), or cluster text paint/layout in MapView.
+Edit `createClusterButtonImageData` in `utils/pointIcons/canvasMarkers.ts` (matches ControlButtons), or cluster text paint/layout in `mapSetup.ts`.
 
 **Change pin size**
 

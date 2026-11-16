@@ -1,0 +1,11 @@
+export const COLLAPSE_POLYGON_SOURCE = 'collapse-polygon'
+export const COLLAPSE_POLYGON_LINE = 'collapse-polygon-line'
+export const COLLAPSE_POLYGON_FILL = 'collapse-polygon-fill'
+export const COLLAPSE_MASK_SOURCE = 'collapse-mask'
+export const COLLAPSE_MASK_FILL = 'collapse-mask-fill'
+
+export const POINTS_SOURCE = 'points'
+export const PICTURE_POINTS_SOURCE = 'picture-points'
+export const CLUSTERS_LAYER = 'clusters'
+export const POINTS_LAYER = 'points'
+export const PICTURE_POINTS_LAYER = 'picture-points'

@@ -99,6 +99,7 @@ export default function App() {
           onChangePoint={app.updateSelectedPoint}
           onDeletePoint={app.deleteSelectedPoint}
           onCategoriesChanged={app.bumpCategoriesRevision}
+          categoriesRevision={app.categoriesRevision}
         />
       )}
 
