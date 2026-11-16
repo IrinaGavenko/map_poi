@@ -1,6 +1,6 @@
 import { useRef, useState, type Dispatch, type SetStateAction } from 'react'
-import { loadCollapseDataset } from '@utils/datasets'
-import type { CollapsePolygon, Point } from '@type'
+import type { CollapseDataset, CollapsePolygon, Point } from '@type'
+import { resolveCollapse } from '@utils/datasetIo'
 
 export type CollapseSession = {
   parent: Point
@@ -19,9 +19,14 @@ export type MapFocusRequest = {
 type UseCollapseSessionArgs = {
   points: Point[]
   setPoints: Dispatch<SetStateAction<Point[]>>
+  getCollapses: () => Record<string, CollapseDataset>
 }
 
-export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs) {
+export function useCollapseSession({
+  points,
+  setPoints,
+  getCollapses,
+}: UseCollapseSessionArgs) {
   const [session, setSession] = useState<CollapseSession | null>(null)
   const [expanded, setExpanded] = useState(true)
   const [mapFocus, setMapFocus] = useState<MapFocusRequest | null>(null)
@@ -43,17 +48,16 @@ export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs
     return previous
   }
 
-  const enter = async (point: Point, collapseFile: string) => {
+  const enter = (point: Point, collapseFile: string) => {
     const previousPoints = pointsRef.current
-    // Hide the isNested parent and all outside markers immediately while loading.
-    setSession({ parent: point, nested: [], polygon: null, previousPoints })
-    setExpanded(true)
-    setPoints([])
+    const nestedDataset = resolveCollapse(getCollapses(), collapseFile)
+    const nested = nestedDataset.points
+    const polygon = nestedDataset.polygon
 
-    const { points: nested, polygon } = await loadCollapseDataset(collapseFile)
     setSession({ parent: point, nested, polygon, previousPoints })
-    // Only nested-zone places while active — restore previousPoints on exit.
+    setExpanded(true)
     setPoints(nested)
+
     mapFocusKey.current += 1
     const focusPoints =
       polygon && polygon.coordinates.length > 0
@@ -76,6 +80,6 @@ export function useCollapseSession({ points, setPoints }: UseCollapseSessionArgs
     clearSession,
     minimize: () => setExpanded(false),
     expand: () => setExpanded(true),
-    toggleExpanded: () => setExpanded((open) => !open),
+    toggleExpanded: () => setExpanded((open) => (open ? false : true)),
   }
 }

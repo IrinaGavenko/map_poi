@@ -1,5 +1,6 @@
 import { getCategoryTitle } from '@type/categories'
 import type { MarkerKind, Point } from '@type'
+import { DrawerActionButton } from './DrawerActionButton'
 import { DrawerChip, DrawerChipGroup } from './DrawerChip'
 import DrawerCoords from './DrawerCoords'
 import DrawerField from './DrawerField'
@@ -46,6 +47,46 @@ export default function MarkerForm({
     })
   }
 
+  const pictureRows =
+    draft.pictures.length > 0 ? draft.pictures : ([''] as string[])
+
+  const commitPictures = (next: string[]) => {
+    scheduleCommit({ pictures: next })
+  }
+
+  const updatePictureAt = (index: number, value: string) => {
+    const base =
+      (draftRef.current?.pictures.length ?? 0) > 0
+        ? [...(draftRef.current?.pictures ?? [])]
+        : ['']
+    while (base.length <= index) base.push('')
+    base[index] = value
+    commitPictures(base)
+  }
+
+  const addPictureRow = () => {
+    const base = [...(draftRef.current?.pictures ?? [])]
+    commitPictures([...base, ''])
+  }
+
+  const removePictureAt = (index: number) => {
+    const base = [...(draftRef.current?.pictures ?? [])]
+    if (base.length === 0) {
+      commitPictures([])
+      return
+    }
+    base.splice(index, 1)
+    commitPictures(base)
+  }
+
+  const flushPictures = () => {
+    const cleaned = (draftRef.current?.pictures ?? [])
+      .map((url) => url.trim())
+      .filter(Boolean)
+    scheduleCommit({ pictures: cleaned })
+    flushCommit()
+  }
+
   return (
     <DrawerForm className={className}>
       <DrawerField
@@ -77,6 +118,37 @@ export default function MarkerForm({
         />
       )}
 
+      <DrawerField as="custom" label="Popup photos">
+        <div className="places-popup-photos">
+          {pictureRows.map((url, index) => (
+            <div key={`popup-photo-${index}`} className="places-popup-photos-row">
+              <input
+                className="places-popup-photos-input"
+                value={url}
+                onChange={(e) => updatePictureAt(index, e.target.value)}
+                onBlur={flushPictures}
+                placeholder="https://..."
+                aria-label={`Popup photo ${index + 1}`}
+              />
+              <button
+                type="button"
+                className="places-popup-photos-remove"
+                aria-label={`Remove photo ${index + 1}`}
+                onClick={() => {
+                  removePictureAt(index)
+                  flushPictures()
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <DrawerActionButton onClick={addPictureRow}>
+            + Add photo
+          </DrawerActionButton>
+        </div>
+      </DrawerField>
+
       {(markerType === 'categorized' || markerType === 'custom') && (
         <DrawerChipGroup
           label={markerType === 'categorized' ? 'Categories' : 'Category'}
@@ -100,23 +172,6 @@ export default function MarkerForm({
         onChange={(e) => scheduleCommit({ link: e.target.value })}
         onBlur={flushCommit}
       />
-
-      {markerType === 'categorized' && (
-        <DrawerField
-          label="Image link"
-          value={draft.pictures[0] ?? ''}
-          onChange={(e) => {
-            const url = e.target.value
-            scheduleCommit({
-              pictures: url
-                ? [url, ...(draftRef.current?.pictures.slice(1) ?? [])]
-                : [],
-            })
-          }}
-          onBlur={flushCommit}
-          placeholder="https://..."
-        />
-      )}
 
       <DrawerCoords lat={draft.coordinates.lat} lng={draft.coordinates.lng} />
     </DrawerForm>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { MarkerKind, Point } from '@type'
 import DrawerShell from '../DrawerShell'
 import '../drawer.css'
@@ -25,6 +25,9 @@ type EditModeProps = {
   onPlaceAtCoordinates: (coordinates: { lat: number; lng: number }) => void
   onChangePoint: (point: Point) => void
   onDeletePoint: () => void
+  onCategoriesChanged?: () => void
+  /** Bumps when the categories registry changes (create / import). */
+  categoriesRevision?: number
 }
 
 export default function EditMode({
@@ -42,6 +45,8 @@ export default function EditMode({
   onPlaceAtCoordinates,
   onChangePoint,
   onDeletePoint,
+  onCategoriesChanged,
+  categoriesRevision = 0,
 }: EditModeProps) {
   const minimized = open && !expanded
   const [creatingCategory, setCreatingCategory] = useState(false)
@@ -53,7 +58,14 @@ export default function EditMode({
     toggleRoot,
     createCategory,
     filtered,
-  } = useRootCategoryFilter(points)
+  } = useRootCategoryFilter(points, categoriesRevision)
+
+  // Include newly created categories (extraRoots) so marker forms can select them
+  // before any place uses them yet.
+  const markerCategoryOptions = useMemo(
+    () => [...new Set([...availableTypes, ...availableRoots])].sort(),
+    [availableTypes, availableRoots],
+  )
 
   const startCreatingCategory = () => {
     onStopMapPlace()
@@ -109,7 +121,7 @@ export default function EditMode({
         <div className="places-drawer-body">
           {creatingMarker ? (
             <CreateMarkerFlow
-              availableTypes={availableTypes}
+              availableTypes={markerCategoryOptions}
               selected={selected}
               onChangePoint={onChangePoint}
               onDeletePoint={onDeletePoint}
@@ -122,7 +134,7 @@ export default function EditMode({
           ) : selected ? (
             <EditMarkerFlow
               point={selected}
-              availableTypes={availableTypes}
+              availableTypes={markerCategoryOptions}
               onChangePoint={onChangePoint}
               onDeletePoint={onDeletePoint}
               onExit={exitEditingMarker}
@@ -147,6 +159,7 @@ export default function EditMode({
                 onCancel={exitCreatingCategory}
                 onCreate={(draft) => {
                   createCategory(draft)
+                  onCategoriesChanged?.()
                   exitCreatingCategory()
                 }}
               />

@@ -3,6 +3,7 @@ import {
   expandCategoryFilterIds,
   getCategoryTitle,
   getRootCategoryId,
+  knownRootCategoryIds,
   upsertCategory,
 } from '@type/categories'
 import { getPointTypes } from '@utils/filterPoints'
@@ -32,15 +33,22 @@ function slugifyCategoryId(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function useRootCategoryFilter(points: Point[]) {
+export function useRootCategoryFilter(
+  points: Point[],
+  categoriesRevision = 0,
+) {
   const [selectedRootIds, setSelectedRootIds] = useState<string[]>([])
-  const [extraRoots, setExtraRoots] = useState<string[]>([])
 
   const availableRoots = useMemo(() => {
-    const fromPoints = getPointTypes(points)
-    const merged = new Set([...fromPoints, ...extraRoots])
+    // Registry is the source of truth (survives drawer remount + localStorage).
+    // Also merge ids still present only on points.
+    const merged = new Set([
+      ...knownRootCategoryIds(),
+      ...getPointTypes(points),
+    ])
     return [...merged].sort()
-  }, [points, extraRoots])
+    // categoriesRevision: re-read registry after create/import.
+  }, [points, categoriesRevision])
 
   const filtered = useMemo(
     () => filterByRootCategories(points, selectedRootIds),
@@ -67,8 +75,7 @@ export function useRootCategoryFilter(points: Point[]) {
       viewIcon: draft.viewIcon,
       categoryListIcon: draft.viewIcon,
     })
-    setExtraRoots((prev) => (prev.includes(id) ? prev : [...prev, id]))
-    setSelectedRootIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
+    // Do not auto-select as a filter — that hid all places and felt like a disappear.
     return id
   }, [])
 

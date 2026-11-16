@@ -1,66 +1,38 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { DrawerMode } from '@components/Drawer/ControlButtons'
 import type { Point } from '@type'
+import {
+  downloadDatasetZip,
+  readImportFile,
+  type ImportResult,
+} from '@utils/datasetIo'
 import { filterPoints, getPointTypes } from '@utils/filterPoints'
-import { isMobileViewport } from '@utils/isMobile'
 import { useDataset } from './useDataset'
 import { usePointFilters } from './usePointFilters'
-import { useCollapseSession, type MapFocusRequest } from './useCollapseSession'
+import { useCollapseSession } from './useCollapseSession'
 import { useDrawerMode } from './useDrawerMode'
 import { usePointSelection } from './usePointSelection'
-
-/** Ignore control-button clicks that were meant for a list item under a collapsing drawer. */
-const CLICK_GUARD_MS = 450
+import { useWorkingDatasetPersist } from './mapApp/useWorkingDatasetPersist'
+import { useDatasetCamera } from './mapApp/useDatasetCamera'
+import { useDrawerChrome } from './mapApp/useDrawerChrome'
 
 export function useMapApp() {
   const dataset = useDataset()
+  const collapsesRef = useRef(dataset.collapses)
+  collapsesRef.current = dataset.collapses
+
   const filters = usePointFilters(dataset.points)
   const collapse = useCollapseSession({
     points: dataset.points,
     setPoints: dataset.setPoints,
+    getCollapses: () => collapsesRef.current,
   })
   const drawers = useDrawerMode()
-  const ignoreToggleUntil = useRef(0)
-  const minimizeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const collapseActiveRef = useRef(collapse.isActive)
-  const drawerModeRef = useRef(drawers.drawerMode)
-  const datasetFocusKey = useRef(0)
-  const focusedDatasetIdRef = useRef<string | null>(null)
-  const [datasetFocus, setDatasetFocus] = useState<MapFocusRequest | null>(null)
-  collapseActiveRef.current = collapse.isActive
-  drawerModeRef.current = drawers.drawerMode
+  const initialDrawerAppliedRef = useRef(false)
 
-  const clearMinimizeTimer = () => {
-    if (minimizeTimer.current != null) {
-      clearTimeout(minimizeTimer.current)
-      minimizeTimer.current = null
-    }
-  }
-
-  const scheduleMinimize = () => {
-    if (!isMobileViewport()) return
-    clearMinimizeTimer()
-    ignoreToggleUntil.current = Date.now() + CLICK_GUARD_MS
-    minimizeTimer.current = setTimeout(() => {
-      minimizeTimer.current = null
-      if (collapseActiveRef.current) collapse.minimize()
-      else if (drawerModeRef.current) drawers.minimize()
-    }, 50)
-  }
-
-  const selection = usePointSelection({
-    setPoints: dataset.setPoints,
-    onBeforeCollapse: () => {
-      clearMinimizeTimer()
-      drawers.setAddingPoint(false)
-      drawers.setPendingMarkerType(null)
-      filters.resetFilters()
-      drawers.setDrawerMode(null)
-    },
-    onCollapsibleSelect: (point, collapseFile) => {
-      clearMinimizeTimer()
-      void collapse.enter(point, collapseFile)
-    },
+  const chromeApiRef = useRef({
+    clearMinimizeTimer: () => {},
+    scheduleMinimize: () => {},
   })
 
   const stopAddingPoint = () => {
@@ -68,117 +40,132 @@ export function useMapApp() {
     drawers.setPendingMarkerType(null)
   }
 
-  // On map switch: drop stale camera target and allow a fresh recenter.
-  useEffect(() => {
-    collapse.clearSession()
-    selection.setSelected(null)
-    stopAddingPoint()
-    drawers.setDrawerMode(null)
-    focusedDatasetIdRef.current = null
-    setDatasetFocus(null)
-  }, [dataset.datasetId])
+  const selection = usePointSelection({
+    setPoints: dataset.setPoints,
+    onBeforeCollapse: () => {
+      chromeApiRef.current.clearMinimizeTimer()
+      stopAddingPoint()
+      filters.resetFilters()
+      drawers.setDrawerMode(null)
+    },
+    onCollapsibleSelect: (point, collapseFile) => {
+      chromeApiRef.current.clearMinimizeTimer()
+      collapse.enter(point, collapseFile)
+    },
+  })
 
-  // Center the map when points finish loading for the current dataset.
-  useEffect(() => {
-    if (collapse.isActive) return
-    if (dataset.points.length === 0) return
-    if (focusedDatasetIdRef.current === dataset.datasetId) return
-
-    focusedDatasetIdRef.current = dataset.datasetId
-    datasetFocusKey.current += 1
-    setDatasetFocus({
-      key: datasetFocusKey.current,
-      points: dataset.points.map((point) => ({
-        lat: point.coordinates.lat,
-        lng: point.coordinates.lng,
-      })),
-      animate: false,
-    })
-  }, [collapse.isActive, dataset.datasetId, dataset.points])
-
-  useEffect(() => () => clearMinimizeTimer(), [])
-
-  const mapFocus = collapse.isActive ? collapse.mapFocus : datasetFocus
+  const { datasetFocus, clearDatasetFocus } = useDatasetCamera({
+    ready: dataset.ready,
+    mapRevision: dataset.mapRevision,
+    points: dataset.points,
+    collapseActive: collapse.isActive,
+    onMapRevisionChange: () => {
+      collapse.clearSession()
+      selection.setSelected(null)
+      stopAddingPoint()
+    },
+  })
 
   const exitCollapse = (openPlaces: boolean) => {
     if (!collapse.isActive) return
-    clearMinimizeTimer()
+    chromeApiRef.current.clearMinimizeTimer()
     collapse.exit()
     selection.setSelected(null)
     stopAddingPoint()
     filters.resetFilters()
-    // Never open edit from collapse exit — only places or nothing.
     drawers.setDrawerMode(openPlaces ? 'places' : null)
   }
 
-  const toggleDrawer = (mode: 'places' | 'edit') => {
-    if (Date.now() < ignoreToggleUntil.current) return
-    clearMinimizeTimer()
-
-    if (collapse.isActive) {
-      if (mode === 'places') {
-        collapse.toggleExpanded()
-        return
-      }
-      // Exit nested view only — edit requires another explicit ✎ tap.
-      exitCollapse(false)
-      return
-    }
-
-    if (drawers.drawerMode === mode) {
-      if (!drawers.expanded) {
-        drawers.expand()
-        return
-      }
-      drawers.setDrawerMode(null)
-      if (mode === 'edit') stopAddingPoint()
-      return
-    }
-
-    // Switching places ↔ edit replaces the other (single drawerMode).
-    drawers.setDrawerMode(mode)
-    drawers.expand()
-    if (mode !== 'edit') stopAddingPoint()
+  const chrome = useDrawerChrome({
+    collapseActive: collapse.isActive,
+    collapseMinimize: collapse.minimize,
+    collapseExpand: collapse.expand,
+    collapseToggleExpanded: collapse.toggleExpanded,
+    drawerMode: drawers.drawerMode,
+    drawerExpanded: drawers.expanded,
+    setDrawerMode: drawers.setDrawerMode,
+    expand: drawers.expand,
+    minimize: drawers.minimize,
+    stopAddingPoint,
+    exitCollapse,
+  })
+  chromeApiRef.current = {
+    clearMinimizeTimer: chrome.clearMinimizeTimer,
+    scheduleMinimize: chrome.scheduleMinimize,
   }
 
-  const handleDatasetChange = (nextId: string) => {
-    if (nextId === dataset.datasetId) return
-    clearMinimizeTimer()
-    focusedDatasetIdRef.current = null
-    setDatasetFocus(null)
+  // Empty cold start → open load/download (files) drawer once.
+  useEffect(() => {
+    if (!dataset.ready || initialDrawerAppliedRef.current) return
+    initialDrawerAppliedRef.current = true
+    if (dataset.points.length === 0) {
+      drawers.setDrawerMode('files')
+      drawers.expand()
+    }
+  }, [dataset.ready, dataset.points.length])
+
+  useWorkingDatasetPersist(
+    {
+      ready: dataset.ready,
+      version: dataset.version,
+      meta: dataset.meta,
+      pinnedSize: dataset.pinnedSize,
+      points: dataset.points,
+      collapses: dataset.collapses,
+      categoriesRevision: dataset.categoriesRevision,
+    },
+    collapse.isActive,
+  )
+
+  const mapFocus = collapse.isActive ? collapse.mapFocus : datasetFocus
+
+  const resetAfterMarkerReplace = () => {
+    chrome.clearMinimizeTimer()
+    clearDatasetFocus()
     selection.setSelected(null)
     filters.resetFilters()
     stopAddingPoint()
     collapse.clearSession()
-    dataset.changeDataset(nextId)
+  }
+
+  const rootPointsForExport = (): Point[] => {
+    if (collapse.isActive && collapse.session) {
+      return collapse.session.previousPoints
+    }
+    return dataset.points
+  }
+
+  const downloadDataset = () => {
+    downloadDatasetZip(
+      dataset.getWorkingSnapshot(rootPointsForExport()),
+      'map-dataset.zip',
+    )
+  }
+
+  const importDatasetFile = async (file: File): Promise<ImportResult> => {
+    const result = await readImportFile(file)
+    if (result.ok === false) return result
+
+    resetAfterMarkerReplace()
+    dataset.applyWorkingDataset(result.payload.dataset)
+    return result
   }
 
   const selectPointFromDrawer = (point: Point) => {
     const hasNestedZone = Boolean(point.isNested?.trim())
-
     selection.selectPoint(point)
-
-    if (!hasNestedZone) scheduleMinimize()
+    if (!hasNestedZone) chrome.scheduleMinimize()
   }
 
-  const minimizeDrawer = () => {
-    if (collapse.isActive) collapse.minimize()
-    else drawers.minimize()
-  }
-
-  const expandDrawer = () => {
-    if (collapse.isActive) collapse.expand()
-    else drawers.expand()
-  }
-
-  // Exactly one panel can be "primary" for controls.
   const activePanel = collapse.isActive
     ? 'collapse'
     : drawers.drawerMode === 'edit'
       ? 'edit'
-      : drawers.drawerMode === 'places'
-        ? 'places'
-        : null
+      : drawers.drawerMode === 'files'
+        ? 'files'
+        : drawers.drawerMode === 'places'
+          ? 'places'
+          : null
 
   const controlDrawerMode: DrawerMode =
     activePanel === 'collapse'
@@ -189,7 +176,9 @@ export function useMapApp() {
         ? 'places'
         : activePanel === 'edit' && drawers.expanded
           ? 'edit'
-          : null
+          : activePanel === 'files' && drawers.expanded
+            ? 'files'
+            : null
 
   const legendTypes = useMemo(
     () =>
@@ -207,7 +196,6 @@ export function useMapApp() {
   }, [collapse.isActive, collapse.session?.nested, filters.selectedTypes, filters.filtered])
 
   return {
-    datasetId: dataset.datasetId,
     points: dataset.points,
     mapPoints,
     filtered: filters.filtered,
@@ -238,10 +226,10 @@ export function useMapApp() {
     pendingMarkerType: drawers.pendingMarkerType,
     setPendingMarkerType: drawers.setPendingMarkerType,
     stopAddingPoint,
-    toggleDrawer,
+    toggleDrawer: chrome.toggleDrawer,
     closeEditDrawer: drawers.closeDrawer,
-    minimizeDrawer,
-    expandDrawer,
+    minimizeDrawer: chrome.minimizeDrawer,
+    expandDrawer: chrome.expandDrawer,
     collapseSession: collapse.session,
     collapseExpanded: collapse.expanded,
     collapseActive: collapse.isActive,
@@ -252,10 +240,14 @@ export function useMapApp() {
     minimizeCollapse: collapse.minimize,
     expandCollapse: collapse.expand,
     exitCollapse,
-    handleDatasetChange,
+    categoriesRevision: dataset.categoriesRevision,
+    bumpCategoriesRevision: dataset.bumpCategoriesRevision,
+    downloadDataset,
+    importDatasetFile,
     drawerOpen:
       (activePanel === 'places' && drawers.expanded) ||
       (activePanel === 'edit' && drawers.expanded) ||
+      (activePanel === 'files' && drawers.expanded) ||
       (activePanel === 'collapse' && collapse.isDrawerExpanded),
   }
 }

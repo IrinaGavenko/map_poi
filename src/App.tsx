@@ -1,10 +1,10 @@
 import { useMapApp } from '@hooks'
 import MapView from '@components/MapView'
 import MapLegend from '@components/MapLegend'
-import DatasetSelector from '@components/DatasetSelector'
 import ViewMode from '@components/Drawer/ViewMode'
 import CollapseView from '@components/Drawer/CollapseView'
 import EditMode from '@components/Drawer/EditMode'
+import FilesMode from '@components/Drawer/FilesMode'
 import ControlButtons from '@components/Drawer/ControlButtons'
 
 export default function App() {
@@ -34,9 +34,8 @@ export default function App() {
         />
       </div>
 
-      <DatasetSelector value={app.datasetId} onChange={app.handleDatasetChange} />
-
       <MapLegend
+        key={app.categoriesRevision}
         types={app.legendTypes}
         selectedTypes={app.selectedTypes}
         onTypesChange={app.setSelectedTypes}
@@ -44,7 +43,7 @@ export default function App() {
 
       <ControlButtons drawerMode={app.controlDrawerMode} onToggle={app.toggleDrawer} />
 
-      {/* Mount only the active drawer so places + edit never overlap in the DOM. */}
+      {/* Mount only the active drawer so panels never overlap in the DOM. */}
       {app.activePanel === 'places' && (
         <ViewMode
           open
@@ -99,6 +98,19 @@ export default function App() {
           onPlaceAtCoordinates={app.addPoint}
           onChangePoint={app.updateSelectedPoint}
           onDeletePoint={app.deleteSelectedPoint}
+          onCategoriesChanged={app.bumpCategoriesRevision}
+          categoriesRevision={app.categoriesRevision}
+        />
+      )}
+
+      {app.activePanel === 'files' && (
+        <FilesMode
+          open
+          expanded={app.drawerExpanded}
+          onMinimize={app.minimizeDrawer}
+          onExpand={app.expandDrawer}
+          onDownloadDataset={app.downloadDataset}
+          onImportDatasetFile={app.importDatasetFile}
         />
       )}
     </div>

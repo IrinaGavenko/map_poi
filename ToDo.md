@@ -14,8 +14,8 @@
 - [x] Collapsible pins for zoom (clustering)
 - [x] Category filter
 - [~] Search by name — works; **no multi-field / multi-option search** yet
-- [~] Load / read / download JSONs — **load bundled only**; **no user upload or download**
-- [~] Map editor — create/edit/delete exist; **no persist to JSON**, **no move/drag**
+- [~] Load / read / download — **full-map zip** (`markers.json`: meta, categories, markers, collapses); load **replaces**; **localStorage** autosave across reload
+- [~] Map editor — create/edit/delete exist; **browser persist** (not repo files); **no move/drag**
 - [ ] Lazy loading for collapsing zones and popups — collapse uses async load; **no dedicated lazy popup/media strategy**
 
 ## Phase 0 - finalize the JSON structure
@@ -43,8 +43,11 @@
 - [~] Nested-location flows — **view/enter/exit** works; **no edit nested set / create collapse**
 - [~] Search & filtering — basic; tighten vs “different options for one location”
 - [ ] JSON **validation** (current check is only `id` + coordinates)
-- [ ] **Download** edited dataset as JSON
-- [ ] **Upload** / replace from user JSON
+- [x] **Download** full map as zip (`markers.json` with meta, categories, markers, collapses)
+- [x] **Upload** / replace from full-map zip (Files mode)
+- [x] Persist working map in **localStorage** across reload (empty cold start)
+- [ ] Before load: ask user **merge vs replace** (today always replaces)
+- [x] Determine **start user / map position** on empty cold start — **global world view** (`[0, 20]`, zoom `1.5`)
 - [ ] Loading / empty / error / **unsaved-change** states (almost none today)
 - [ ] Custom-place **priority index** (described in `_README`, not in `Point` type)
 

@@ -1,16 +1,21 @@
 # MapView
 
-`index.tsx` renders the interactive MapLibre GL map: markers, clusters, popups, selection, and “add point” clicks.
+`index.tsx` composes MapLibre map hooks: markers, clusters, popups, selection, and “add point” clicks.
 
 Related files in this folder:
 
+- `index.tsx` — thin shell: refs + hook wiring
+- `mapSetup.ts` — create map/popup, sources/layers, click/hover binding
+- `popupContent.ts` — HTML for place popups
+- `constants.ts` — source/layer ids
+- `useMapInstance.ts` / `useMapFocusRequest.ts` / `useMapDataSync.ts` / `useMapSelection.ts`
 - `MapView.css` — popup card styles (class `place-popup`)
 - `README.md` — this guide
 
 Elsewhere in the project:
 
 - `../../utils/toGeoJSON.ts` — converts `Point[]` to GeoJSON for the map source
-- `../../utils/pointIcons.ts` — pin images + icon style expression
+- `../../utils/pointIcons/` — pin images + MapLibre `loadMapIcons`
 
 ## Props
 
@@ -32,11 +37,11 @@ Elsewhere in the project:
 3. Register click / hover handlers on those layers.
 4. **Cleanup** with `map.remove()` and `popup.remove()` on unmount.
 
-Initial center / zoom for Miami:
+Initial center / zoom (empty map — world view; recenters when points load):
 
 ```ts
-center: [-80.2, 25.77], // [lng, lat]
-zoom: 11,
+center: [0, 20], // [lng, lat]
+zoom: 1.5,
 ```
 
 Basemap is OSM raster tiles; glyphs URL is required for cluster count text.
@@ -129,11 +134,11 @@ Store the map, popup, and latest props in refs. Re-creating the map on every Rea
 
 **Change default view**
 
-Edit `center` / `zoom` in the `new maplibregl.Map({ ... })` call.
+Edit `center` / `zoom` in `createMapInstance` (`mapSetup.ts`).
 
 **Change cluster look**
 
-Edit `createClusterButtonImageData` in `pointIcons.ts` (matches ControlButtons), or cluster text paint/layout in MapView.
+Edit `createClusterButtonImageData` in `utils/pointIcons/canvasMarkers.ts` (matches ControlButtons), or cluster text paint/layout in `mapSetup.ts`.
 
 **Change pin size**
 
