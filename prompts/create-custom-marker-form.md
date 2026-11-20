@@ -1,6 +1,6 @@
 # Prompt: Create / edit form for custom markers
 
-> **Sync:** `src/data/example_custom.json` is the source of truth for this shape. When that JSON changes, update this prompt to match. See `prompts/README.md`.
+> **Sync:** `src/types/custom.ts` is the source of truth for this shape. When that file changes, update this prompt to match. See `prompts/README.md`.
 
 Copy everything below the line into a new agent chat.
 
@@ -12,16 +12,16 @@ Build a **create + edit form** for markers of type **`custom`** in this Miami Ma
 
 The form must:
 
-1. **Read** a custom marker from the **general dataset JSON** (`points[]`).
-2. **Display** editable fields matching **`src/data/example_custom.json`**.
-3. **Validate** those fields (required/optional rules and defaults from `example_custom.json` comments).
-4. **Save** a valid custom marker back into the **general dataset** `points` array (create = append; edit = replace by `point.id`).
+1. **Read** a custom marker from the **working map dataset** (`points[]` / zip `markers.json`).
+2. **Display** editable fields matching **`src/types/custom.ts`** (`CustomMarker`).
+3. **Validate** those fields (required/optional rules and defaults from the type JSDoc).
+4. **Save** a valid custom marker back into the working dataset `points` array (create = append; edit = replace by `point.id`).
 
-**Source of truth for shape:** `src/data/example_custom.json` — not the flat `kind: "custom"` row currently shown in `example_general.json` / `example_validation.json`. If general/validation still use a different custom shape, **update them** so a custom entry in `points[]` is exactly this structure (comment keys like `"//…"` are docs only; do not persist those).
+**Source of truth for shape:** `src/types/custom.ts` (`CustomMarker`, `CustomPoint`, `CustomPointContent`).
 
 ## Canonical custom marker shape (form + persist)
 
-Taken from `src/data/example_custom.json` (without `//` comment keys):
+Taken from `src/types/custom.ts`:
 
 ```ts
 {
@@ -35,13 +35,13 @@ Taken from `src/data/example_custom.json` (without `//` comment keys):
     // and must set point.category.
     hasCategory?: boolean
 
-    // Required when hasCategory is true: category id from categories.json.
+    // Required when hasCategory is true: category id from dataset categories.
     // Omit / null when hasCategory is false.
     category?: string | null
 
     // Optional, default null.
     // Null only allowed when hasCategory is false,
-    // or the referenced category has no display_picture.
+    // or the referenced category has no display picture.
     display_picture?: string | null
 
     coordinates: {
@@ -77,7 +77,7 @@ Taken from `src/data/example_custom.json` (without `//` comment keys):
 
 Note: `point_content` is a **root sibling** of `point` (unlike pinned, where `point_content` is nested under `point`). There is **no** `isNested` on custom.
 
-Reference: `src/data/example_custom.json` only for field meaning and nesting.
+Reference: `src/types/custom.ts` only for field meaning and nesting. Categories: `src/types/categories.ts`.
 
 ## Form UX requirements
 
@@ -104,34 +104,32 @@ Reference: `src/data/example_custom.json` only for field meaning and nesting.
 | `point_content.priority` | number input (integer ≥ 0) | optional; default `0` |
 | `type`, `point.type` | hidden / read-only | always `"custom"` |
 
-Do **not** add fields that are not in `example_custom.json` (e.g. flat `kind`, `shape: "rectangle"`, `filterGroup`, nested `point_content` under `point`, `isNested`).
+Do **not** add fields that are not in `CustomMarker` (e.g. flat `kind`, `shape: "rectangle"`, `filterGroup`, nested `point_content` under `point`, `isNested`).
 
 ### Validation (client-side, before save)
 
-- Enforce the structure and rules documented in `example_custom.json` (required nesting, lat/lng ranges, defaults).
+- Enforce the structure and rules documented in `src/types/custom.ts` (required nesting, lat/lng ranges, defaults).
 - `point.id`, `point.coordinates`, and `point_content.name` required.
 - Apply defaults for omitted optionals (`hasCategory: false`, `category: null`, `display_picture: null`, `pictures: []`, `description: null`, `link: null`, `isCollapsible: false`, `priority: 0`).
-- If `hasCategory` is true: require `point.category` (valid id in categories); marker is included in category filter/search. Do not use `includeInCategorySearch`.
+- If `hasCategory` is true: require `point.category` (valid id in dataset categories); marker is included in category filter/search. Do not use `includeInCategorySearch`.
 - `display_picture` may be null only when allowed by the `hasCategory` / category rule above.
 - `priority` must be an integer ≥ 0 when set.
 - Block save while invalid; keep draft local until valid commit.
-- Update `example_validation.json` so `$defs` for custom matches this shape; validate against that once aligned.
 
 ### Save / read wiring
 
-- **Read**: load the general dataset document. Find the custom item in `points[]` by `point.id` (create → new draft).
-- **Save**: write the full general document with this custom object inserted/updated in `points`. Preserve other points and `collapses` / `meta` / `categories` / `version`.
-- Align `example_general.json` so its custom example uses this same object (replace the current flat `kind: "custom"` row).
-- Until file upload exists, keep in-memory general dataset state and support **download JSON** of the edited general document.
-- Keep TypeScript types in `src/types/custom.ts` in sync with this shape; gate this form on custom type. Adapt or narrow today’s flat `Point` usage as needed without breaking other marker kinds more than necessary.
+- **Read**: load the working dataset. Find the custom item in `points[]` by `point.id` (create → new draft).
+- **Save**: write the working document with this custom object inserted/updated in `points`. Preserve other points and `collapses` / `meta` / `categories` / `version`.
+- Persist via existing localStorage autosave + zip download/import (`datasetIo`).
+- Keep TypeScript types in `src/types/custom.ts` as the gate for this form.
 
 ## Integration constraints
 
-- Fit existing edit drawer patterns under `src/components/Drawer/EditMode/` (see `EditPointForm.tsx`), or add a dedicated `CustomPointForm` selected by type.
+- Fit existing edit drawer patterns under `src/components/Drawer/EditMode/`, or a dedicated custom form selected by type.
 - Reuse map click → create flow but produce a **custom** default matching the shape above.
-- Match existing CSS in `EditMode.css` / drawer styles; no unrelated redesign.
+- Match existing drawer shared styles; no unrelated redesign.
 - Keep TypeScript strict; add JSON Schema validation deps only if needed.
-- Mirror patterns from the pinned form prompt (`prompts/create-pinned-marker-form.md`) where helpful, but keep shapes separate (`point_content` placement differs).
+- Mirror patterns from the pinned form prompt where helpful, but keep shapes separate (`point_content` placement differs).
 
 ## Out of scope
 
@@ -142,9 +140,8 @@ Do **not** add fields that are not in `example_custom.json` (e.g. flat `kind`, `
 ## Done when
 
 - [ ] User can create a custom marker from the map and fill the form.
-- [ ] User can edit an existing custom marker loaded from general JSON.
-- [ ] Form fields and saved JSON match `example_custom.json` (`point` + root `point_content`, `hasCategory`, `priority`, etc.).
+- [ ] User can edit an existing custom marker from the working dataset.
+- [ ] Form fields and saved JSON match `src/types/custom.ts` (`point` + root `point_content`, `hasCategory`, `priority`, etc.).
 - [ ] Invalid values show errors and do not save.
-- [ ] Valid save updates `points[]` in the general dataset with that shape.
+- [ ] Valid save updates `points[]` in the working dataset with that shape.
 - [ ] `type` / `point.type` are always `"custom"` on save.
-- [ ] `example_general.json` (and validation schema) are updated so custom entries match `example_custom.json`.

@@ -1,7 +1,8 @@
 /**
- * Categories — runtime shape matches `categories_SPB.json` / `categories.json`.
+ * Categories document — **source of truth** for category config shape.
+ * Keep prompts / forms in sync with `CategoriesDocument` / `CategoryTypeConfig`.
  *
- * Document map key may be `categoryTypes` (SPB) or `categories` (legacy Miami).
+ * Entries live under `categoryTypes` only.
  * Subcategories (categorized markers only) set `rootCategoryId`.
  */
 
@@ -45,10 +46,7 @@ export type CategoriesDocument = {
     picture?: string
     fallbackCategoryId?: string
   }
-  /** SPB / preferred key. */
-  categoryTypes?: Record<string, CategoryTypeConfig>
-  /** Legacy Miami key (same entry shape). */
-  categories?: Record<string, CategoryTypeConfig>
+  categoryTypes: Record<string, CategoryTypeConfig>
 }
 
 /** Visual mode used by map icons / legend (derived from category + marker). */
@@ -78,10 +76,8 @@ let registry: Record<string, CategoryTypeConfig> = {
 function categoryMapFromDoc(
   doc: CategoriesDocument | null | undefined,
 ): Record<string, CategoryTypeConfig> | null {
-  if (!doc) return null
-  if (doc.categoryTypes && typeof doc.categoryTypes === 'object') return doc.categoryTypes
-  if (doc.categories && typeof doc.categories === 'object') return doc.categories
-  return null
+  if (!doc?.categoryTypes || typeof doc.categoryTypes !== 'object') return null
+  return doc.categoryTypes
 }
 
 export function getCategoriesRegistry(): Record<string, CategoryTypeConfig> {

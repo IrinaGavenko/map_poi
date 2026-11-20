@@ -1,6 +1,6 @@
 /**
- * Custom marker — source of truth: `src/data/example_custom.json`
- * (Ignore `"//…"` comment keys; they are docs only.)
+ * Custom marker — **source of truth** for this shape.
+ * Keep `prompts/create-custom-marker-form.md` in sync when this file changes.
  */
 
 export type CustomCoordinates = {
@@ -15,12 +15,12 @@ export type CustomPoint = {
   type: 'custom'
   /**
    * Default `false`. When `true`, marker can be filtered/searched by category
-   * and `category` must be set to a category id from categories.json.
+   * and `category` must be set to a category id from the dataset categories.
    */
   hasCategory?: boolean
   /**
-   * Required when `hasCategory` is true. Category id from categories.json;
-   * marker may use that category’s display properties.
+   * Required when `hasCategory` is true. Category id from the dataset
+   * categories document; marker may use that category’s display properties.
    * Omit / null when `hasCategory` is false.
    */
   category?: string | null

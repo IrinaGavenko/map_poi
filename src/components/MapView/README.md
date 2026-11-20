@@ -92,7 +92,7 @@ The points layer picks an image by feature property `iconKey`:
 'icon-anchor': 'bottom'  // tip of the pin sits on the coordinate
 ```
 
-Add or change types in `types/categories.ts` (`POINT_CATEGORIES`), then ensure `toGeoJSON` sets `iconKey`.
+Add or change categories in the dataset `CategoriesDocument` (`src/types/categories.ts`), then ensure `toGeoJSON` sets `iconKey`.
 
 ### Popups
 

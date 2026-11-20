@@ -156,7 +156,6 @@ function parseCollapses(
 
   const collapses: Record<string, CollapseDataset> = {}
   for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
-    if (key.startsWith('//')) continue
     collapses[key] = normalizeCollapseDataset(raw)
   }
   return { ok: true, collapses }
@@ -201,42 +200,14 @@ export function parseMapDatasetJson(data: unknown): ParseMapDatasetResult {
   }
 }
 
-/** Match isNested refs to collapse keys (FF.json / collapse-FF / bare id). */
+/** Exact key match: `isNested` must equal a key in `collapses`. */
 export function resolveCollapse(
   collapses: Record<string, CollapseDataset>,
-  fileName: string,
+  key: string,
 ): CollapseDataset {
-  const raw = fileName.trim()
+  const raw = key.trim()
   if (!raw) return { polygon: null, points: [] }
-  if (collapses[raw]) return collapses[raw]
-
-  const base = raw
-    .replace(/\.json$/i, '')
-    .replace(/^_/, '')
-    .replace(/^collapse-/, '')
-
-  const candidates = [
-    raw,
-    `${base}.json`,
-    `collapse-${base}.json`,
-    `collapse-${base}`,
-    `_${base}`,
-    base,
-  ]
-
-  for (const candidate of candidates) {
-    if (collapses[candidate]) return collapses[candidate]
-  }
-
-  for (const [key, value] of Object.entries(collapses)) {
-    const keyBase = key
-      .replace(/\.json$/i, '')
-      .replace(/^_/, '')
-      .replace(/^collapse-/, '')
-    if (keyBase === base) return value
-  }
-
-  return { polygon: null, points: [] }
+  return collapses[raw] ?? { polygon: null, points: [] }
 }
 
 export function workingDatasetJsonString(working: WorkingMapDataset): string {
@@ -246,19 +217,4 @@ export function workingDatasetJsonString(working: WorkingMapDataset): string {
 /** Build categories document from current registry for export/persist. */
 export function categoriesForWorkingDataset(): CategoriesDocument {
   return serializeCategories()
-}
-
-export function withSerializedCategories(
-  working: Omit<WorkingMapDataset, 'categories'> & {
-    categories?: CategoriesDocument
-  },
-): WorkingMapDataset {
-  return {
-    version: working.version,
-    meta: working.meta,
-    pinnedSize: working.pinnedSize,
-    categories: working.categories ?? categoriesForWorkingDataset(),
-    points: working.points,
-    collapses: working.collapses,
-  }
 }

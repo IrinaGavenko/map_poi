@@ -9,7 +9,7 @@ export function serializeMarkers(points: Point[]): Marker[] {
   return points.map((point) => pointToMarker(point))
 }
 
-/** Snapshot the in-memory registry as a categories document. */
+/** Snapshot the in-memory registry as a categories document (`categoryTypes` only). */
 export function serializeCategories(): CategoriesDocument {
   const registry = getCategoriesRegistry()
   const categoryTypes: Record<string, CategoryTypeConfig> = {}
@@ -20,12 +20,4 @@ export function serializeCategories(): CategoriesDocument {
     version: 1,
     categoryTypes,
   }
-}
-
-export function markersJsonString(points: Point[]): string {
-  return `${JSON.stringify(serializeMarkers(points), null, 2)}\n`
-}
-
-export function categoriesJsonString(): string {
-  return `${JSON.stringify(serializeCategories(), null, 2)}\n`
 }

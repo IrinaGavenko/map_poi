@@ -1,6 +1,6 @@
 # Prompt: Create / edit form for pinned markers
 
-> **Sync:** `src/data/example_pinned.json` is the source of truth for this shape. When that JSON changes, update this prompt to match. See `prompts/README.md`.
+> **Sync:** `src/types/pinned.ts` is the source of truth for this shape. When that file changes, update this prompt to match. See `prompts/README.md`.
 
 Copy everything below the line into a new agent chat.
 
@@ -12,16 +12,16 @@ Build a **create + edit form** for markers of type **`pinned`** in this Miami Ma
 
 The form must:
 
-1. **Read** a pinned marker from the **general dataset JSON** (`points[]`).
-2. **Display** editable fields matching **`src/data/example_pinned.json`**.
-3. **Validate** those fields (required/optional rules and defaults from `example_pinned.json` comments).
-4. **Save** a valid pinned marker back into the **general dataset** `points` array (create = append; edit = replace by `point.id`).
+1. **Read** a pinned marker from the **working map dataset** (`points[]` / zip `markers.json`).
+2. **Display** editable fields matching **`src/types/pinned.ts`** (`PinnedMarker`).
+3. **Validate** those fields (required/optional rules and defaults from the type JSDoc).
+4. **Save** a valid pinned marker back into the working dataset `points` array (create = append; edit = replace by `point.id`).
 
-**Source of truth for shape:** `src/data/example_pinned.json` — not the flat pinned row currently shown in `example_general.json` / `example_validation.json`. If general/validation still use a different pinned shape, **update them** so a pinned entry in `points[]` is exactly this structure (comment keys like `"//…"` are docs only; do not persist those).
+**Source of truth for shape:** `src/types/pinned.ts` (`PinnedMarker`, `PinnedPoint`, `PinnedPointContent`).
 
 ## Canonical pinned marker shape (form + persist)
 
-Taken from `src/data/example_pinned.json` (without `//` comment keys):
+Taken from `src/types/pinned.ts`:
 
 ```ts
 {
@@ -42,15 +42,15 @@ Taken from `src/data/example_pinned.json` (without `//` comment keys):
       description?: string | null   // default null; empty/null → section hidden
       link?: string | null          // default null; null → link section hidden
       google_link?: string | null   // optional; if non-empty → Open in Google Maps; else build from coordinates
-      includeInCategorySearch?: boolean  // default false; if true, needs a category id from categories
+      includeInCategorySearch?: false | string  // default false; string = category id for filter/legend
       isCollapsible?: boolean       // default false; collapsed with other markers in the same zone
-      isNested?: string | null      // default null; if set, file name of the nested zone
+      isNested?: string | null      // default null; exact key into dataset collapses map
     }
   }
 }
 ```
 
-Reference: `src/data/example_pinned.json` only for field meaning and nesting.
+Reference: `src/types/pinned.ts` only for field meaning and nesting. Categories: `src/types/categories.ts`.
 
 ## Form UX requirements
 
@@ -72,48 +72,45 @@ Reference: `src/data/example_pinned.json` only for field meaning and nesting.
 | `point_content.link` | text input | optional; empty → null |
 | `point_content.google_link` | text input | optional; empty → null (fallback: coords) |
 | `point_content.pictures` | one or more URL inputs | optional; default `[]` |
-| `point_content.includeInCategorySearch` | checkbox | default false |
+| `point_content.includeInCategorySearch` | category select or off | `false` or a category id string |
 | `point_content.isCollapsible` | checkbox | default false |
-| `point_content.isNested` | text input | optional nested-zone file name; empty → `null` |
+| `point_content.isNested` | text input | optional exact `collapses` key; empty → `null` |
 | `type`, `point.type` | hidden / read-only | always `"pinned"` |
 
-Do **not** add flat general-schema fields that are not in `example_pinned.json` (`kind`, `shape`, `cluster`, `picture` vs `display_picture` / `pictures`, etc.).
+Do **not** add flat fields that are not in `PinnedMarker` (`kind`, `shape`, `cluster`, `picture` vs `display_picture` / `pictures`, etc.).
 
 ### Validation (client-side, before save)
 
-- Enforce the structure and rules documented in `example_pinned.json` (required nesting, lat/lng ranges, defaults).
+- Enforce the structure and rules documented in `src/types/pinned.ts` (required nesting, lat/lng ranges, defaults).
 - If `point_content` is non-null, require `name`; apply defaults for omitted optionals (`pictures: []`, `includeInCategorySearch: false`, `isCollapsible: false`, `isNested: null`).
-- If `includeInCategorySearch` is true, require a valid category id (from the dataset categories) — per the file comment; clarify UX if the field is boolean-only today vs category id.
+- If `includeInCategorySearch` is a string, it must be a valid category id (from the dataset categories). Boolean `true` alone is invalid.
 - Block save while invalid; keep draft local until valid commit.
-- Update `example_validation.json` so `$defs` for pinned matches this nested shape; validate against that once aligned.
 
 ### Save / read wiring
 
-- **Read**: load the general dataset document. Find the pinned item in `points[]` by `point.id` (create → new draft).
-- **Save**: write the full general document with this nested pinned object inserted/updated in `points`. Preserve other points and `collapses` / `meta` / `categories` / `version`.
-- Align `example_general.json` so its pinned example uses this same nested object (replace the current flat `kind: "pinned"` row).
-- Until file upload exists, keep in-memory general dataset state and support **download JSON** of the edited general document.
-- Extend TypeScript types for this pinned shape; gate this form on pinned type. Adapt or narrow today’s flat `Point` usage as needed without breaking other marker kinds more than necessary.
+- **Read**: load the working dataset. Find the pinned item in `points[]` by `point.id` (create → new draft).
+- **Save**: write the working document with this nested pinned object inserted/updated in `points`. Preserve other points and `collapses` / `meta` / `categories` / `version`.
+- Persist via existing localStorage autosave + zip download/import (`datasetIo`).
+- Keep TypeScript types in `src/types/pinned.ts` as the gate for this form. Adapt UI `Point` via normalize/serialize without breaking other marker kinds more than necessary.
 
 ## Integration constraints
 
-- Fit existing edit drawer patterns under `src/components/Drawer/EditMode/` (see `EditPointForm.tsx`), or add a dedicated `PinnedPointForm` selected by type.
+- Fit existing edit drawer patterns under `src/components/Drawer/EditMode/`, or a dedicated pinned form selected by type.
 - Reuse map click → create flow but produce a **pinned** default matching the shape above.
-- Match existing CSS in `EditMode.css` / drawer styles; no unrelated redesign.
+- Match existing drawer shared styles; no unrelated redesign.
 - Keep TypeScript strict; add JSON Schema validation deps only if needed.
 
 ## Out of scope
 
-- Custom and categorized forms (separate prompts later).
-- Full nested-zone editor (only the `isNested` file-name field on the form).
+- Custom and categorized forms (separate prompts).
+- Full nested-zone editor (only the `isNested` field on the form).
 - Backend / PostgreSQL.
 
 ## Done when
 
 - [ ] User can create a pinned marker from the map and fill the form.
-- [ ] User can edit an existing pinned marker loaded from general JSON.
-- [ ] Form fields and saved JSON match `example_pinned.json` nesting (`point`, `display_picture`, `point_content`, etc.).
+- [ ] User can edit an existing pinned marker from the working dataset.
+- [ ] Form fields and saved JSON match `src/types/pinned.ts` nesting (`point`, `display_picture`, `point_content`, etc.).
 - [ ] Invalid values show errors and do not save.
-- [ ] Valid save updates `points[]` in the general dataset with that shape.
+- [ ] Valid save updates `points[]` in the working dataset with that shape.
 - [ ] `type` / `point.type` are always `"pinned"` on save.
-- [ ] `example_general.json` (and validation schema) are updated so pinned entries match `example_pinned.json`.

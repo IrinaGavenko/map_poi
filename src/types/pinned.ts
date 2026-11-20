@@ -1,6 +1,6 @@
 /**
- * Pinned marker — source of truth: `src/data/example_pinned.json`
- * (Ignore `"//…"` comment keys; they are docs only.)
+ * Pinned marker — **source of truth** for this shape.
+ * Keep `prompts/create-pinned-marker-form.md` in sync when this file changes.
  */
 
 export type PinnedCoordinates = {
@@ -28,13 +28,13 @@ export type PinnedPointContent = {
    */
   google_link?: string | null
   /**
-   * Default `false`. When enabled, use a category id from categories.json
-   * (`true` alone is incomplete — prefer `false | string`).
+   * Default `false`. When a non-empty string, that category id is used for
+   * legend / filter. `true` alone is invalid and ignored.
    */
-  includeInCategorySearch?: boolean | string
+  includeInCategorySearch?: false | string
   /** Default `false`. Collapsed with other markers in the same zone. */
   isCollapsible?: boolean
-  /** Default `null`. Nested-zone file name when set. */
+  /** Default `null`. Exact key into the dataset `collapses` map when set. */
   isNested?: string | null
 }
 

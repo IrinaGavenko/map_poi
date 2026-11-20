@@ -24,17 +24,10 @@ function asCoords(value: unknown): { lat: number; lng: number } | null {
   return { lat: record.lat, lng: record.lng }
 }
 
-function categorySearchIds(value: unknown): string[] {
-  if (typeof value === 'string' && value.trim()) return [value.trim()]
+/** Pinned category search: only a non-empty string id counts. */
+function pinnedCategoryIds(include: unknown): string[] {
+  if (typeof include === 'string' && include.trim()) return [include.trim()]
   return []
-}
-
-function stripCommentKeys<T extends Record<string, unknown>>(record: T): T {
-  const next = { ...record }
-  for (const key of Object.keys(next)) {
-    if (key.startsWith('//') || key.startsWith('$')) delete next[key]
-  }
-  return next
 }
 
 export function isMarker(value: unknown): value is Marker {
@@ -52,8 +45,7 @@ function normalizePinned(marker: PinnedMarker): Point {
   const hasPopup = content !== null && content !== undefined
   const name = content?.name ?? ''
   const pictures = asStringArray(content?.pictures)
-  const include = content?.includeInCategorySearch
-  const categories = categorySearchIds(include)
+  const categories = pinnedCategoryIds(content?.includeInCategorySearch)
   const nested = asString(content?.isNested ?? null)
 
   return {
@@ -81,29 +73,10 @@ function normalizeCustom(marker: CustomMarker): Point | null {
   const content = marker.point_content
   if (!content || typeof content !== 'object') return null
 
-  const pointRecord = marker.point as CustomMarker['point'] & {
-    /** Legacy: category id was sometimes stored in hasCategory. */
-    hasCategory?: boolean | string
-    /** Legacy field removed from schema; still accepted when reading old JSON. */
-    includeInCategorySearch?: boolean | string
-  }
-  const contentRecord = content as CustomMarker['point_content'] & {
-    includeInCategorySearch?: boolean | string
-  }
-
-  // hasCategory defaults false. Legacy string form = true + that category id.
-  const rawHas = pointRecord.hasCategory
-  const legacyHasId = typeof rawHas === 'string' ? asString(rawHas) : null
-  const hasCategory = rawHas === true || Boolean(legacyHasId)
-  const categoryId =
-    (hasCategory && asString(pointRecord.category)) ||
-    legacyHasId ||
-    (hasCategory
-      ? asString(contentRecord.includeInCategorySearch) ||
-        categorySearchIds(contentRecord.includeInCategorySearch)[0] ||
-        null
-      : null)
-  const categories = hasCategory && categoryId ? [categoryId] : []
+  const hasCategory = marker.point.hasCategory === true
+  const categoryId = hasCategory ? asString(marker.point.category ?? null) : null
+  if (hasCategory && !categoryId) return null
+  const categories = categoryId ? [categoryId] : []
 
   return {
     id: marker.point.id,
@@ -131,8 +104,7 @@ function normalizeCategorized(marker: CategorizedMarker): Point | null {
   if (!content || typeof content !== 'object') return null
 
   const categories = asStringArray(marker.point.categories)
-  const safeCategories =
-    categories.length > 0 ? (categories as [string, ...string[]]) : (['other'] as [string, ...string[]])
+  if (categories.length === 0) return null
 
   return {
     id: marker.point.id,
@@ -143,8 +115,8 @@ function normalizeCategorized(marker: CategorizedMarker): Point | null {
     googleLink: content.google_link?.trim() ?? '',
     pictures: asStringArray(content.picture),
     displayPicture: null,
-    categories: [...safeCategories],
-    primaryCategoryId: safeCategories[0],
+    categories,
+    primaryCategoryId: categories[0],
     coordinates: { ...marker.point.coordinates },
     isNested: null,
     isCollapsible: false,
@@ -155,60 +127,20 @@ function normalizeCategorized(marker: CategorizedMarker): Point | null {
   }
 }
 
-/**
- * Custom/categorized expect `point_content` as a root sibling of `point`.
- * Lift it out when authors nest it under `point` by mistake.
- */
-function liftPointContent(
-  marker: Record<string, unknown>,
-  point: Record<string, unknown>,
-): Record<string, unknown> | undefined {
-  const root = marker.point_content
-  if (root && typeof root === 'object') {
-    return stripCommentKeys(root as Record<string, unknown>)
-  }
-  const nested = point.point_content
-  if (nested && typeof nested === 'object') {
-    delete point.point_content
-    return stripCommentKeys(nested as Record<string, unknown>)
-  }
-  return undefined
-}
-
 export function normalizeMarker(raw: unknown): Point | null {
   if (!isMarker(raw)) return null
-  const cleaned = stripCommentKeys(raw as unknown as Record<string, unknown>)
-  const point = stripCommentKeys(
-    (cleaned.point as Record<string, unknown>) ?? {},
-  )
 
-  if (cleaned.type === 'pinned') {
-    const pinned = { ...cleaned, point } as unknown as PinnedMarker
-    if (pinned.point.point_content && typeof pinned.point.point_content === 'object') {
-      pinned.point.point_content = stripCommentKeys(
-        pinned.point.point_content as unknown as Record<string, unknown>,
-      ) as PinnedMarker['point']['point_content']
-    }
-    return normalizePinned(pinned)
+  if (raw.type === 'pinned') {
+    return normalizePinned(raw)
   }
 
-  const pointContent = liftPointContent(cleaned, point)
-
-  if (cleaned.type === 'custom') {
-    const custom = {
-      ...cleaned,
-      point,
-      point_content: pointContent,
-    } as unknown as CustomMarker
-    return normalizeCustom(custom)
+  if (raw.type === 'custom') {
+    if (!raw.point_content || typeof raw.point_content !== 'object') return null
+    return normalizeCustom(raw)
   }
 
-  const categorized = {
-    ...cleaned,
-    point,
-    point_content: pointContent,
-  } as unknown as CategorizedMarker
-  return normalizeCategorized(categorized)
+  if (!raw.point_content || typeof raw.point_content !== 'object') return null
+  return normalizeCategorized(raw)
 }
 
 export function normalizeMarkers(data: unknown): Point[] {
@@ -252,8 +184,7 @@ export function pointToMarker(point: Point): Marker {
               description: point.description || null,
               link: point.link || null,
               google_link: point.googleLink || null,
-              includeInCategorySearch:
-                point.categories[0] ?? false,
+              includeInCategorySearch: point.categories[0] ?? false,
               isCollapsible: point.isCollapsible,
               isNested: point.isNested,
             }

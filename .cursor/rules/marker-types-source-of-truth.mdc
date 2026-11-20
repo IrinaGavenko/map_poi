@@ -1,0 +1,18 @@
+---
+description: Keep marker form prompts in sync with src/types (source of truth for marker structure)
+globs: src/types/**/*.ts,prompts/**
+alwaysApply: false
+---
+
+# Marker structure source of truth
+
+`src/types/pinned.ts`, `custom.ts`, `categorized.ts`, and `categories.ts` are the **source of truth** for marker and category structure.
+
+When any of those files change:
+
+1. Update the matching prompt in `prompts/` (`create-pinned-marker-form.md`, `create-custom-marker-form.md`, `create-categorized-marker-form.md`) so canonical shape, fields, validation, and checklists match.
+2. Follow `prompts/README.md`.
+
+Do not reintroduce bundled `src/data/example_*.json` as the schema source — types own the shape; maps ship via zip / localStorage.
+
+Do not reintroduce legacy aliases: `categories` map key (use `categoryTypes`), collapse key fuzzy match, `hasCategory` as string, nested `point_content` under `point`, or flat `kind` / `type[]` markers.

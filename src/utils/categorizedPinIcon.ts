@@ -115,7 +115,7 @@ function drawEmoji(
   ctx.fillText(emoji, x, y)
 }
 
-/** Map display scale vs native SVG artboard (keeps pins closer to legacy size). */
+/** Map display scale vs native SVG artboard. */
 const PIN_DISPLAY_SCALE = 0.5
 
 export type CategorizedPinIconOptions = {

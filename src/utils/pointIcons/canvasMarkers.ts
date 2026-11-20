@@ -24,7 +24,7 @@ export function roundRect(
   ctx.closePath()
 }
 
-/** Legacy canvas pin (non-categorized fallbacks). */
+/** Simple canvas pin used when categorized SVG art is unavailable. */
 export function createPinImageData(color: string, icon: string): ImageData {
   const width = 48
   const height = 64

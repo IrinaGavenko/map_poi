@@ -18,16 +18,15 @@ Interactive map of points of interest (POIs) for Miami and related FIFA World Cu
 
 ### Datasets
 
-- Switch maps from the **Select map** control
-- Each visible JSON file under `src/data/` (excluding `collapse-*` and `_`-prefixed files) is a dataset
-- Current datasets include `miami` and `test`
-- Last selected dataset name is remembered in `localStorage`
+- Working map lives in **localStorage** (autosave) and can be **downloaded / imported as a zip** (`markers.json`) from the Files drawer
+- Marker and category shapes are defined in **`src/types/`** (no bundled `src/data/` JSON)
+- Empty cold start opens the Files drawer to load a zip
 
 ### Filters & legend
 
 - **Map legend** (category chips) filters which types appear on the map
 - Same type filters + **search by name** in the places and edit drawers
-- Only **known** categories (defined in `POINT_CATEGORIES`) appear in selectors; unknown types still render on the map as a fallback pin
+- Only **known** categories (from the dataset categories document / `src/types/categories.ts`) appear in selectors; unknown types still render on the map as a fallback pin
 
 ### Places drawer
 
@@ -40,40 +39,29 @@ Interactive map of points of interest (POIs) for Miami and related FIFA World Cu
 - Add points by enabling add mode and clicking the map
 - Edit fields for the selected point (name, types, description, link, etc.)
 - Delete the selected point
-- Changes are **in-memory only** (not written back to JSON)
+- Changes autosave to **localStorage**; use Files mode to download/import a zip
 
 ### Collapsible places (nested map)
 
-Some points (e.g. FIFA Fan Festival) declare nested content via `isCollapsible` (example: `"FF.json"`).
+Some points declare a nested zone via **`isNested`** (exact key into the dataset `collapses` map). `isCollapsible` is a separate boolean flag.
 
 When opened:
 
 1. The main dataset is hidden on the map
-2. Nested points from `collapse-FF.json` (or equivalent) are shown
+2. Nested points from `collapses[key]` are shown
 3. An optional **polygon outline** is drawn around the area
 4. The map focuses so nested places are in view
 5. A **Collapse** drawer shows parent info and a searchable list of nested places
 6. **Back** restores the previous map; the legend reflects nested categories while inside
 
-Nested file resolution order for `isCollapsible: "FF.json"`:
+Nested collapse shape (see `CollapseDataset` in `src/types/index.ts`):
 
-1. `collapse-FF.json` (preferred; GitHub Pages–safe)
-2. `_FF.json` (legacy)
-3. `FF.json`
-
-Nested file shape:
-
-```json
+```ts
 {
-  "polygon": {
-    "color": "#3b82f6",
-    "coordinates": [{ "lat": 25.77, "lng": -80.18 }]
-  },
-  "points": [ /* Point[] */ ]
+  polygon: { color: string, coordinates: { lat: number, lng: number }[] } | null
+  points: /* Marker wrappers → normalized Point[] */
 }
 ```
-
-Legacy formats (bare `Point[]`, or a bare coordinate array for the polygon) are still accepted.
 
 ### Mobile behavior
 
@@ -85,42 +73,29 @@ Legacy formats (bare `Point[]`, or a bare coordinate array for the polygon) are 
 
 ## Category display
 
-Categories are configured in `src/types/categories.ts` in two layers:
+Categories come from the working dataset’s `CategoriesDocument` (`src/types/categories.ts`): each entry has id, name, optional `rootCategoryId` (subcategories), colors/icons, and a marker family (`pinned` | `custom` | `categorized`).
 
-| Layer | Role |
-|--------|------|
-| **`CATEGORY_TYPE`** | Shared style for a group (`transport`, `fifa`, `global`, …): color + render mode |
-| **`POINT_CATEGORIES`** | Concrete ids used on points (`airport`, `fifa_store`, …): emoji/image URL, group, and display **title** |
+### Render modes (`MarkerVisualMode`)
 
-### Render modes (`CATEGORY_TYPE.type`)
-
-| Mode | Map look | Clusters? | Icon source |
-|------|----------|-----------|-------------|
-| **`pin`** | Colored pin with emoji | Yes | `POINT_CATEGORIES.icon` (emoji) |
-| **`icon`** | Small rectangle with image | Yes | `POINT_CATEGORIES.icon` (image URL) |
-| **`picture`** | Large rectangle with image | No | `POINT_CATEGORIES.icon` (image URL) |
+| Mode | Map look | Clusters? | Typical source |
+|------|----------|-----------|----------------|
+| **`pin`** | Colored pin + emoji/SVG | Yes | Categorized root categories |
+| **`icon`** | Rectangle / square image | Yes | Custom markers |
+| **`picture`** | Large photo marker | No | Pinned markers |
 
 FIFA assets live under `public/assets/` and are referenced with `import.meta.env.BASE_URL` so paths work on GitHub Pages (`/map_poi/`).
 
-Point data uses category **ids** in `type[]`; the UI shows **titles** in the legend, filters, and popups.
+Points use category **ids**; the UI shows **titles** in the legend, filters, and popups.
 
 ---
 
-## Point data shape
+## Point / marker shapes
 
-```ts
-type Point = {
-  id: string
-  name: string
-  type: string[]           // category ids, e.g. ["fifa_store"]
-  description: string
-  icon: string
-  picture: string[]
-  link: string
-  coordinates: { lat: number; lng: number }
-  isCollapsible?: string   // e.g. "FF.json" → loads collapse-FF.json
-}
-```
+**Source of truth:** TypeScript types under `src/types/` (see `prompts/README.md`).
+
+- Disk / zip markers: `PinnedMarker` | `CustomMarker` | `CategorizedMarker`
+- Map UI model: `Point` in `src/types/index.ts` (normalized from markers)
+- Nested zones: `isNested` string key → `collapses`; `isCollapsible` is a boolean
 
 ---
 
@@ -128,13 +103,12 @@ type Point = {
 
 ```
 src/
-  components/     MapView, MapLegend, DatasetSelector, Drawer UI
+  components/     MapView, MapLegend, Drawer UI
   hooks/          App orchestration (dataset, filters, collapse, drawers)
-  data/           Dataset JSON + collapse-*.json
-  types/          Point types + categories.ts
-  utils/          GeoJSON, icons, focus, filters, dataset loading
+  types/          Marker + category source of truth
+  utils/          GeoJSON, icons, focus, filters, datasetIo
 public/assets/    Category images (FIFA store, museum, etc.)
-scripts/          Optional data converters (e.g. Excel → JSON)
+prompts/          Form prompts kept in sync with types
 ```
 
 ---
@@ -158,6 +132,6 @@ npm run deploy   # build + publish to GitHub Pages (gh-pages)
 
 ## Notes
 
-- Edit-mode changes are not persisted to disk
+- Working map autosaves to localStorage; export a zip for a portable copy
 - Unknown category ids use a gray fallback pin and are omitted from category selectors
 - For MapLibre layer details, see `src/components/MapView/README.md`

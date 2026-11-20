@@ -1,40 +1,5 @@
-import type {
-  CategoriesDocument,
-  CollapseDataset,
-  CollapsePolygon,
-  LatLng,
-  Point,
-} from '@type'
-import { setCategoriesRegistry } from '@type/categories'
+import type { CollapseDataset, CollapsePolygon, LatLng } from '@type'
 import { normalizeMarkers } from '@utils/normalizeMarker'
-import {
-  clampPinnedSize,
-  DEFAULT_PINNED_SIZE,
-  setPinnedSize,
-} from '@utils/pinnedSize'
-
-const modules = import.meta.glob('../data/*.json', {
-  import: 'default',
-}) as Record<string, () => Promise<unknown>>
-
-function datasetIdFromPath(path: string): string {
-  const file = path.split('/').pop() ?? path
-  return file.replace(/\.json$/i, '')
-}
-
-function isHiddenDatasetId(id: string): boolean {
-  return (
-    id.startsWith('_') ||
-    id.startsWith('collapse-') ||
-    id.startsWith('example_') ||
-    id === 'categories' ||
-    id.startsWith('categories_')
-  )
-}
-
-const allLoadersById = Object.fromEntries(
-  Object.entries(modules).map(([path, loader]) => [datasetIdFromPath(path), loader]),
-) as Record<string, () => Promise<unknown>>
 
 function isLatLng(value: unknown): value is LatLng {
   if (!value || typeof value !== 'object') return false
@@ -42,14 +7,9 @@ function isLatLng(value: unknown): value is LatLng {
   return typeof candidate.lat === 'number' && typeof candidate.lng === 'number'
 }
 
+/** Strict polygon: `{ color?, coordinates: LatLng[] }` with at least two points. */
 function normalizePolygon(value: unknown): CollapsePolygon | null {
-  if (Array.isArray(value)) {
-    const coordinates = value.filter(isLatLng).map((c) => ({ lat: c.lat, lng: c.lng }))
-    if (coordinates.length < 2) return null
-    return { color: '#3b82f6', coordinates }
-  }
-
-  if (!value || typeof value !== 'object') return null
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
   const record = value as Record<string, unknown>
   const coordinates = Array.isArray(record.coordinates)
     ? record.coordinates.filter(isLatLng).map((c) => ({ lat: c.lat, lng: c.lng }))
@@ -64,127 +24,22 @@ function normalizePolygon(value: unknown): CollapsePolygon | null {
   return { color, coordinates }
 }
 
-function isCategoriesDocument(value: unknown): value is CategoriesDocument {
-  if (!value || typeof value !== 'object') return false
-  const record = value as Record<string, unknown>
-  if (typeof record.version !== 'number') return false
-  const hasCategories = !!record.categories && typeof record.categories === 'object'
-  const hasCategoryTypes = !!record.categoryTypes && typeof record.categoryTypes === 'object'
-  return hasCategories || hasCategoryTypes
-}
-
-async function loadCategoriesRef(ref: unknown): Promise<CategoriesDocument | null> {
-  if (isCategoriesDocument(ref)) return ref
-  if (typeof ref !== 'string' || !ref.trim()) return null
-
-  const base = ref
-    .trim()
-    .replace(/^\.\//, '')
-    .replace(/\.json$/i, '')
-    .split('/')
-    .pop()
-
-  if (!base) return null
-  const loader = allLoadersById[base]
-  if (!loader) return null
-  const data = await loader()
-  return isCategoriesDocument(data) ? data : null
-}
-
-const loadersById = Object.fromEntries(
-  Object.entries(allLoadersById).filter(([id]) => !isHiddenDatasetId(id)),
-) as Record<string, () => Promise<unknown>>
-
-export const DATASET_IDS = Object.keys(loadersById).sort()
-
-export const DEFAULT_DATASET_ID = DATASET_IDS.includes('miami')
-  ? 'miami'
-  : (DATASET_IDS[0] ?? 'miami')
-
-export function resolveDatasetId(id: string | null | undefined): string {
-  if (id && DATASET_IDS.includes(id)) return id
-  return DEFAULT_DATASET_ID
-}
-
-async function loadRaw(id: string): Promise<unknown> {
-  const loader = allLoadersById[id]
-  if (!loader) return null
-  return loader()
-}
-
-async function ensureDefaultCategories(): Promise<CategoriesDocument | null> {
-  return loadCategoriesRef('categories.json')
-}
-
-/** Accepts `{ polygon, points }` where points are Marker wrappers. */
+/**
+ * Strict collapse zone: `{ polygon, points }`.
+ * `points` must be an array of Marker wrappers; bare arrays are rejected.
+ */
 export function normalizeCollapseDataset(data: unknown): CollapseDataset {
-  if (Array.isArray(data)) {
-    return { polygon: null, points: normalizeMarkers(data) }
-  }
-
-  if (!data || typeof data !== 'object') {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return { polygon: null, points: [] }
   }
 
   const record = data as Record<string, unknown>
+  if (!Array.isArray(record.points)) {
+    return { polygon: null, points: [] }
+  }
+
   return {
     polygon: normalizePolygon(record.polygon),
     points: normalizeMarkers(record.points),
   }
-}
-
-export type LoadedDataset = {
-  points: Point[]
-  categories: CategoriesDocument | null
-}
-
-export async function loadDataset(id: string): Promise<LoadedDataset> {
-  const data = await loadRaw(resolveDatasetId(id))
-  const fallbackCategories = await ensureDefaultCategories()
-
-  if (Array.isArray(data)) {
-    const categories = fallbackCategories
-    setCategoriesRegistry(categories)
-    setPinnedSize(DEFAULT_PINNED_SIZE)
-    return { points: normalizeMarkers(data), categories }
-  }
-
-  if (!data || typeof data !== 'object') {
-    setCategoriesRegistry(fallbackCategories)
-    setPinnedSize(DEFAULT_PINNED_SIZE)
-    return { points: [], categories: fallbackCategories }
-  }
-
-  const record = data as Record<string, unknown>
-  const categories =
-    (await loadCategoriesRef(record.categories)) ?? fallbackCategories
-  setCategoriesRegistry(categories)
-  setPinnedSize(clampPinnedSize(record.pinned_size))
-
-  const points = normalizeMarkers(record.points)
-  return { points, categories }
-}
-
-/**
- * Loads nested JSON referenced by `point.isNested` (e.g. "FF.json").
- * Prefers `collapse-FF.json`; also supports legacy `_FF.json` / bare id.
- */
-export async function loadCollapseDataset(fileName: string): Promise<CollapseDataset> {
-  const raw = fileName.trim()
-  if (!raw) return { polygon: null, points: [] }
-
-  const base = raw.replace(/\.json$/i, '').replace(/^_/, '').replace(/^collapse-/, '')
-  const candidates = [...new Set([`collapse-${base}`, `_${base}`, base])]
-
-  for (const id of candidates) {
-    if (!allLoadersById[id]) continue
-    return normalizeCollapseDataset(await loadRaw(id))
-  }
-  return { polygon: null, points: [] }
-}
-
-/** @deprecated Prefer `loadCollapseDataset` — returns points only. */
-export async function loadCollapsePoints(fileName: string): Promise<Point[]> {
-  const dataset = await loadCollapseDataset(fileName)
-  return dataset.points
 }
