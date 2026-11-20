@@ -1,6 +1,6 @@
 /**
- * Categorized marker — source of truth: `src/data/example_categorized.json`
- * (Ignore `"//…"` comment keys; they are docs only.)
+ * Categorized marker — **source of truth** for this shape.
+ * Keep `prompts/create-categorized-marker-form.md` in sync when this file changes.
  */
 
 export type CategorizedCoordinates = {
@@ -13,7 +13,7 @@ export type CategorizedCoordinates = {
 export type CategorizedPoint = {
   id: string
   type: 'categorized'
-  /** Non-empty array of category ids from categories.json. */
+  /** Non-empty array of category ids from the dataset categories document. */
   categories: [string, ...string[]]
   coordinates: CategorizedCoordinates
 }

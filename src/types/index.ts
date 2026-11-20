@@ -24,7 +24,7 @@ import type { CustomMarker } from './custom'
 import type { CategorizedMarker } from './categorized'
 import type { CategoriesDocument } from './categories'
 
-/** Any marker wrapper matching `example_pinned|custom|categorized.json`. */
+/** Any marker wrapper (`PinnedMarker` | `CustomMarker` | `CategorizedMarker`). */
 export type Marker = PinnedMarker | CustomMarker | CategorizedMarker
 
 export type MarkerKind = Marker['type']
@@ -66,9 +66,9 @@ export type Point = {
   /** Primary category id used for icon/legend styling when available. */
   primaryCategoryId: string | null
   coordinates: LatLng
-  /** Nested-zone file name (e.g. `"FF.json"`). */
+  /** Exact key into dataset `collapses` (e.g. `"FF"`). */
   isNested: string | null
-  /** Zone-merge flag from marker content (not the nest filename). */
+  /** Zone-merge flag from marker content (not the nest key). */
   isCollapsible: boolean
   /** False when pinned `point_content` is null. */
   hasPopup: boolean
@@ -82,7 +82,7 @@ export type Point = {
   source: Marker
 }
 
-/** Nested collapse file: `{ polygon, points }` (points may be Marker[] or legacy flat). */
+/** Nested collapse zone: `{ polygon, points }` (points are normalized Markers). */
 export type CollapseDataset = {
   polygon: CollapsePolygon | null
   points: Point[]
@@ -94,11 +94,11 @@ export type MapDatasetMeta = {
   description?: string
 }
 
-/** Versioned map dataset (`miami.json` / general document). */
+/** Versioned map dataset (zip `markers.json` / working document). */
 export type MapDataset = {
   version: number
   meta?: MapDatasetMeta
-  categories: CategoriesDocument | string
+  categories: CategoriesDocument
   /** Scale for all pinned markers on this map (1–5, 5 = largest). Default 3. */
   pinned_size?: 1 | 2 | 3 | 4 | 5
   points: Point[]

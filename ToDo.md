@@ -19,14 +19,14 @@
 - [ ] Lazy loading for collapsing zones and popups — collapse uses async load; **no dedicated lazy popup/media strategy**
 
 ## Phase 0 - finalize the JSON structure
-1. Move categories settings to the json and make it customizable
-- [x] Categories: "categories.json"
-2. Approve JSON structure for each type of markers
-- [x] Pinned
-- [x] Custom
-- [x] Categorized
-3. Approve the general JSON structure
-- [x] The general JSON structure
+1. Move categories settings to the dataset and make it customizable
+- [x] Categories: `CategoriesDocument` in working dataset / zip (`src/types/categories.ts`)
+2. Approve structure for each type of markers (**types** are SoT; no `src/data/`)
+- [x] Pinned — `src/types/pinned.ts`
+- [x] Custom — `src/types/custom.ts`
+- [x] Categorized — `src/types/categorized.ts`
+3. Approve the general map document structure
+- [x] `MapDataset` / zip `markers.json`
 4. JSON validation
 - [] JSON validation
 
@@ -62,8 +62,8 @@
 
 ### Test list (do later)
 
-- [ ] Keep synced: `prompts/create-*-marker-form.md`, `src/data/example_<>.json` (pinned / custom / categorized), and `src/types/{pinned,custom,categorized}.ts` — example JSONs are source of truth; prompts + types must match (see `prompts/README.md`)
-- [ ] Keep synced: `categories_SPB.json` / `example_categories.json` hierarchy (`rootCategoryId`) with `src/types/categories.ts` — legend shows roots only; subcategory badge on categorized markers only
+- [ ] Keep synced: `prompts/create-*-marker-form.md` with `src/types/{pinned,custom,categorized}.ts` — **types** are source of truth (see `prompts/README.md`)
+- [ ] Keep synced: category hierarchy (`rootCategoryId`) in `src/types/categories.ts` — legend shows roots only; subcategory badge on categorized markers only
 
 ## Phase 3 — portfolio / docs (`_README.md` polish)
 

@@ -27,63 +27,31 @@ export type ParseCategoriesFailure = {
 export type ParseCategoriesResult = ParseCategoriesSuccess | ParseCategoriesFailure
 
 export function isCategoriesDocument(value: unknown): value is CategoriesDocument {
-  if (!value || typeof value !== 'object') return false
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
   const record = value as Record<string, unknown>
   if (typeof record.version !== 'number') return false
-  const hasCategories = !!record.categories && typeof record.categories === 'object'
-  const hasCategoryTypes =
-    !!record.categoryTypes && typeof record.categoryTypes === 'object'
-  return hasCategories || hasCategoryTypes
+  return !!record.categoryTypes && typeof record.categoryTypes === 'object'
 }
 
-function looksLikeMarkersDocument(value: unknown): boolean {
-  if (Array.isArray(value)) return true
-  if (!value || typeof value !== 'object') return false
-  return Array.isArray((value as Record<string, unknown>).points)
-}
-
-export function detectJsonKind(
-  value: unknown,
-): 'markers' | 'categories' | 'unknown' {
-  if (isCategoriesDocument(value) && !looksLikeMarkersDocument(value)) {
-    return 'categories'
-  }
-  if (looksLikeMarkersDocument(value)) return 'markers'
-  if (isCategoriesDocument(value)) return 'categories'
-  return 'unknown'
-}
-
+/** `points` must be a Marker array (not a bare markers document). */
 export function parseMarkersJson(data: unknown): ParseMarkersResult {
-  let rawList: unknown[]
-
-  if (Array.isArray(data)) {
-    rawList = data
-  } else if (data && typeof data === 'object') {
-    const points = (data as Record<string, unknown>).points
-    if (!Array.isArray(points)) {
-      return {
-        ok: false,
-        error: 'Markers file must be an array or an object with a points array.',
-      }
-    }
-    rawList = points
-  } else {
+  if (!Array.isArray(data)) {
     return {
       ok: false,
-      error: 'Markers file must be an array or an object with a points array.',
+      error: 'points must be an array of markers.',
     }
   }
 
   const points: Point[] = []
   let skipped = 0
-  for (const item of rawList) {
+  for (const item of data) {
     const point = normalizeMarker(item)
     if (point) points.push(point)
     else skipped += 1
   }
 
-  if (rawList.length > 0 && points.length === 0) {
-    return { ok: false, error: 'No valid markers found in file.' }
+  if (data.length > 0 && points.length === 0) {
+    return { ok: false, error: 'No valid markers found in points array.' }
   }
 
   return { ok: true, points, skipped }
@@ -93,14 +61,15 @@ export function parseCategoriesJson(data: unknown): ParseCategoriesResult {
   if (!isCategoriesDocument(data)) {
     return {
       ok: false,
-      error:
-        'Categories file must include a version number and categoryTypes (or categories).',
+      error: 'categories must include a version number and categoryTypes object.',
     }
   }
   return { ok: true, document: data }
 }
 
-export function parseJsonText(text: string): { ok: true; data: unknown } | { ok: false; error: string } {
+export function parseJsonText(
+  text: string,
+): { ok: true; data: unknown } | { ok: false; error: string } {
   try {
     return { ok: true, data: JSON.parse(text) as unknown }
   } catch {

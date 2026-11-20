@@ -1,5 +1,4 @@
 export {
-  detectJsonKind,
   isCategoriesDocument,
   parseCategoriesJson,
   parseJsonText,
@@ -9,12 +8,7 @@ export type {
   ParseCategoriesResult,
   ParseMarkersResult,
 } from './parse'
-export {
-  categoriesJsonString,
-  markersJsonString,
-  serializeCategories,
-  serializeMarkers,
-} from './serialize'
+export { serializeCategories, serializeMarkers } from './serialize'
 export {
   categoriesForWorkingDataset,
   MARKERS_FILE_NAME,
@@ -25,7 +19,6 @@ export {
   resolveCollapse,
   serializeWorkingDataset,
   workingDatasetJsonString,
-  withSerializedCategories,
 } from './mapDataset'
 export type {
   ParseMapDatasetResult,
